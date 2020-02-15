@@ -18,17 +18,14 @@ func main() {
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"welcome to RusSeated api": "0.5beta",
+			"welcome to RusSeated api": "",
 		})
 	})
 
 	// метод для получения всех учреждений из нашей таблицы
-	//router.GET("/oldplaces", Sheet.Places)
+	router.GET("/places", Sheet.Places)
 
-	router.GET("/places", Sheet.NEWPlaces)
-
-	// метод для получения всех учреждений из вики
-	//router.GET("/wikiplaces", Sheet.WikiPlaces)
+	// router.GET("/violations", Sheet.CountNumberOfViolations)
 
 	// метод для создания новых форм (заявок)
 	router.POST("/form", Sheet.NewForm)

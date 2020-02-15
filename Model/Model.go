@@ -89,19 +89,8 @@ type Form struct {
 	Approved bool
 }
 
-// структура для учреждения
+// структура для учреждения ФСИН
 type Place struct {
-	// В каком регионе находится учреждение ФСИН о котором Вы рассказали?
-	Region string `json:"region"`
-
-	// О каком учреждении ФСИН Вы рассказали?
-	FSINОrganization string `json:"fsin_organization"`
-
-	// все сразу
-	FullName string `json:"full_name"`
-}
-
-type WikiPlace struct {
 	// название
 	Name string `json:"name"`
 
@@ -115,4 +104,28 @@ type WikiPlace struct {
 		Lat float64 `json:"lat"`
 		Lng float64 `json:"lng"`
 	} `json:"position"`
+
+	// общее кол-во нарушений по нашей статистике
+	NumberOfViolations uint64 `json:"number_of_violations"`
+	
+	// phone number
+	PhoneNumber string `json:"phone_number"`
+	
+	// Google Maps Rating
+	GoogleMapsRating float64 `json:"google_maps_rating"`
+
+	Website string `json:"website"`
+}
+
+
+// Deprecated: структура для учреждения ФСИН
+type OldPlace struct {
+	// В каком регионе находится учреждение ФСИН о котором Вы рассказали?
+	Region string `json:"region"`
+
+	// О каком учреждении ФСИН Вы рассказали?
+	FSINОrganization string `json:"fsin_organization"`
+
+	// все сразу
+	FullName string `json:"full_name"`
 }
