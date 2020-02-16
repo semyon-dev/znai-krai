@@ -4,6 +4,7 @@ Backend для проекта Руси Сидящей на хакатоне Но
 ### Используемые технологии в backend:
 Go 1.13, Gin, Google Maps API, Google Sheets API и другие
 
+### Сам сайт https://russeatedfront.herokuapp.com/
 ### Frontend и скриншоты сайта: https://github.com/kniazevgeny/RusSeated
 
 ![](https://github.com/semyon-dev/RusSeated/blob/master/img.png) 
