@@ -49,6 +49,9 @@ type Form struct {
 	// Какие нарушения, связанные с предоставлением свиданий с Родственниками, Вам известны?
 	VisitsWithRelatives string `json:"visits_with_relatives"`
 
+	// Какие нарушения, связанные с иными формами общения с Родственниками, Вам известны?
+	CommunicationWithRelatives string `json:"communication_with_relatives"`
+
 	// Какие нарушения, связанные с общением с адвокатом (иным лицом, имеющим право на оказание юридической помощи), Вам известны?
 	CommunicationWithLawyer string `json:"communication_with_lawyer"`
 
@@ -86,18 +89,21 @@ type Form struct {
 	Source string `json:"source"`
 
 	// Одобрено для публикации?
-	Approved bool
+	//Approved bool
 }
 
-// структура для учреждения ФСИН
+// структура учреждения ФСИН
 type Place struct {
-	// название
+
+	// Полное название учреждния ФСИн
 	Name string `json:"name"`
 
+	// Тип учреждения ФСИН
 	Type string `json:"type"`
 
 	Location string `json:"location"`
 
+	// Доп информация
 	Notes string `json:"notes"`
 
 	Position struct {
@@ -105,18 +111,17 @@ type Place struct {
 		Lng float64 `json:"lng"`
 	} `json:"position"`
 
-	// общее кол-во нарушений по нашей статистике
+	// Общее кол-во нарушений по нашей статистике
 	NumberOfViolations uint64 `json:"number_of_violations"`
-	
-	// phone number
+
+	// Номер телефона учреждения ФСИН
 	PhoneNumber string `json:"phone_number"`
-	
+
 	// Google Maps Rating
 	GoogleMapsRating float64 `json:"google_maps_rating"`
 
 	Website string `json:"website"`
 }
-
 
 // Deprecated: структура для учреждения ФСИН
 type OldPlace struct {

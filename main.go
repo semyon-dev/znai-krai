@@ -13,19 +13,22 @@ func main() {
 
 	Sheet.Connect()
 
+	go Sheet.UpdatePlaces()
+
 	router := gin.Default()
 	router.Use(cors.Default())
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"welcome to RusSeated api": "",
+			"Welcome to RusSeated api": "",
 		})
 	})
 
 	// метод для получения всех учреждений из нашей таблицы
 	router.GET("/places", Sheet.Places)
 
-	// router.GET("/violations", Sheet.CountNumberOfViolations)
+	// отзывы Google Maps
+	router.GET("/reviews/:name", Sheet.Reviews)
 
 	// метод для создания новых форм (заявок)
 	router.POST("/form", Sheet.NewForm)
