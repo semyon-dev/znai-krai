@@ -1,5 +1,5 @@
 # RusSeated
-Backend для проекта Руси Сидящей на хакатоне Новой Газеты
+Backend для проекта Руси Сидящей на хакатоне Новой Газеты (https://projector2020.te-st.ru/)
 
 ### Используемые технологии в backend:
 Go 1.13, Gin, Google Maps API, Google Sheets API и другие
