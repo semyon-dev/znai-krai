@@ -4,4 +4,4 @@ Backend для проекта Руси Сидящей на хакатоне Но
 ### Технологии backend:
 Go 1.13, Gin, Google Maps API & Google Sheets API
 
-![](https://github.com/semyon-dev/blob/master/img.png) 
+![](https://github.com/semyon-dev/RusSeated/blob/master/img.png) 
