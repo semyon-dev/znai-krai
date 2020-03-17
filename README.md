@@ -5,9 +5,9 @@ Backend для проекта Руси Сидящей на хакатоне Но
 Go 1.14, Gin, Google Maps API, Google Sheets API и другие
 
 ### Сам сайт https://russeated-f.herokuapp.com/
-### Исходный код frontend и скриншоты сайта: https://github.com/kniazevgeny/RusSeated
+### Исходный код frontend и скриншоты сайта: https://github.com/kniazevgeny/znai-krai
 
-![](https://github.com/semyon-dev/RusSeated/blob/master/img.png) 
+![](https://github.com/semyon-dev/znai-krai/blob/master/img.png) 
 
 ### Как запустить?
 `go run main.go`
