@@ -1,8 +1,8 @@
-# RusSeated
+# Знай край
 Backend для проекта Руси Сидящей на хакатоне Новой Газеты (https://projector2020.te-st.ru/)
 
 ### Используемые технологии в backend:
-Go 1.13, Gin, Google Maps API, Google Sheets API и другие
+Go 1.14, Gin, Google Maps API, Google Sheets API и другие
 
 ### Сам сайт https://russeated-f.herokuapp.com/
 ### Исходный код frontend и скриншоты сайта: https://github.com/kniazevgeny/RusSeated
@@ -12,6 +12,8 @@ Go 1.13, Gin, Google Maps API, Google Sheets API и другие
 ### Как запустить?
 `go run main.go`
 
-### License
-RusSeated is licensed under the Creative Commons Attribution NonCommercial ShareAlike (CC-NC-SA)
+### Как скомпилировать в бинарник?
+`go build main.go`
 
+### License
+znai-krai is licensed under the Creative Commons Attribution NonCommercial ShareAlike (CC-NC-SA)
