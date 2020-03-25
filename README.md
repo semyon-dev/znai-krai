@@ -7,7 +7,7 @@ Go 1.14, Gin, Google Maps API, Google Sheets API и другие
 ### Наш сайт https://znaikrai.herokuapp.com/
 ### Исходный код frontend и скриншоты сайта: https://github.com/kniazevgeny/znaikrai
 
-![](https://github.com/semyon-dev/znaikrai/blob/master/img.png) 
+![](https://github.com/semyon-dev/znai-krai/blob/master/img.png) 
 
 ### Как запустить?
 `go run main.go`
