@@ -17,5 +17,8 @@
 # Other
 .idea
 credentials.json
-log.txt
-Config/
+log.*
+logs.*
+*.logs
+*.log
+config/

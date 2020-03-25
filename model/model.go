@@ -1,4 +1,4 @@
-package Model
+package model
 
 // структура для нарушений
 type Form struct {

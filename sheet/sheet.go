@@ -1,11 +1,11 @@
-package Sheet
+package sheet
 
 import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/semyon-dev/RusSeated/Config"
-	"github.com/semyon-dev/RusSeated/Model"
+	"github.com/semyon-dev/znai-krai/config"
+	"github.com/semyon-dev/znai-krai/model"
 	"golang.org/x/oauth2/google"
 	"googlemaps.github.io/maps"
 	"gopkg.in/Iwark/spreadsheet.v2"
@@ -22,7 +22,7 @@ var sheet spreadsheet.Spreadsheet
 var service *spreadsheet.Service
 var spreadsheetID string
 
-var places []Model.Place
+var places []model.Place
 
 // Connect to Google Sheets
 func Connect() {
@@ -35,7 +35,7 @@ func Connect() {
 	client := conf.Client(context.TODO())
 	service = spreadsheet.NewServiceWithClient(client)
 
-	spreadsheetID = Config.SpreadsheetID
+	spreadsheetID = config.SpreadsheetID
 	sheet, err = service.FetchSpreadsheet(spreadsheetID)
 
 	mainSheet, err = sheet.SheetByID(0)
@@ -47,7 +47,7 @@ func Connect() {
 // получение отзывов с Google Maps
 func Reviews(c *gin.Context) {
 
-	cMaps, err := maps.NewClient(maps.WithAPIKey(Config.GoogleMapsAPIKey))
+	cMaps, err := maps.NewClient(maps.WithAPIKey(config.GoogleMapsAPIKey))
 	if err != nil {
 		fmt.Printf("fatal error: %s", err)
 	}
@@ -74,7 +74,7 @@ func Reviews(c *gin.Context) {
 
 // получение координат по адресу by Google maps api
 func GetCoordinates(address string) (float64, float64) {
-	c, err := maps.NewClient(maps.WithAPIKey(Config.GoogleMapsAPIKey))
+	c, err := maps.NewClient(maps.WithAPIKey(config.GoogleMapsAPIKey))
 	if err != nil {
 		fmt.Printf("fatal error: %s", err)
 	}
@@ -91,7 +91,7 @@ func GetCoordinates(address string) (float64, float64) {
 
 // новая форма нарушения
 func NewForm(c *gin.Context) {
-	var form Model.Form
+	var form model.Form
 	var message string
 	var status = 200
 	err := c.ShouldBind(&form)
@@ -156,14 +156,14 @@ func NewForm(c *gin.Context) {
 // обновляем массив мест каждые 30 секунд
 func UpdatePlaces() {
 	for {
-		spreadsheetID = Config.SpreadsheetID_FSINPlaces
+		spreadsheetID = config.SpreadsheetID_FSINPlaces
 		sheet, err := service.FetchSpreadsheet(spreadsheetID)
 
 		mainSheetFSIN, err := sheet.SheetByID(0)
 		checkError(err)
 		places = nil
 		for i := 1; i <= len(mainSheetFSIN.Rows)-1; i++ {
-			var place Model.Place
+			var place model.Place
 
 			place.Name = mainSheetFSIN.Rows[i][0].Value
 			place.Type = mainSheetFSIN.Rows[i][1].Value

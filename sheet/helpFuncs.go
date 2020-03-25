@@ -2,15 +2,15 @@
 // функции для анализа и сбора данных которые
 // я написал для временного или единоразового использования
 
-package Sheet
+package sheet
 
 import (
 	"context"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gin-gonic/gin"
-	"github.com/semyon-dev/RusSeated/Config"
-	"github.com/semyon-dev/RusSeated/Model"
+	"github.com/semyon-dev/znai-krai/config"
+	"github.com/semyon-dev/znai-krai/model"
 	"googlemaps.github.io/maps"
 	"net/http"
 	"strconv"
@@ -37,13 +37,13 @@ func WikiPlaces() {
 		fmt.Println(err.Error())
 	}
 
-	var places []Model.Place
+	var places []model.Place
 	var line = 1
 
 	// Find the review items
 	doc.Find("table").Each(func(i int, s *goquery.Selection) {
 		s.Find("tr").Each(func(indextr int, rowhtml *goquery.Selection) {
-			var place Model.Place
+			var place model.Place
 
 			rowhtml.Find("td").Each(func(indexth int, tablecell *goquery.Selection) {
 				switch indexth {
@@ -65,7 +65,7 @@ func WikiPlaces() {
 				place.Position.Lat = lat
 				places = append(places, place)
 
-				spreadsheetID = Config.SpreadsheetID_FSINPlaces
+				spreadsheetID = config.SpreadsheetID_FSINPlaces
 				sheet, err = service.FetchSpreadsheet(spreadsheetID)
 
 				mainSheetFSIN, err := sheet.SheetByID(0)
@@ -94,7 +94,7 @@ func WikiPlaces() {
 // подсчет кол-во нарушений для каждого ФСИН по нашим данным
 func CountNumberOfViolations(c *gin.Context) {
 
-	spreadsheetID = Config.SpreadsheetID
+	spreadsheetID = config.SpreadsheetID
 	sheet, err := service.FetchSpreadsheet(spreadsheetID)
 	checkError(err)
 
@@ -112,7 +112,7 @@ func CountNumberOfViolations(c *gin.Context) {
 		}
 	}
 
-	spreadsheetID = Config.SpreadsheetID_FSINPlaces
+	spreadsheetID = config.SpreadsheetID_FSINPlaces
 	sheet, err = service.FetchSpreadsheet(spreadsheetID)
 	checkError(err)
 
@@ -135,12 +135,12 @@ func CountNumberOfViolations(c *gin.Context) {
 
 // telephone and etc to table2
 func AddInfo() {
-	c, err := maps.NewClient(maps.WithAPIKey(Config.GoogleMapsAPIKey))
+	c, err := maps.NewClient(maps.WithAPIKey(config.GoogleMapsAPIKey))
 	if err != nil {
 		fmt.Printf("fatal error: %s", err)
 	}
 
-	spreadsheetID = Config.SpreadsheetID_FSINPlaces
+	spreadsheetID = config.SpreadsheetID_FSINPlaces
 	sheet, err = service.FetchSpreadsheet(spreadsheetID)
 
 	mainSheet, err = sheet.SheetByID(0)
@@ -174,7 +174,7 @@ func AddInfo() {
 // добавление координат в таблицу
 func AddCoordinatesToTable() {
 
-	spreadsheetID = Config.SpreadsheetID
+	spreadsheetID = config.SpreadsheetID
 	sheet, err := service.FetchSpreadsheet(spreadsheetID)
 
 	mainSheet, err := sheet.SheetByID(0)
@@ -204,10 +204,10 @@ func AddCoordinatesToTable() {
 // места из изначальной таблицы Deprecated:
 func OldPlaces(c *gin.Context) {
 
-	places := make([]Model.OldPlace, 0)
+	places := make([]model.OldPlace, 0)
 
 	for i := 1; i <= len(mainSheet.Rows)-1; i++ {
-		var place Model.OldPlace
+		var place model.OldPlace
 
 		place.Region = mainSheet.Rows[i][2].Value
 

@@ -3,7 +3,9 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/semyon-dev/znai-krai/Sheet"
+	"github.com/semyon-dev/znai-krai/form"
+	_ "github.com/semyon-dev/znai-krai/form"
+	"github.com/semyon-dev/znai-krai/sheet"
 	"net/http"
 )
 
@@ -11,9 +13,9 @@ func main() {
 
 	gin.SetMode(gin.DebugMode)
 
-	Sheet.Connect()
+	sheet.Connect()
 
-	go Sheet.UpdatePlaces()
+	go sheet.UpdatePlaces()
 
 	router := gin.Default()
 	router.Use(cors.Default())
@@ -25,13 +27,16 @@ func main() {
 	})
 
 	// метод для получения всех учреждений из нашей таблицы
-	router.GET("/places", Sheet.Places)
+	router.GET("/places", sheet.Places)
 
 	// отзывы Google Maps
-	router.GET("/reviews/:name", Sheet.Reviews)
+	router.GET("/reviews/:name", sheet.Reviews)
 
 	// метод для создания новых форм (заявок)
-	router.POST("/form", Sheet.NewForm)
+	router.POST("/form", sheet.NewForm)
+
+	// получение всех вопросов для заполнения
+	router.GET("/formQuestions", form.Questions)
 
 	err := router.Run(":8080")
 	if err != nil {
