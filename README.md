@@ -4,8 +4,8 @@ Backend для проекта Руси Сидящей на хакатоне Но
 ### Используемые технологии в backend:
 Go 1.14, Gin, Google Maps API, Google Sheets API и другие
 
-### Сам сайт https://russeated-f.herokuapp.com/
-### Исходный код frontend и скриншоты сайта: https://github.com/kniazevgeny/znai-krai
+### Наш сайт https://znaikrai.herokuapp.com/
+### Исходный код frontend и скриншоты сайта: https://github.com/kniazevgeny/znaikrai
 
 ![](https://github.com/semyon-dev/znai-krai/blob/master/img.png) 
 
