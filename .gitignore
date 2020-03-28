@@ -17,5 +17,5 @@ vendor/
 # Other
 .idea
 credentials.json
-config/
+config
 Procfile
