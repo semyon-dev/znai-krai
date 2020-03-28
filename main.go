@@ -4,9 +4,9 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/semyon-dev/znai-krai/form"
-	_ "github.com/semyon-dev/znai-krai/form"
 	"github.com/semyon-dev/znai-krai/sheet"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -38,7 +38,11 @@ func main() {
 	// получение всех вопросов для заполнения
 	router.GET("/formQuestions", form.Questions)
 
-	err := router.Run(":8080")
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = "8080"
+	}
+	err := router.Run(":" + port)
 	if err != nil {
 		panic(err.Error())
 	}
