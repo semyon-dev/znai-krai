@@ -134,3 +134,22 @@ type OldPlace struct {
 	// все сразу
 	FullName string `json:"full_name"`
 }
+
+// credentialsFile is the unmarshalled representation of a credentials file.
+type CredentialsFile struct {
+	Type string `json:"type"` // serviceAccountKey or userCredentialsKey
+
+	// Service Account fields
+	ClientEmail  string `json:"client_email"`
+	PrivateKeyID string `json:"private_key_id"`
+	PrivateKey   string `json:"private_key"`
+	TokenURL     string `json:"token_uri"`
+	ProjectID    string `json:"project_id"`
+
+	// User Credential fields
+	// (These typically come from gcloud auth.)
+	ClientSecret string `json:"client_secret"`
+	ClientID     string `json:"client_id"`
+	RefreshToken string `json:"refresh_token"`
+}
+

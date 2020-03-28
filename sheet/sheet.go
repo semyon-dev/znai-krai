@@ -2,6 +2,7 @@ package sheet
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/semyon-dev/znai-krai/config"
@@ -11,6 +12,7 @@ import (
 	"gopkg.in/Iwark/spreadsheet.v2"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -26,8 +28,28 @@ var places []model.Place
 
 // Connect to Google Sheets
 func Connect() {
-	data, err := ioutil.ReadFile("credentials.json")
-	checkError(err)
+
+	var data []byte
+	var err error
+	if len(config.Credentials) == 0 {
+		data, err = ioutil.ReadFile("credentials.json")
+		fmt.Println("read credentials from file")
+		if err != nil {
+			fmt.Println("критическая ошибка: не удалось импортировать переменные:", err)
+		}
+	} else {
+		var f model.CredentialsFile
+		fmt.Println("read credentials from env var")
+		f.Type = "service_account"
+		f.ProjectID = "zekovnet"
+		f.PrivateKeyID = os.Getenv("private_key_id")
+		f.PrivateKey = os.Getenv("private_key")
+		f.ClientEmail = os.Getenv("client_email")
+		f.ClientID = os.Getenv("client_id")
+		f.TokenURL = os.Getenv("token_uri")
+		data, err = json.Marshal(f)
+		checkError(err)
+	}
 
 	conf, err := google.JWTConfigFromJSON(data, spreadsheet.Scope)
 	checkError(err)
@@ -41,7 +63,7 @@ func Connect() {
 	mainSheet, err = sheet.SheetByID(0)
 	checkError(err)
 
-	fmt.Println("sheet id or error:", sheet.ID)
+	fmt.Println("sheet id:", sheet.ID)
 }
 
 // получение отзывов с Google Maps
@@ -156,8 +178,10 @@ func NewForm(c *gin.Context) {
 // обновляем массив мест каждые 30 секунд
 func UpdatePlaces() {
 	for {
-		spreadsheetID = config.SpreadsheetID_FSINPlaces
+		spreadsheetID = config.SpreadsheetIDFsinPlaces
 		sheet, err := service.FetchSpreadsheet(spreadsheetID)
+		checkError(err)
+		fmt.Println("place update...")
 
 		mainSheetFSIN, err := sheet.SheetByID(0)
 		checkError(err)
@@ -185,7 +209,6 @@ func UpdatePlaces() {
 		}
 		time.Sleep(30 * time.Second)
 	}
-
 }
 
 // получение всех ФСИН учреждений

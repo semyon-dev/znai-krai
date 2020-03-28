@@ -65,7 +65,7 @@ func WikiPlaces() {
 				place.Position.Lat = lat
 				places = append(places, place)
 
-				spreadsheetID = config.SpreadsheetID_FSINPlaces
+				spreadsheetID = config.SpreadsheetIDFsinPlaces
 				sheet, err = service.FetchSpreadsheet(spreadsheetID)
 
 				mainSheetFSIN, err := sheet.SheetByID(0)
@@ -112,7 +112,7 @@ func CountNumberOfViolations(c *gin.Context) {
 		}
 	}
 
-	spreadsheetID = config.SpreadsheetID_FSINPlaces
+	spreadsheetID = config.SpreadsheetIDFsinPlaces
 	sheet, err = service.FetchSpreadsheet(spreadsheetID)
 	checkError(err)
 
@@ -140,7 +140,7 @@ func AddInfo() {
 		fmt.Printf("fatal error: %s", err)
 	}
 
-	spreadsheetID = config.SpreadsheetID_FSINPlaces
+	spreadsheetID = config.SpreadsheetIDFsinPlaces
 	sheet, err = service.FetchSpreadsheet(spreadsheetID)
 
 	mainSheet, err = sheet.SheetByID(0)

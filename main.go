@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/semyon-dev/znai-krai/config"
 	"github.com/semyon-dev/znai-krai/form"
 	"github.com/semyon-dev/znai-krai/sheet"
 	"net/http"
@@ -10,6 +11,8 @@ import (
 )
 
 func main() {
+
+	config.Load()
 
 	gin.SetMode(gin.DebugMode)
 
@@ -22,7 +25,7 @@ func main() {
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"Welcome to RusSeated api": "",
+			"Welcome to znai-krai api": "v0.1",
 		})
 	})
 
