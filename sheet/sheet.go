@@ -43,6 +43,7 @@ func Connect() {
 		f.Type = "service_account"
 		f.ProjectID = "zekovnet"
 		f.PrivateKeyID = os.Getenv("private_key_id")
+		fmt.Println("private_KEY ", os.Getenv("private_key"))
 		f.PrivateKey = os.Getenv("private_key")
 		f.ClientEmail = os.Getenv("client_email")
 		f.ClientID = os.Getenv("client_id")
