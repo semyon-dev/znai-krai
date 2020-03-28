@@ -43,8 +43,8 @@ func Connect() {
 		f.Type = "service_account"
 		f.ProjectID = "zekovnet"
 		f.PrivateKeyID = os.Getenv("private_key_id")
-		fmt.Println("private_KEY ", os.Getenv("private_key"))
-		f.PrivateKey = os.Getenv("private_key")
+		fmt.Println(strings.ReplaceAll(os.Getenv("private_key"), "\\n", "\n"))
+		f.PrivateKey = strings.ReplaceAll(os.Getenv("private_key"), "\\n", "\n")
 		f.ClientEmail = os.Getenv("client_email")
 		f.ClientID = os.Getenv("client_id")
 		f.TokenURL = os.Getenv("token_uri")
