@@ -24,6 +24,7 @@ var sheet spreadsheet.Spreadsheet
 var service *spreadsheet.Service
 var spreadsheetID string
 
+// все места ФСИН
 var places []model.Place
 
 // Connect to Google Sheets
@@ -43,7 +44,6 @@ func Connect() {
 		f.Type = "service_account"
 		f.ProjectID = "zekovnet"
 		f.PrivateKeyID = os.Getenv("private_key_id")
-		fmt.Println(strings.ReplaceAll(os.Getenv("private_key"), "\\n", "\n"))
 		f.PrivateKey = strings.ReplaceAll(os.Getenv("private_key"), "\\n", "\n")
 		f.ClientEmail = os.Getenv("client_email")
 		f.ClientID = os.Getenv("client_id")
@@ -176,7 +176,7 @@ func NewForm(c *gin.Context) {
 	})
 }
 
-// обновляем массив мест каждые 30 секунд
+// обновляем массив мест каждую минуту
 func UpdatePlaces() {
 	for {
 		spreadsheetID = config.SpreadsheetIDFsinPlaces
@@ -208,7 +208,7 @@ func UpdatePlaces() {
 
 			places = append(places, place)
 		}
-		time.Sleep(30 * time.Second)
+		time.Sleep(1 * time.Minute)
 	}
 }
 

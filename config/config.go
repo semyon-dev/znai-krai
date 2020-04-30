@@ -13,6 +13,7 @@ var (
 	Credentials             string
 )
 
+// функция загрузки конфигов из .env файла/переменных окружения
 func Load() {
 	err := godotenv.Load()
 	if err != nil {

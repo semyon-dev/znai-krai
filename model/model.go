@@ -123,18 +123,6 @@ type Place struct {
 	Website string `json:"website"`
 }
 
-// Deprecated: структура для учреждения ФСИН
-type OldPlace struct {
-	// В каком регионе находится учреждение ФСИН о котором Вы рассказали?
-	Region string `json:"region"`
-
-	// О каком учреждении ФСИН Вы рассказали?
-	FSINОrganization string `json:"fsin_organization"`
-
-	// все сразу
-	FullName string `json:"full_name"`
-}
-
 // credentialsFile is the unmarshalled representation of a credentials file.
 type CredentialsFile struct {
 	Type string `json:"type"` // serviceAccountKey or userCredentialsKey
@@ -153,3 +141,15 @@ type CredentialsFile struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
+// прошлая структура для учреждения ФСИН
+// Deprecated:
+type OldPlace struct {
+	// В каком регионе находится учреждение ФСИН о котором Вы рассказали?
+	Region string `json:"region"`
+
+	// О каком учреждении ФСИН Вы рассказали?
+	FSINОrganization string `json:"fsin_organization"`
+
+	// все сразу
+	FullName string `json:"full_name"`
+}

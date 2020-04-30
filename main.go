@@ -12,12 +12,15 @@ import (
 
 func main() {
 
+	// загружаем конфиги (API ключи и прочее)
 	config.Load()
 
 	gin.SetMode(gin.DebugMode)
 
+	// Connect to Google Sheets
 	sheet.Connect()
 
+	// обновляем места параллельно
 	go sheet.UpdatePlaces()
 
 	router := gin.Default()
@@ -25,20 +28,20 @@ func main() {
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"Welcome to znai-krai api": "v0.1",
+			"znai-krai api": "v0.2",
 		})
 	})
 
 	// метод для получения всех учреждений из нашей таблицы
 	router.GET("/places", sheet.Places)
 
-	// отзывы Google Maps
+	// отзывы с Google Maps
 	router.GET("/reviews/:name", sheet.Reviews)
 
-	// метод для создания новых форм (заявок)
+	// метод для создания новых нарушений (форм - заявок)
 	router.POST("/form", sheet.NewForm)
 
-	// получение всех вопросов для заполнения
+	// получение всех вопросов для заполнения со стороны клиента
 	router.GET("/formQuestions", form.Questions)
 
 	port := os.Getenv("PORT")
@@ -47,6 +50,6 @@ func main() {
 	}
 	err := router.Run(":" + port)
 	if err != nil {
-		panic(err.Error())
+		panic("Не получилось запустить:" + err.Error())
 	}
 }
