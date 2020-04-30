@@ -20,6 +20,8 @@ func main() {
 	// Connect to Google Sheets
 	sheet.Connect()
 
+	// sheet.GetCoordinatesFromYandex()
+
 	// обновляем места параллельно
 	go sheet.UpdatePlaces()
 

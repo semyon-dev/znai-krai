@@ -11,6 +11,7 @@ var (
 	SpreadsheetID           string
 	SpreadsheetIDFsinPlaces string
 	Credentials             string
+	YandexAPIKey            string
 )
 
 // функция загрузки конфигов из .env файла/переменных окружения
@@ -23,4 +24,6 @@ func Load() {
 	SpreadsheetID = os.Getenv("SPREADSHEET_ID")
 	SpreadsheetIDFsinPlaces = os.Getenv("SPREADSHEET_ID_FSINPLACES")
 	Credentials = os.Getenv("CREDENTIALS_ENV")
+
+	YandexAPIKey = os.Getenv("YANDEX_API_KEY")
 }

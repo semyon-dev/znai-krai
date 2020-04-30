@@ -163,14 +163,13 @@ func NewForm(c *gin.Context) {
 	})
 }
 
-// обновляем массив мест каждую минуту из Google Sheet всех учреждений
+// обновляем массив мест каждые 10 минут из Google Sheet всех учреждений
 func UpdatePlaces() {
 	for {
 		spreadsheetID = config.SpreadsheetIDFsinPlaces
 		sheet, err := service.FetchSpreadsheet(spreadsheetID)
 		checkError(err)
 		fmt.Println("updating places...")
-
 		mainSheetFSIN, err := sheet.SheetByID(0)
 		checkError(err)
 		places = nil
@@ -185,21 +184,28 @@ func UpdatePlaces() {
 			place.Notes = strings.Trim(place.Notes, "\n")
 
 			place.Position.Lat, err = strconv.ParseFloat(mainSheetFSIN.Rows[i][4].Value, 64)
-			checkError(err)
+			if err != nil {
+				place.Position.Lat = 0
+			}
 			place.Position.Lng, err = strconv.ParseFloat(mainSheetFSIN.Rows[i][5].Value, 64)
-			checkError(err)
+			if err != nil {
+				place.Position.Lng = 0
+			}
 
 			place.NumberOfViolations, err = strconv.ParseUint(mainSheetFSIN.Rows[i][6].Value, 10, 64)
-			checkError(err)
+			if err != nil {
+				place.NumberOfViolations = 0
+			}
 
-			place.PhoneNumber = mainSheetFSIN.Rows[i][7].Value
-			place.GoogleMapsRating, err = strconv.ParseFloat(mainSheetFSIN.Rows[i][8].Value, 64)
-			checkError(err)
+			place.Phones = strings.Split(mainSheetFSIN.Rows[i][7].Value, ",")
+			place.Hours = mainSheetFSIN.Rows[i][8].Value
 			place.Website = mainSheetFSIN.Rows[i][9].Value
-
+			place.Address = mainSheetFSIN.Rows[i][10].Value
+			place.Warn = mainSheetFSIN.Rows[i][11].Value
 			places = append(places, place)
 		}
-		time.Sleep(1 * time.Minute)
+		fmt.Println("updated, sleep for 10 minutes...")
+		time.Sleep(10 * time.Minute)
 	}
 }
 

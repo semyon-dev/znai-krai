@@ -96,31 +96,35 @@ type Form struct {
 type Place struct {
 
 	// Полное название учреждния ФСИн
-	Name string `json:"name"`
+	Name string `json:"name"` // 0 колонка
 
 	// Тип учреждения ФСИН
-	Type string `json:"type"`
+	Type string `json:"type"` // 1 колонка
 
-	Location string `json:"location"`
+	Location string `json:"location"` // 2 колонка
 
-	// Доп информация
-	Notes string `json:"notes"`
+	// Доп информация from wiki
+	Notes string `json:"notes"` // 3 колонка
 
 	Position struct {
-		Lat float64 `json:"lat"`
-		Lng float64 `json:"lng"`
+		Lat float64 `json:"lat"` // широта - 4 колонка
+		Lng float64 `json:"lng"` // долгота - 5 колонка
 	} `json:"position"`
 
 	// Общее кол-во нарушений по нашей статистике
-	NumberOfViolations uint64 `json:"number_of_violations"`
+	NumberOfViolations uint64 `json:"number_of_violations"` // 6 колонка
 
 	// Номер телефона учреждения ФСИН
-	PhoneNumber string `json:"phone_number"`
+	Phones []string `json:"phones"` // 7 колонка
 
-	// Google Maps Rating
-	GoogleMapsRating float64 `json:"google_maps_rating"`
+	// время работы
+	Hours string `json:"hours"` // 8 колонка
 
-	Website string `json:"website"`
+	Website string `json:"website"` // 9 колонка
+
+	Address string `json:"address"` // 10 колонка
+
+	Warn string `json:"warning"` // 11 колонка
 }
 
 // credentialsFile is the unmarshalled representation of a credentials file.
