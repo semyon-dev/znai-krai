@@ -32,6 +32,7 @@ func Connect() {
 
 	var data []byte
 	var err error
+	// если нет переменных окружения значит читаем файл credentials.json
 	if len(config.Credentials) == 0 {
 		data, err = ioutil.ReadFile("credentials.json")
 		fmt.Println("read credentials from file")
@@ -60,6 +61,7 @@ func Connect() {
 
 	spreadsheetID = config.SpreadsheetID
 	sheet, err = service.FetchSpreadsheet(spreadsheetID)
+	checkError(err)
 
 	mainSheet, err = sheet.SheetByID(0)
 	checkError(err)
@@ -116,7 +118,7 @@ func GetCoordinates(address string) (float64, float64) {
 func NewForm(c *gin.Context) {
 	var form model.Form
 	var message string
-	var status = 200
+	var status int
 	err := c.ShouldBind(&form)
 	fmt.Println(form.Region)
 
@@ -198,12 +200,16 @@ func UpdatePlaces() {
 			place.Notes = strings.Trim(place.Notes, "\n")
 
 			place.Position.Lat, err = strconv.ParseFloat(mainSheetFSIN.Rows[i][4].Value, 64)
+			checkError(err)
 			place.Position.Lng, err = strconv.ParseFloat(mainSheetFSIN.Rows[i][5].Value, 64)
+			checkError(err)
 
 			place.NumberOfViolations, err = strconv.ParseUint(mainSheetFSIN.Rows[i][6].Value, 10, 64)
+			checkError(err)
 
 			place.PhoneNumber = mainSheetFSIN.Rows[i][7].Value
 			place.GoogleMapsRating, err = strconv.ParseFloat(mainSheetFSIN.Rows[i][8].Value, 64)
+			checkError(err)
 			place.Website = mainSheetFSIN.Rows[i][9].Value
 
 			places = append(places, place)

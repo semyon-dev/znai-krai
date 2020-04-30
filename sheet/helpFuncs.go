@@ -29,7 +29,7 @@ func WikiPlaces() {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		fmt.Println("status code error: %d %s", res.StatusCode, res.Status)
+		fmt.Printf("status code error: %d %s", res.StatusCode, res.Status)
 	}
 
 	// Load the HTML document
@@ -100,6 +100,7 @@ func CountNumberOfViolations(c *gin.Context) {
 	checkError(err)
 
 	mainSheet, err = sheet.SheetByID(0)
+	checkError(err)
 
 	violations := make(map[string]uint64)
 	for i := 1; i <= len(mainSheet.Rows)-1; i++ {
@@ -118,6 +119,7 @@ func CountNumberOfViolations(c *gin.Context) {
 	checkError(err)
 
 	mainSheet, err = sheet.SheetByID(0)
+	checkError(err)
 
 	for i := 1; i <= len(mainSheet.Rows)-1; i++ {
 		val, ok := violations[mainSheet.Rows[i][4].Value+" "+mainSheet.Rows[i][5].Value]
@@ -143,8 +145,10 @@ func AddInfo() {
 
 	spreadsheetID = config.SpreadsheetIDFsinPlaces
 	sheet, err = service.FetchSpreadsheet(spreadsheetID)
+	checkError(err)
 
 	mainSheet, err = sheet.SheetByID(0)
+	checkError(err)
 
 	for i := 1; i < len(mainSheet.Rows)-1; i++ {
 
@@ -160,6 +164,7 @@ func AddInfo() {
 		var r2 maps.PlaceDetailsRequest
 		r2.PlaceID = FindPlace.Candidates[0].PlaceID
 		res, err := c.PlaceDetails(context.TODO(), &r2)
+		checkError(err)
 		fmt.Println(res.Website)
 
 		mainSheet.Update(i, 7, res.FormattedPhoneNumber)
@@ -177,6 +182,7 @@ func AddCoordinatesToTable() {
 
 	spreadsheetID = config.SpreadsheetID
 	sheet, err := service.FetchSpreadsheet(spreadsheetID)
+	checkError(err)
 
 	mainSheet, err := sheet.SheetByID(0)
 	checkError(err)
@@ -184,7 +190,6 @@ func AddCoordinatesToTable() {
 	var fullName string
 
 	for i := 1; i <= len(mainSheet.Rows)-1; i++ {
-		fullName = ""
 		region := mainSheet.Rows[i][2].Value
 		FSINОrganization := mainSheet.Rows[i][3].Value
 		if strings.ContainsRune(FSINОrganization, ',') {
