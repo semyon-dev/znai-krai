@@ -70,6 +70,7 @@ func Connect() {
 }
 
 // получение отзывов с Google Maps
+// TODO: refactor & testing
 func Reviews(c *gin.Context) {
 
 	cMaps, err := maps.NewClient(maps.WithAPIKey(config.GoogleMapsAPIKey))
@@ -98,6 +99,7 @@ func Reviews(c *gin.Context) {
 }
 
 // новая форма нарушения
+// TODO: refactor & testing
 func NewForm(c *gin.Context) {
 	var form model.Form
 	var message string
