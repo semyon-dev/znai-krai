@@ -19,6 +19,24 @@ import (
 	"time"
 )
 
+// получение координат по адресу by Google maps api
+// метод не рекомендуется использовать из-за того что Goolge API часто не знает ФСИН учреждениe
+func GetCoordinates(address string) (float64, float64) {
+	c, err := maps.NewClient(maps.WithAPIKey(config.GoogleMapsAPIKey))
+	if err != nil {
+		fmt.Printf("fatal error: %s", err)
+	}
+	geo := maps.GeocodingRequest{
+		Address: address,
+	}
+	res, err := c.Geocode(context.TODO(), &geo)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return res[0].Geometry.Location.Lat, res[0].Geometry.Location.Lng
+}
+
 // парсинг учреждений с wikipedia.org и добавление в Google Sheets
 func WikiPlaces() {
 

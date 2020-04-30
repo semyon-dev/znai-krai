@@ -97,23 +97,6 @@ func Reviews(c *gin.Context) {
 	}
 }
 
-// получение координат по адресу by Google maps api
-func GetCoordinates(address string) (float64, float64) {
-	c, err := maps.NewClient(maps.WithAPIKey(config.GoogleMapsAPIKey))
-	if err != nil {
-		fmt.Printf("fatal error: %s", err)
-	}
-	geo := maps.GeocodingRequest{
-		Address: address,
-	}
-	res, err := c.Geocode(context.TODO(), &geo)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	return res[0].Geometry.Location.Lat, res[0].Geometry.Location.Lng
-}
-
 // новая форма нарушения
 func NewForm(c *gin.Context) {
 	var form model.Form
@@ -178,13 +161,13 @@ func NewForm(c *gin.Context) {
 	})
 }
 
-// обновляем массив мест каждую минуту
+// обновляем массив мест каждую минуту из Google Sheet всех учреждений
 func UpdatePlaces() {
 	for {
 		spreadsheetID = config.SpreadsheetIDFsinPlaces
 		sheet, err := service.FetchSpreadsheet(spreadsheetID)
 		checkError(err)
-		fmt.Println("place update...")
+		fmt.Println("updating places...")
 
 		mainSheetFSIN, err := sheet.SheetByID(0)
 		checkError(err)
