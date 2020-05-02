@@ -56,14 +56,14 @@ func Connect() {
 	client := conf.Client(context.TODO())
 	service = spreadsheet.NewServiceWithClient(client)
 
-	spreadsheetIDForm := config.SpreadsheetIDForms
-	sheet, err := service.FetchSpreadsheet(spreadsheetIDForm)
+	formSpreadsheet, err := service.FetchSpreadsheet(config.SpreadsheetIDForms)
 	checkError(err)
-
-	formsSheet, err := sheet.SheetByID(0)
+	fsinPlacesSpreadsheet, err := service.FetchSpreadsheet(config.SpreadsheetIDFsinPlaces)
 	checkError(err)
-
-	fmt.Println("подключились к sheet id:", formsSheet.Properties)
+	formsSheet, err := formSpreadsheet.SheetByID(0)
+	checkError(err)
+	fmt.Println("таблица нарушений (форм):", formsSheet.Properties.Title)
+	fmt.Println("таблица ФСИН учреждений:", fsinPlacesSpreadsheet.Properties.Title)
 }
 
 // получение отзывов с Google Maps

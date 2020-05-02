@@ -214,6 +214,7 @@ func WikiPlaces() {
 
 				spreadsheetID := config.SpreadsheetIDFsinPlaces
 				sheet, err := service.FetchSpreadsheet(spreadsheetID)
+				checkError(err)
 
 				mainSheetFSIN, err := sheet.SheetByID(0)
 				checkError(err)
