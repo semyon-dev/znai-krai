@@ -20,8 +20,6 @@ func main() {
 	// Connect to Google Sheets
 	sheet.Connect()
 
-	// sheet.GetCoordinatesFromYandex()
-
 	// обновляем места параллельно
 	go sheet.UpdatePlaces()
 
@@ -30,7 +28,7 @@ func main() {
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"znai-krai api": "v0.2",
+			"znai-krai api": "v0.3",
 		})
 	})
 
@@ -40,7 +38,7 @@ func main() {
 	// отзывы с Google Maps
 	router.GET("/reviews/:name", sheet.Reviews)
 
-	// метод для создания новых нарушений (форм - заявок)
+	// метод для создания новых форм - заявок
 	router.POST("/form", sheet.NewForm)
 
 	// получение всех вопросов для заполнения со стороны клиента

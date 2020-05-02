@@ -23,7 +23,7 @@ type res struct {
 type question struct {
 	Name     string `json:"name"`
 	Question string `json:"question"`
-	Required bool `json:"required"`
+	Required bool   `json:"required"`
 }
 
 var questions = ` { "questions":[

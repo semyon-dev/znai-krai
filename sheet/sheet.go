@@ -19,17 +19,14 @@ import (
 	"time"
 )
 
-var mainSheet *spreadsheet.Sheet
-var sheet spreadsheet.Spreadsheet
 var service *spreadsheet.Service
-var spreadsheetID string
+var spreadsheetIDForm string
 
-// все места ФСИН
+// все места ФСИН учреждений
 var places []model.Place
 
 // Connect to Google Sheets
 func Connect() {
-
 	var data []byte
 	var err error
 	// если нет переменных окружения значит читаем файл credentials.json
@@ -59,14 +56,14 @@ func Connect() {
 	client := conf.Client(context.TODO())
 	service = spreadsheet.NewServiceWithClient(client)
 
-	spreadsheetID = config.SpreadsheetID
-	sheet, err = service.FetchSpreadsheet(spreadsheetID)
+	spreadsheetIDForm := config.SpreadsheetIDForms
+	sheet, err := service.FetchSpreadsheet(spreadsheetIDForm)
 	checkError(err)
 
-	mainSheet, err = sheet.SheetByID(0)
+	formsSheet, err := sheet.SheetByID(0)
 	checkError(err)
 
-	fmt.Println("sheet id:", sheet.ID)
+	fmt.Println("подключились к sheet id:", formsSheet.Properties)
 }
 
 // получение отзывов с Google Maps
@@ -105,7 +102,6 @@ func NewForm(c *gin.Context) {
 	var message string
 	var status int
 	err := c.ShouldBind(&form)
-	fmt.Println(form.Region)
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -119,17 +115,17 @@ func NewForm(c *gin.Context) {
 		msValue := msValuePtr.Elem()
 
 		// нужно для синхронизации
-		sheet, err = service.FetchSpreadsheet(spreadsheetID)
+		sheet, err := service.FetchSpreadsheet(spreadsheetIDForm)
 		checkError(err)
 
-		mainSheet, err = sheet.SheetByID(0)
+		formsSheet, err := sheet.SheetByID(0)
 		checkError(err)
 
-		row := len(mainSheet.Rows)
+		row := len(formsSheet.Rows)
 		column := 0
 		currentTime := time.Now()
 
-		mainSheet.Update(row, column, currentTime.Format("2006.01.02 15:04:05"))
+		formsSheet.Update(row, column, currentTime.Format("2006.01.02 15:04:05"))
 		column++
 
 		for ; column < msValue.NumField(); column++ {
@@ -145,10 +141,10 @@ func NewForm(c *gin.Context) {
 			field.SetString(str)
 
 			// добавляем в таблицу
-			mainSheet.Update(row, column, field.String())
+			formsSheet.Update(row, column, field.String())
 		}
 
-		err = mainSheet.Synchronize()
+		err = formsSheet.Synchronize()
 		if err == nil {
 			status = 200
 			message = "ok"
@@ -163,49 +159,49 @@ func NewForm(c *gin.Context) {
 	})
 }
 
-// обновляем массив мест каждые 10 минут из Google Sheet всех учреждений
+// обновляем массив мест каждые 5 минут из Google Sheet всех учреждений
 func UpdatePlaces() {
 	for {
-		spreadsheetID = config.SpreadsheetIDFsinPlaces
-		sheet, err := service.FetchSpreadsheet(spreadsheetID)
+		spreadsheetFsinPlaces := config.SpreadsheetIDFsinPlaces
+		sheet, err := service.FetchSpreadsheet(spreadsheetFsinPlaces)
 		checkError(err)
 		fmt.Println("updating places...")
-		mainSheetFSIN, err := sheet.SheetByID(0)
+		sheetFSIN, err := sheet.SheetByID(0)
 		checkError(err)
 		places = nil
-		for i := 1; i <= len(mainSheetFSIN.Rows)-1; i++ {
+		for i := 1; i <= len(sheetFSIN.Rows)-1; i++ {
 			var place model.Place
 
-			place.Name = mainSheetFSIN.Rows[i][0].Value
-			place.Type = mainSheetFSIN.Rows[i][1].Value
-			place.Location = mainSheetFSIN.Rows[i][2].Value
+			place.Name = sheetFSIN.Rows[i][0].Value
+			place.Type = sheetFSIN.Rows[i][1].Value
+			place.Location = sheetFSIN.Rows[i][2].Value
 
-			place.Notes = mainSheetFSIN.Rows[i][3].Value
+			place.Notes = sheetFSIN.Rows[i][3].Value
 			place.Notes = strings.Trim(place.Notes, "\n")
 
-			place.Position.Lat, err = strconv.ParseFloat(mainSheetFSIN.Rows[i][4].Value, 64)
+			place.Position.Lat, err = strconv.ParseFloat(sheetFSIN.Rows[i][4].Value, 64)
 			if err != nil {
 				place.Position.Lat = 0
 			}
-			place.Position.Lng, err = strconv.ParseFloat(mainSheetFSIN.Rows[i][5].Value, 64)
+			place.Position.Lng, err = strconv.ParseFloat(sheetFSIN.Rows[i][5].Value, 64)
 			if err != nil {
 				place.Position.Lng = 0
 			}
 
-			place.NumberOfViolations, err = strconv.ParseUint(mainSheetFSIN.Rows[i][6].Value, 10, 64)
+			place.NumberOfViolations, err = strconv.ParseUint(sheetFSIN.Rows[i][6].Value, 10, 64)
 			if err != nil {
 				place.NumberOfViolations = 0
 			}
 
-			place.Phones = strings.Split(mainSheetFSIN.Rows[i][7].Value, ",")
-			place.Hours = mainSheetFSIN.Rows[i][8].Value
-			place.Website = mainSheetFSIN.Rows[i][9].Value
-			place.Address = mainSheetFSIN.Rows[i][10].Value
-			place.Warn = mainSheetFSIN.Rows[i][11].Value
+			place.Phones = strings.Split(sheetFSIN.Rows[i][7].Value, ",")
+			place.Hours = sheetFSIN.Rows[i][8].Value
+			place.Website = sheetFSIN.Rows[i][9].Value
+			place.Address = sheetFSIN.Rows[i][10].Value
+			place.Warn = sheetFSIN.Rows[i][11].Value
 			places = append(places, place)
 		}
-		fmt.Println("updated, sleep for 10 minutes...")
-		time.Sleep(10 * time.Minute)
+		fmt.Println("updated, sleep for 5 minutes...")
+		time.Sleep(5 * time.Minute)
 	}
 }
 

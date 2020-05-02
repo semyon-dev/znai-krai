@@ -1,9 +1,9 @@
 // Здесь содержатся вспомогательные
 // функции для анализа и сбора данных которые
 // я написал для временного или единоразово использования
-// В данным момент эти функции не используются, но могут понадобиться
-
-package sheet
+// В данным момент эти функции не используются и не поддерживаются, но могут понадобиться.
+// Deprecated:
+package util
 
 import (
 	"context"
@@ -14,6 +14,7 @@ import (
 	"github.com/semyon-dev/znai-krai/model"
 	"github.com/tidwall/gjson"
 	"googlemaps.github.io/maps"
+	"gopkg.in/Iwark/spreadsheet.v2"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -21,6 +22,8 @@ import (
 	"strings"
 	"time"
 )
+
+var service *spreadsheet.Service
 
 // получаем координаты из Яндекс справочника
 // https://tech.yandex.ru/maps/geosearch/doc/concepts/request-docpage/
@@ -32,7 +35,7 @@ func GetCoordinatesFromYandex() {
 	}
 	defer file.Close()
 
-	spreadsheetID = config.SpreadsheetIDFsinPlaces
+	spreadsheetID := config.SpreadsheetIDFsinPlaces
 	sheet, err := service.FetchSpreadsheet(spreadsheetID)
 	checkError(err)
 
@@ -41,7 +44,7 @@ func GetCoordinatesFromYandex() {
 
 	// 0 row это название полей, поэтому начинаем с 1 row
 	// НЕ более 500 запросов в день к search-maps.yandex.ru
-	for row := 444; row <= 465; row++ {
+	for row := 1; row <= 882; row++ {
 		var place model.Place
 
 		place.Name = mainSheetFSIN.Rows[row][0].Value
@@ -209,8 +212,8 @@ func WikiPlaces() {
 				place.Position.Lat = lat
 				places = append(places, place)
 
-				spreadsheetID = config.SpreadsheetIDFsinPlaces
-				sheet, err = service.FetchSpreadsheet(spreadsheetID)
+				spreadsheetID := config.SpreadsheetIDFsinPlaces
+				sheet, err := service.FetchSpreadsheet(spreadsheetID)
 
 				mainSheetFSIN, err := sheet.SheetByID(0)
 				checkError(err)
@@ -238,11 +241,11 @@ func WikiPlaces() {
 // подсчет кол-во нарушений для каждого ФСИН по нашим данным
 func CountNumberOfViolations(c *gin.Context) {
 
-	spreadsheetID = config.SpreadsheetID
-	sheet, err := service.FetchSpreadsheet(spreadsheetID)
+	spreadsheetIDFsinPlaces := config.SpreadsheetIDForms
+	sheet, err := service.FetchSpreadsheet(spreadsheetIDFsinPlaces)
 	checkError(err)
 
-	mainSheet, err = sheet.SheetByID(0)
+	mainSheet, err := sheet.SheetByID(0)
 	checkError(err)
 
 	violations := make(map[string]uint64)
@@ -257,8 +260,8 @@ func CountNumberOfViolations(c *gin.Context) {
 		}
 	}
 
-	spreadsheetID = config.SpreadsheetIDFsinPlaces
-	sheet, err = service.FetchSpreadsheet(spreadsheetID)
+	spreadsheetIDFsinPlaces = config.SpreadsheetIDFsinPlaces
+	sheet, err = service.FetchSpreadsheet(spreadsheetIDFsinPlaces)
 	checkError(err)
 
 	mainSheet, err = sheet.SheetByID(0)
@@ -287,11 +290,11 @@ func AddInfo() {
 		fmt.Printf("fatal error: %s", err)
 	}
 
-	spreadsheetID = config.SpreadsheetIDFsinPlaces
-	sheet, err = service.FetchSpreadsheet(spreadsheetID)
+	spreadsheetID := config.SpreadsheetIDFsinPlaces
+	sheet, err := service.FetchSpreadsheet(spreadsheetID)
 	checkError(err)
 
-	mainSheet, err = sheet.SheetByID(0)
+	mainSheet, err := sheet.SheetByID(0)
 	checkError(err)
 
 	for i := 1; i < len(mainSheet.Rows)-1; i++ {
@@ -322,10 +325,11 @@ func AddInfo() {
 }
 
 // добавление координат в таблицу from Google API
+// Google API неправильно находит координаты!
 // Deprecated:
 func AddCoordinatesToTable() {
 
-	spreadsheetID = config.SpreadsheetID
+	spreadsheetID := config.SpreadsheetIDForms
 	sheet, err := service.FetchSpreadsheet(spreadsheetID)
 	checkError(err)
 
@@ -352,24 +356,30 @@ func AddCoordinatesToTable() {
 	}
 }
 
+func checkError(err error) {
+	if err != nil {
+		fmt.Println("Error: ", err.Error())
+	}
+}
+
 // места из изначальной таблицы
 // Deprecated:
-func OldPlaces(c *gin.Context) {
-
-	places := make([]model.OldPlace, 0)
-
-	for i := 1; i <= len(mainSheet.Rows)-1; i++ {
-		var place model.OldPlace
-
-		place.Region = mainSheet.Rows[i][2].Value
-
-		place.FSINОrganization = mainSheet.Rows[i][3].Value
-
-		place.FullName = place.Region + " " + place.FSINОrganization
-
-		places = append(places, place)
-	}
-	c.JSON(http.StatusOK, gin.H{
-		"places": places,
-	})
-}
+//func OldPlaces(c *gin.Context) {
+//
+//	places := make([]model.OldPlace, 0)
+//
+//	for i := 1; i <= len(mainSheet.Rows)-1; i++ {
+//		var place model.OldPlace
+//
+//		place.Region = mainSheet.Rows[i][2].Value
+//
+//		place.FSINОrganization = mainSheet.Rows[i][3].Value
+//
+//		place.FullName = place.Region + " " + place.FSINОrganization
+//
+//		places = append(places, place)
+//	}
+//	c.JSON(http.StatusOK, gin.H{
+//		"places": places,
+//	})
+//}

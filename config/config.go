@@ -8,7 +8,7 @@ import (
 
 var (
 	GoogleMapsAPIKey        string
-	SpreadsheetID           string
+	SpreadsheetIDForms      string
 	SpreadsheetIDFsinPlaces string
 	Credentials             string
 	YandexAPIKey            string
@@ -21,9 +21,8 @@ func Load() {
 		fmt.Println(err)
 	}
 	GoogleMapsAPIKey = os.Getenv("GOOGLE_MAPS_API_KEY")
-	SpreadsheetID = os.Getenv("SPREADSHEET_ID")
+	SpreadsheetIDForms = os.Getenv("SPREADSHEET_ID")
 	SpreadsheetIDFsinPlaces = os.Getenv("SPREADSHEET_ID_FSINPLACES")
 	Credentials = os.Getenv("CREDENTIALS_ENV")
-
 	YandexAPIKey = os.Getenv("YANDEX_API_KEY")
 }
