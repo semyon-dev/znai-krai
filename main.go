@@ -14,8 +14,7 @@ func main() {
 
 	// загружаем конфиги (API ключи и прочее)
 	config.Load()
-
-	gin.SetMode(gin.DebugMode)
+	gin.SetMode(os.Getenv("GIN_MODE"))
 
 	// Подключение to Google Sheets
 	sheet.Connect()
