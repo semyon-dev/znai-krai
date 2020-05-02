@@ -17,7 +17,7 @@ func main() {
 
 	gin.SetMode(gin.DebugMode)
 
-	// Connect to Google Sheets
+	// Подключение to Google Sheets
 	sheet.Connect()
 
 	// обновляем места параллельно
@@ -30,6 +30,11 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{
 			"znai-krai api": "v0.3",
 		})
+	})
+
+	// Для обработки ошибки 404
+	router.NoRoute(func(c *gin.Context) {
+		c.JSON(404, gin.H{"message": "not found"})
 	})
 
 	// метод для получения всех учреждений из нашей таблицы
