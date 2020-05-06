@@ -18,6 +18,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -142,6 +143,28 @@ func GetCoordinatesFromYandex() {
 		fmt.Printf("\n Place: %+v \n", place)
 		err = mainSheetFSIN.Synchronize()
 		checkError(err)
+		time.Sleep(1 * time.Second)
+	}
+}
+
+// убираем лишние скобки [] из Place.Notes
+func UpdatePlaceNotes() {
+	spreadsheetFsinPlaces := config.SpreadsheetIDFsinPlaces
+	sheet, err := service.FetchSpreadsheet(spreadsheetFsinPlaces)
+	checkError(err)
+	fmt.Println("UpdatePlaceNotes...")
+	sheetFSIN, err := sheet.SheetByID(0)
+	for i := 123; i <= len(sheetFSIN.Rows)-1; i++ {
+		Notes := sheetFSIN.Rows[i][3].Value
+		Notes = strings.Trim(Notes, "\n")
+		r := regexp.MustCompile("\\[.*?]")
+		Notes = r.ReplaceAllString(Notes, "")
+		sheetFSIN.Update(i, 3, Notes)
+		err = sheetFSIN.Synchronize()
+		if err != nil {
+			fmt.Println("ошибка на:", i)
+			panic(err)
+		}
 		time.Sleep(1 * time.Second)
 	}
 }
