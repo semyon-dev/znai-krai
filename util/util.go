@@ -154,11 +154,10 @@ func UpdatePlaceNotes() {
 	checkError(err)
 	fmt.Println("UpdatePlaceNotes...")
 	sheetFSIN, err := sheet.SheetByID(0)
+	checkError(err)
 	for i := 123; i <= len(sheetFSIN.Rows)-1; i++ {
 		Notes := sheetFSIN.Rows[i][3].Value
-		Notes = strings.Trim(Notes, "\n")
-		r := regexp.MustCompile("\\[.*?]")
-		Notes = r.ReplaceAllString(Notes, "")
+		Notes = regexp.MustCompile(`\\[.*?]`).ReplaceAllString(strings.Trim(Notes, "\n"), "")
 		sheetFSIN.Update(i, 3, Notes)
 		err = sheetFSIN.Synchronize()
 		if err != nil {
