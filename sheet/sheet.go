@@ -20,7 +20,6 @@ import (
 )
 
 var service *spreadsheet.Service
-var spreadsheetIDForm string
 
 // все места ФСИН учреждений
 var places []model.Place
@@ -115,10 +114,10 @@ func NewForm(c *gin.Context) {
 		msValue := msValuePtr.Elem()
 
 		// нужно для синхронизации
-		sheet, err := service.FetchSpreadsheet(spreadsheetIDForm)
+		formSpreadsheet, err := service.FetchSpreadsheet(config.SpreadsheetIDForms)
 		checkError(err)
 
-		formsSheet, err := sheet.SheetByID(0)
+		formsSheet, err := formSpreadsheet.SheetByID(0)
 		checkError(err)
 
 		row := len(formsSheet.Rows)
