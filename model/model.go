@@ -9,7 +9,7 @@ type Form struct {
 	// В каком регионе находится учреждение ФСИН о котором Вы рассказали?
 	Region string `json:"region" binding:"required"`
 	// О каком учреждении ФСИН Вы рассказали?
-	FSINОrganization string `json:"fsin_organization" binding:"required"`
+	FSINOrganization string `json:"fsin_organization" binding:"required"`
 	// Укажите когда произошли нарушения о которых Вы рассказали?
 	TimeOfOffence string `json:"time_of_offence" `
 	// С какими фактами применения физического воздействия со стороны сотрудников ФСИН Вам приходилось сталкиваться?
@@ -26,7 +26,7 @@ type Form struct {
 	ExtortionsFromEmployees string `json:"extortions_from_employees"`
 
 	// Приходилось ли Вам сталкиваться с иными случаями коррупции сотрудников ФСИН?
-	СorruptionFromEmployees string `json:"сorruption_from_employees"`
+	CorruptionFromEmployees string `json:"corruption_from_employees"`
 
 	// Приходилось ли Вам сталкиваться с фактами вымогательства со стороны заключенных?
 	ExtortionsFromPrisoners string `json:"extortions_from_prisoners"`
@@ -152,7 +152,7 @@ type OldPlace struct {
 	Region string `json:"region"`
 
 	// О каком учреждении ФСИН Вы рассказали?
-	FSINОrganization string `json:"fsin_organization"`
+	FSINOrganization string `json:"fsin_organization"`
 
 	// все сразу
 	FullName string `json:"full_name"`
