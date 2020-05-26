@@ -20,14 +20,14 @@ func main() {
 	sheet.Connect()
 
 	// обновляем места параллельно
-	go sheet.UpdatePlaces()
+	go sheet.UpdateAllPlaces()
 
 	router := gin.Default()
 	router.Use(cors.Default())
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"znai-krai api": "v0.3.1",
+			"znai-krai api": "v0.4",
 		})
 	})
 
@@ -38,6 +38,9 @@ func main() {
 
 	// метод для получения всех учреждений из нашей таблицы
 	router.GET("/places", sheet.Places)
+
+	// метод для получения всех учреждений из нашей таблицы
+	router.GET("/corona_places", sheet.CoronaPlaces)
 
 	// отзывы с Google Maps
 	router.GET("/reviews/:name", sheet.Reviews)

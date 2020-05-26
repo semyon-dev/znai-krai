@@ -19,10 +19,12 @@ import (
 	"time"
 )
 
-var service *spreadsheet.Service
+var Service *spreadsheet.Service
 
 // все места ФСИН учреждений
 var places []model.Place
+
+var placesCorona []model.PlaceCorona
 
 // Connect to Google Sheets
 func Connect() {
@@ -53,16 +55,17 @@ func Connect() {
 	checkError(err)
 
 	client := conf.Client(context.TODO())
-	service = spreadsheet.NewServiceWithClient(client)
+	Service = spreadsheet.NewServiceWithClient(client)
 
-	formSpreadsheet, err := service.FetchSpreadsheet(config.SpreadsheetIDForms)
+	formSpreadsheet, err := Service.FetchSpreadsheet(config.SpreadsheetIDForms)
 	checkError(err)
-	fsinPlacesSpreadsheet, err := service.FetchSpreadsheet(config.SpreadsheetIDFsinPlaces)
+	spreadsheetCoronavirus, err := Service.FetchSpreadsheet(config.SpreadsheetCoronavirus)
 	checkError(err)
-	formsSheet, err := formSpreadsheet.SheetByID(0)
+	fsinPlacesSpreadsheet, err := Service.FetchSpreadsheet(config.SpreadsheetIDFsinPlaces)
 	checkError(err)
-	fmt.Println("таблица нарушений (форм):", formsSheet.Properties.Title)
+	fmt.Println("таблица нарушений (форм):", formSpreadsheet.Properties.Title)
 	fmt.Println("таблица ФСИН учреждений:", fsinPlacesSpreadsheet.Properties.Title)
+	fmt.Println("таблица с информацией по Коронавирусу:", spreadsheetCoronavirus.Properties.Title)
 }
 
 // получение отзывов с Google Maps
@@ -114,7 +117,7 @@ func NewForm(c *gin.Context) {
 		msValue := msValuePtr.Elem()
 
 		// нужно для синхронизации
-		formSpreadsheet, err := service.FetchSpreadsheet(config.SpreadsheetIDForms)
+		formSpreadsheet, err := Service.FetchSpreadsheet(config.SpreadsheetIDForms)
 		checkError(err)
 
 		formsSheet, err := formSpreadsheet.SheetByID(0)
@@ -160,47 +163,78 @@ func NewForm(c *gin.Context) {
 
 // обновляем массив мест каждые 5 минут из Google Sheet всех учреждений
 func UpdatePlaces() {
-	for {
-		spreadsheetFsinPlaces := config.SpreadsheetIDFsinPlaces
-		sheet, err := service.FetchSpreadsheet(spreadsheetFsinPlaces)
-		checkError(err)
-		fmt.Println("updating places...")
-		sheetFSIN, err := sheet.SheetByID(0)
-		checkError(err)
-		places = nil
-		for i := 1; i <= len(sheetFSIN.Rows)-1; i++ {
-			var place model.Place
+	spreadsheetFsinPlaces := config.SpreadsheetIDFsinPlaces
+	sheet, err := Service.FetchSpreadsheet(spreadsheetFsinPlaces)
+	checkError(err)
+	fmt.Println("updating places...")
+	sheetFSIN, err := sheet.SheetByID(0)
+	checkError(err)
+	places = nil
+	for i := 1; i <= len(sheetFSIN.Rows)-1; i++ {
+		var place model.Place
 
-			place.Name = sheetFSIN.Rows[i][0].Value
-			place.Type = sheetFSIN.Rows[i][1].Value
-			place.Location = sheetFSIN.Rows[i][2].Value
+		place.Name = sheetFSIN.Rows[i][0].Value
+		place.Type = sheetFSIN.Rows[i][1].Value
+		place.Location = sheetFSIN.Rows[i][2].Value
 
-			place.Notes = sheetFSIN.Rows[i][3].Value
-			place.Notes = strings.Trim(place.Notes, "\n")
+		place.Notes = sheetFSIN.Rows[i][3].Value
+		place.Notes = strings.Trim(place.Notes, "\n")
 
-			place.Position.Lat, err = strconv.ParseFloat(sheetFSIN.Rows[i][4].Value, 64)
-			if err != nil {
-				place.Position.Lat = 0
-			}
-			place.Position.Lng, err = strconv.ParseFloat(sheetFSIN.Rows[i][5].Value, 64)
-			if err != nil {
-				place.Position.Lng = 0
-			}
-
-			place.NumberOfViolations, err = strconv.ParseUint(sheetFSIN.Rows[i][6].Value, 10, 64)
-			if err != nil {
-				place.NumberOfViolations = 0
-			}
-
-			place.Phones = strings.Split(sheetFSIN.Rows[i][7].Value, ",")
-			place.Hours = sheetFSIN.Rows[i][8].Value
-			place.Website = sheetFSIN.Rows[i][9].Value
-			place.Address = sheetFSIN.Rows[i][10].Value
-			place.Warn = sheetFSIN.Rows[i][11].Value
-			places = append(places, place)
+		place.Position.Lat, err = strconv.ParseFloat(sheetFSIN.Rows[i][4].Value, 64)
+		if err != nil {
+			place.Position.Lat = 0
 		}
-		fmt.Println("updated, sleep for 5 minutes...")
-		time.Sleep(5 * time.Minute)
+		place.Position.Lng, err = strconv.ParseFloat(sheetFSIN.Rows[i][5].Value, 64)
+		if err != nil {
+			place.Position.Lng = 0
+		}
+
+		place.NumberOfViolations, err = strconv.ParseUint(sheetFSIN.Rows[i][6].Value, 10, 64)
+		if err != nil {
+			place.NumberOfViolations = 0
+		}
+
+		place.Phones = strings.Split(sheetFSIN.Rows[i][7].Value, ",")
+		place.Hours = sheetFSIN.Rows[i][8].Value
+		place.Website = sheetFSIN.Rows[i][9].Value
+		place.Address = sheetFSIN.Rows[i][10].Value
+		place.Warn = sheetFSIN.Rows[i][11].Value
+
+		for _, v := range placesCorona {
+			if v.Position.Lat == place.Position.Lat && v.Position.Lng == place.Position.Lng {
+				place.Coronavirus = true
+			}
+		}
+
+		places = append(places, place)
+	}
+}
+
+// обновляем массив мест вируса каждые 5 минут из Google Sheet всех учреждений
+func UpdateCoronaPlaces() {
+	spreadsheetFsinPlaces := config.SpreadsheetCoronavirus
+	sheet, err := Service.FetchSpreadsheet(spreadsheetFsinPlaces)
+	checkError(err)
+	fmt.Println("updating corona places...")
+	sheetFSIN, err := sheet.SheetByID(0)
+	checkError(err)
+	places = nil
+	for i := 1; i <= len(sheetFSIN.Rows)-1; i++ {
+		var place model.PlaceCorona
+
+		place.Date = sheetFSIN.Rows[i][1].Value
+		place.Info = sheetFSIN.Rows[i][4].Value
+		place.CommentFSIN = sheetFSIN.Rows[i][5].Value
+
+		place.Position.Lat, err = strconv.ParseFloat(sheetFSIN.Rows[i][10].Value, 64)
+		if err != nil {
+			place.Position.Lat = 0
+		}
+		place.Position.Lng, err = strconv.ParseFloat(sheetFSIN.Rows[i][11].Value, 64)
+		if err != nil {
+			place.Position.Lng = 0
+		}
+		placesCorona = append(placesCorona, place)
 	}
 }
 
@@ -208,6 +242,46 @@ func UpdatePlaces() {
 func Places(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"places": places,
+	})
+}
+
+func UpdateAllPlaces() {
+	for {
+		UpdateCoronaPlaces()
+		UpdatePlaces()
+		fmt.Println("updated, sleep for 15 minutes...")
+		time.Sleep(15 * time.Minute)
+	}
+}
+
+// получение всех ФСИН учреждений
+func CoronaPlaces(c *gin.Context) {
+	if c.Query("lat") != "" && c.Query("lng") != "" {
+		lat, err := strconv.ParseFloat(c.Query("lat"), 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "bad request",
+			})
+			return
+		}
+		lng, err := strconv.ParseFloat(c.Query("lng"), 64)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "bad request",
+			})
+			return
+		}
+		for _, v := range placesCorona {
+			if v.Position.Lat == lat && v.Position.Lng == lng {
+				c.JSON(http.StatusOK, gin.H{
+					"places_corona": v,
+				})
+				return
+			}
+		}
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"places_corona": placesCorona,
 	})
 }
 

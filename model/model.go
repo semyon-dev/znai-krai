@@ -92,6 +92,17 @@ type Form struct {
 	//Approved bool
 }
 
+type PlaceCorona struct {
+	Info        string `json:"info"`
+	CommentFSIN string `json:"comment_fsin"`
+	Date        string `json:"date"`
+
+	Position struct {
+		Lat float64 `json:"lat"` // широта - 4 колонка
+		Lng float64 `json:"lng"` // долгота - 5 колонка
+	} `json:"position"`
+}
+
 // структура учреждения ФСИН
 type Place struct {
 
@@ -125,6 +136,8 @@ type Place struct {
 	Address string `json:"address"` // 10 колонка
 
 	Warn string `json:"warning"` // 11 колонка
+
+	Coronavirus bool `json:"coronavirus"`
 }
 
 // credentialsFile is the unmarshalled representation of a credentials file.
