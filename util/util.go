@@ -25,9 +25,140 @@ import (
 	"time"
 )
 
+// deprecated:
 var service *spreadsheet.Service
 
-// выбираем координаты из Яндекс справочника
+// РУЧНОЙ СПОСОБ - координаты для короны
+func HandChooseCoordinatesFromYandexForCorona() {
+
+	spreadsheetID := config.SpreadsheetCoronavirus
+	fetchSpreadsheet, err := sheet.Service.FetchSpreadsheet(spreadsheetID)
+	checkError(err)
+
+	mainSheetFSIN, err := fetchSpreadsheet.SheetByID(0)
+	checkError(err)
+
+	// 0 row это название полей, поэтому начинаем с 1 row
+	// НЕ более 500 запросов в день к search-maps.yandex.ru
+	for row := 1; row <= 59; row++ {
+
+		fmt.Println("номер (row): ", row)
+		time.Sleep(444 * time.Millisecond)
+
+		//if mainSheetFSIN.Rows[row][11].Value == "" {
+		//	continue
+		//}
+		if mainSheetFSIN.Rows[row][12].Value != "требуется проверка!" {
+			fmt.Println("!!! такие вот дела !!! :", mainSheetFSIN.Rows[row][12].Value)
+		}
+
+		var place model.Place
+
+		place.Name = mainSheetFSIN.Rows[row][2].Value
+		place.Location = mainSheetFSIN.Rows[row][3].Value
+
+		myurl := "https://search-maps.yandex.ru/v1/"
+		req, err := http.NewRequest("GET", myurl, nil)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		// Обязательными параметрами запроса являются: text, lang и apikey.
+		q := req.URL.Query()
+		q.Add("apikey", config.YandexAPIKey)
+		q.Add("lang", "ru_RU")
+		q.Add("text", place.Name+" "+place.Location)
+		fmt.Println(" ")
+		fmt.Println("--------------------------------------")
+		fmt.Println(" ")
+		fmt.Println("делаем запрос:", place.Name+" "+place.Location)
+		req.URL.RawQuery = q.Encode()
+
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			fmt.Println(err)
+		}
+		defer res.Body.Close()
+		body, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			fmt.Println(err)
+		}
+		foundCount := gjson.Get(string(body), "properties.ResponseMetaData.SearchResponse.found").Uint()
+		//	fmt.Println("подходящих вариантов:", foundCount)
+
+		if foundCount > 1 {
+			fmt.Println("требуется проверка!")
+			// Контейнер результатов поиска. Обязательное поле.
+			features := gjson.Get(string(body), "features").Array()
+
+			for i := 0; i < len(features); i++ {
+				feature := features[i].Map()
+				companyMetaData := feature["properties"].Get("CompanyMetaData").Map()
+				fmt.Println("----------------------")
+				fmt.Println("номер: ", i)
+				fmt.Println("name: ", companyMetaData["name"].String())
+				fmt.Println("address: ", companyMetaData["address"].String())
+				fmt.Println("categories: ", companyMetaData["Categories"].Value())
+				fmt.Println("description: ", companyMetaData["description"].String())
+				fmt.Println("url: ", companyMetaData["url"].String())
+			}
+			fmt.Println("Какой добавить? (s - пропустить)")
+			var choice string
+			fmt.Scan(&choice)
+			if choice != "s" {
+				i, err := strconv.Atoi(choice)
+				checkError(err)
+				feature := features[i].Map()
+
+				coordinates := feature["geometry"].Get("coordinates").Array()
+
+				// долгота
+				place.Position.Lng = coordinates[0].Float()
+				// широта
+				place.Position.Lat = coordinates[1].Float()
+
+				mainSheetFSIN.Update(row, 10, strconv.FormatFloat(place.Position.Lat, 'f', -1, 64))
+				mainSheetFSIN.Update(row, 11, strconv.FormatFloat(place.Position.Lng, 'f', -1, 64))
+				mainSheetFSIN.Update(row, 12, " ")
+
+				err = mainSheetFSIN.Synchronize()
+				checkError(err)
+			} else {
+				mainSheetFSIN.Update(row, 12, "ручная проверка!")
+				err = mainSheetFSIN.Synchronize()
+				checkError(err)
+			}
+		} else if foundCount == 1 {
+			features := gjson.Get(string(body), "features").Array()
+			feature := features[0].Map()
+
+			coordinates := feature["geometry"].Get("coordinates").Array()
+
+			// долгота
+			place.Position.Lng = coordinates[0].Float()
+			// широта
+			place.Position.Lat = coordinates[1].Float()
+
+			mainSheetFSIN.Update(row, 10, strconv.FormatFloat(place.Position.Lat, 'f', -1, 64))
+			mainSheetFSIN.Update(row, 11, strconv.FormatFloat(place.Position.Lng, 'f', -1, 64))
+			mainSheetFSIN.Update(row, 12, " ")
+
+			err = mainSheetFSIN.Synchronize()
+			checkError(err)
+
+		} else if foundCount == 0 {
+			fmt.Println("не нашли...")
+			mainSheetFSIN.Update(row, 10, "ручной поиск!")
+			mainSheetFSIN.Update(row, 11, "ручной поиск!")
+			mainSheetFSIN.Update(row, 12, "ручной поиск!")
+			err = mainSheetFSIN.Synchronize()
+			checkError(err)
+			continue
+		}
+	}
+}
+
+// РУЧНОЙ СПОСОБ - выбираем координаты из Яндекс справочника
 // https://tech.yandex.ru/maps/geosearch/doc/concepts/request-docpage/
 func ChooseCoordinatesFromYandex() {
 
@@ -622,25 +753,3 @@ func checkError(err error) {
 		fmt.Println("Error: ", err.Error())
 	}
 }
-
-// места из изначальной таблицы
-// Deprecated:
-//func OldPlaces(c *gin.Context) {
-//
-//	places := make([]model.OldPlace, 0)
-//
-//	for i := 1; i <= len(mainSheet.Rows)-1; i++ {
-//		var place model.OldPlace
-//
-//		place.Region = mainSheet.Rows[i][2].Value
-//
-//		place.FSINОrganization = mainSheet.Rows[i][3].Value
-//
-//		place.FullName = place.Region + " " + place.FSINОrganization
-//
-//		places = append(places, place)
-//	}
-//	c.JSON(http.StatusOK, gin.H{
-//		"places": places,
-//	})
-//}
