@@ -4,6 +4,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/semyon-dev/znai-krai/config"
+	"github.com/semyon-dev/znai-krai/db"
 	"github.com/semyon-dev/znai-krai/form"
 	"github.com/semyon-dev/znai-krai/sheet"
 	"net/http"
@@ -19,6 +20,9 @@ func main() {
 	// Подключение to Google Sheets
 	sheet.Connect()
 
+	// Подключение к MongoDB
+	go db.Connect()
+
 	// обновляем места параллельно
 	go sheet.UpdateAllPlaces()
 
@@ -27,7 +31,7 @@ func main() {
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"znai-krai api": "v0.4",
+			"znai-krai api": "v0.5",
 		})
 	})
 

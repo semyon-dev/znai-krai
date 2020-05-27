@@ -13,6 +13,8 @@ var (
 	Credentials             string
 	YandexAPIKey            string
 	SpreadsheetCoronavirus  string
+	MongoDBLogin            string
+	MongoDBPass             string
 )
 
 // функция загрузки конфигов из .env файла/переменных окружения
@@ -27,4 +29,6 @@ func Load() {
 	SpreadsheetCoronavirus = os.Getenv("SPREADSHEET_CORONAVIRUS")
 	Credentials = os.Getenv("CREDENTIALS_ENV")
 	YandexAPIKey = os.Getenv("YANDEX_API_KEY")
+	MongoDBPass = os.Getenv("MONGO_DB_PASS")
+	MongoDBLogin = os.Getenv("MONGO_DB_LOGIN")
 }
