@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/semyon-dev/znai-krai/config"
+	"github.com/semyon-dev/znai-krai/db"
 	"github.com/semyon-dev/znai-krai/model"
+	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/oauth2/google"
 	"googlemaps.github.io/maps"
 	"gopkg.in/Iwark/spreadsheet.v2"
@@ -23,6 +25,7 @@ var Service *spreadsheet.Service
 
 // все места ФСИН учреждений
 var places []model.Place
+var placesBson []bson.M
 
 var placesCorona []model.PlaceCorona
 
@@ -210,7 +213,7 @@ func UpdatePlaces() {
 	}
 }
 
-// обновляем массив мест вируса каждые 5 минут из Google Sheet всех учреждений
+// обновляем массив мест вируса из Google Sheet всех учреждений
 func UpdateCoronaPlaces() {
 	spreadsheetFsinPlaces := config.SpreadsheetCoronavirus
 	sheet, err := Service.FetchSpreadsheet(spreadsheetFsinPlaces)
@@ -241,7 +244,7 @@ func UpdateCoronaPlaces() {
 // получение всех ФСИН учреждений
 func Places(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"places": places,
+		"places": placesBson,
 	})
 }
 
@@ -249,8 +252,10 @@ func UpdateAllPlaces() {
 	for {
 		UpdateCoronaPlaces()
 		UpdatePlaces()
-		fmt.Println("updated, sleep for 15 minutes...")
-		time.Sleep(15 * time.Minute)
+		//db.UpdatePlaces(&places)
+		placesBson = db.Places()
+		fmt.Println("updated all, sleep for 30 minutes...")
+		time.Sleep(30 * time.Minute)
 	}
 }
 

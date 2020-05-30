@@ -21,7 +21,7 @@ func main() {
 	sheet.Connect()
 
 	// Подключение к MongoDB
-	go db.Connect()
+	db.Connect()
 
 	// обновляем места параллельно
 	go sheet.UpdateAllPlaces()
@@ -31,7 +31,7 @@ func main() {
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"znai-krai api": "v0.5",
+			"znai-krai api": "v0.6.0",
 		})
 	})
 

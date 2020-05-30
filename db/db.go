@@ -4,12 +4,16 @@ import (
 	"context"
 	"fmt"
 	"github.com/semyon-dev/znai-krai/config"
+	"github.com/semyon-dev/znai-krai/model"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"log"
 	"time"
 )
+
+var db *mongo.Database
 
 func Connect() {
 
@@ -22,9 +26,47 @@ func Connect() {
 		log.Fatal(err)
 	}
 
-	if client.Ping(ctx, readpref.Primary()) == nil {
-		fmt.Println("✔ Подключение MongoDB успешно (ping) ")
+	// Create connect
+	err = client.Connect(context.Background())
+	if err != nil {
+		fmt.Println("client MongoDB:", err)
 	} else {
-		fmt.Println("× Подключение к MongoDB не удалось:", err)
+		fmt.Println("✔ Подключение client MongoDB успешно")
 	}
+
+	err = client.Ping(ctx, readpref.Primary())
+	if err != nil {
+		fmt.Println("× Подключение к MongoDB не удалось:", err)
+	} else {
+		fmt.Println("✔ Подключение MongoDB успешно (ping) ")
+	}
+
+	db = client.Database("main")
+	fmt.Println("current db name " + db.Name())
+}
+
+func UpdatePlaces(places *[]model.Place) {
+	var placesDB []interface{}
+	for _, v := range *places {
+		placesDB = append(placesDB, v)
+	}
+	fsinPlacesCollection := db.Collection("fsin_places")
+	insertResult, err := fsinPlacesCollection.InsertMany(context.TODO(), placesDB)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("insert result:", insertResult)
+}
+
+func Places() []bson.M {
+	fsinPlacesCollection := db.Collection("fsin_places")
+	cursor, err := fsinPlacesCollection.Find(context.TODO(), bson.M{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	var places []bson.M
+	if err = cursor.All(context.TODO(), &places); err != nil {
+		log.Fatal(err)
+	}
+	return places
 }
