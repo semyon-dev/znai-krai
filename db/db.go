@@ -69,3 +69,15 @@ func Places() (places []bson.M) {
 	}
 	return places
 }
+
+func Violations() (violations []bson.M) {
+	violationsCollection := db.Collection("violations")
+	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
+	if err != nil {
+		fmt.Println(err)
+	}
+	if err = cursor.All(context.TODO(), &violations); err != nil {
+		fmt.Println(err)
+	}
+	return violations
+}

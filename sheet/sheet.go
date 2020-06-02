@@ -26,6 +26,7 @@ var Service *spreadsheet.Service
 // все места ФСИН учреждений
 var places []model.Place
 var placesBson []bson.M
+var violations []bson.M
 
 var placesCorona []model.PlaceCorona
 
@@ -248,12 +249,20 @@ func Places(c *gin.Context) {
 	})
 }
 
+// получение всех нарушений
+func Violations(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"violations": violations,
+	})
+}
+
 func UpdateAllPlaces() {
 	for {
 		UpdateCoronaPlaces()
 		UpdatePlaces()
 		//db.UpdatePlaces(&places)
 		placesBson = db.Places()
+		violations = db.Violations()
 		fmt.Println("updated all, sleep for 30 minutes...")
 		time.Sleep(30 * time.Minute)
 	}
