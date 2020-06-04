@@ -25,7 +25,7 @@ var Service *spreadsheet.Service
 
 // все места ФСИН учреждений
 var places []model.Place
-var placesBson []bson.M
+var MongoPlaces []model.Place
 var violations []bson.M
 
 var placesCorona []model.PlaceCorona
@@ -251,9 +251,24 @@ func Analytics(c *gin.Context) {
 
 // получение всех ФСИН учреждений
 func Places(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"places": placesBson,
-	})
+	if c.Param("_id") == "" {
+		c.JSON(http.StatusOK, gin.H{
+			"places": MongoPlaces,
+		})
+	} else {
+		for _, v := range MongoPlaces {
+			if v.ID.Hex() == c.Param("_id") {
+				c.JSON(http.StatusOK, gin.H{
+					"place": v,
+				})
+				return
+			}
+		}
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "place not found",
+			"place":   "",
+		})
+	}
 }
 
 // получение всех нарушений
@@ -268,7 +283,7 @@ func UpdateAllPlaces() {
 		UpdateCoronaPlaces()
 		UpdatePlaces()
 		//db.UpdatePlaces(&places)
-		placesBson = db.Places()
+		MongoPlaces = db.Places()
 		violations = db.Violations()
 		fmt.Println("updated all, sleep for 30 minutes...")
 		time.Sleep(30 * time.Minute)

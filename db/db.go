@@ -59,7 +59,7 @@ func UpdatePlaces(places *[]model.Place) {
 	fmt.Println("insert result:", insertResult)
 }
 
-func Places() (places []bson.M) {
+func Places() (places []model.Place) {
 	fsinPlacesCollection := db.Collection("fsin_places")
 	cursor, err := fsinPlacesCollection.Find(context.TODO(), bson.M{})
 	if err != nil {

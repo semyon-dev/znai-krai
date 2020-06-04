@@ -40,13 +40,14 @@ func main() {
 		c.JSON(404, gin.H{"message": "not found"})
 	})
 
-	// метод для получения всех учреждений из нашей таблицы
+	// метод для получения всех аналитик
 	router.GET("/analytics", sheet.Analytics)
 
+	// все нарушения разом
 	router.GET("/violations", sheet.Violations)
 
 	// метод для получения всех учреждений из нашей таблицы
-	router.GET("/places", sheet.Places)
+	router.GET("/places/:_id", sheet.Places)
 
 	// метод для получения всех учреждений из нашей таблицы
 	router.GET("/corona_places", sheet.CoronaPlaces)

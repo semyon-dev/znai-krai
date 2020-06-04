@@ -1,5 +1,9 @@
 package model
 
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
 // структура для нарушений
 type Form struct {
 	// отметка времени
@@ -107,6 +111,7 @@ type PlaceCorona struct {
 
 // структура учреждения ФСИН
 type Place struct {
+	ID primitive.ObjectID `bson:"_id" json:"_id"`
 
 	// Полное название учреждния ФСИн
 	Name string `json:"name"` // 0 колонка
