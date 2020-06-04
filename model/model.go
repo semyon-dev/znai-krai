@@ -12,22 +12,24 @@ type Form struct {
 	FSINOrganization string `json:"fsin_organization" binding:"required"`
 	// Укажите когда произошли нарушения о которых Вы рассказали?
 	TimeOfOffence string `json:"time_of_offence" `
+
+	/// Category: физическое насилие
 	// С какими фактами применения физического воздействия со стороны сотрудников ФСИН Вам приходилось сталкиваться?
 	PhysicalImpactFromEmployees string `json:"physical_impact_from_employees"`
 	// С какими фактами применения физического воздействия со стороны заключенных Вам приходилось сталкиваться?
 	PhysicalImpactFromPrisoners string `json:"physical_impact_from_prisoners"`
 
+	/// Category: психологическогое воздействие
 	// С какими фактами психологического воздействия со стороны сотрудников ФСИН Вам приходилось сталкиваться?
 	PsychologicalImpactFromEmployees string `json:"psychological_impact_from_employees"`
 	// С какими фактами психологического воздействия со стороны заключенных Вам приходилось сталкиваться?
 	PsychologicalImpactFromPrisoners string `json:"psychological_impact_from_prisoners"`
 
+	/// Category: коррупция и вымогательства
 	// В каких случаях Вы сталкивались с фактами вымогательства со стороны сотрудников ФСИН?
 	ExtortionsFromEmployees string `json:"extortions_from_employees"`
-
 	// Приходилось ли Вам сталкиваться с иными случаями коррупции сотрудников ФСИН?
 	CorruptionFromEmployees string `json:"corruption_from_employees"`
-
 	// Приходилось ли Вам сталкиваться с фактами вымогательства со стороны заключенных?
 	ExtortionsFromPrisoners string `json:"extortions_from_prisoners"`
 

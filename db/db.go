@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -77,6 +78,47 @@ func Violations() (violations []bson.M) {
 		fmt.Println(err)
 	}
 	if err = cursor.All(context.TODO(), &violations); err != nil {
+		fmt.Println(err)
+	}
+	return violations
+}
+
+func countAllViolations() int64 {
+	violationsCollection := db.Collection("violations")
+	count, err := violationsCollection.EstimatedDocumentCount(context.TODO(), nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return count
+}
+
+// получение кол-ва нарушений по типу
+func CountViolations() map[string]uint32 {
+
+	var violationsTypes = [...]string{"violations_of_medical_care", "physical_impact_from_employees", "physical_impact_from_prisoners", "psychological_impact_from_employees", "psychological_impact_from_prisoners", "corruption_from_employees", "extortions_from_employees"}
+	violations := make(map[string]uint32)
+
+	//if typeOfViolation == "" {
+	//	return countAllViolations()
+	//}
+
+	violationsCollection := db.Collection("violations")
+	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
+	defer cursor.Close(context.TODO())
+	if err != nil {
+		fmt.Println(err)
+	}
+	// Finding multiple documents returns a cursor
+	// Iterating through the cursor allows us to decode documents one at a time
+	for cursor.Next(context.TODO()) {
+		for _, vType := range violationsTypes {
+			v := cursor.Current.Lookup(vType).StringValue()
+			if v != "" && v != "\t" && v != "\n" && strings.ToLower(v) != "нет" && v != "Не сталкивался с нарушениями" {
+				violations[vType]++
+			}
+		}
+	}
+	if err := cursor.Err(); err != nil {
 		fmt.Println(err)
 	}
 	return violations

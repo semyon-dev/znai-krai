@@ -242,17 +242,14 @@ func UpdateCoronaPlaces() {
 	}
 }
 
+func Analytics(c *gin.Context) {
+	c.JSON(http.StatusOK, db.CountViolations())
+}
+
 // получение всех ФСИН учреждений
 func Places(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"places": placesBson,
-	})
-}
-
-// получение всех нарушений
-func Violations(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"violations": violations,
 	})
 }
 

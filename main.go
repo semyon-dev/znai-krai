@@ -31,7 +31,7 @@ func main() {
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"znai-krai api": "v0.6.1",
+			"znai-krai api": "v0.6.2",
 		})
 	})
 
@@ -41,10 +41,10 @@ func main() {
 	})
 
 	// метод для получения всех учреждений из нашей таблицы
-	router.GET("/places", sheet.Places)
+	router.GET("/analytics", sheet.Analytics)
 
-	// метод для получения всех нарушений из нашей таблицы
-	router.GET("/violations", sheet.Violations)
+	// метод для получения всех учреждений из нашей таблицы
+	router.GET("/places", sheet.Places)
 
 	// метод для получения всех учреждений из нашей таблицы
 	router.GET("/corona_places", sheet.CoronaPlaces)
