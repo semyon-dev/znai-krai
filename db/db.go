@@ -83,7 +83,7 @@ func Violations() (violations []bson.M) {
 	return violations
 }
 
-func countAllViolations() int64 {
+func CountAllViolations() int64 {
 	violationsCollection := db.Collection("violations")
 	count, err := violationsCollection.EstimatedDocumentCount(context.TODO(), nil)
 	if err != nil {
