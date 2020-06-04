@@ -48,6 +48,7 @@ func main() {
 
 	// метод для получения всех учреждений из нашей таблицы
 	router.GET("/places/:_id", sheet.Places)
+	router.GET("/places/", sheet.Places)
 
 	// метод для получения всех учреждений из нашей таблицы
 	router.GET("/corona_places", sheet.CoronaPlaces)
