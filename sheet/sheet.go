@@ -245,7 +245,7 @@ func UpdateCoronaPlaces() {
 func Analytics(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"violations_stats": db.CountViolations(),
-		"totaly_count":     db.CountAllViolations(),
+		"total_count":      db.CountAllViolations(),
 	})
 }
 
