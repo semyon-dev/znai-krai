@@ -93,14 +93,46 @@ func countAllViolations() int64 {
 }
 
 // получение кол-ва нарушений по типу
-func CountViolations() map[string]uint32 {
+func CountViolations() map[string]map[string]uint32 {
 
-	var violationsTypes = [...]string{"violations_of_medical_care", "physical_impact_from_employees", "physical_impact_from_prisoners", "psychological_impact_from_employees", "psychological_impact_from_prisoners", "corruption_from_employees", "extortions_from_employees"}
-	violations := make(map[string]uint32)
+	var violationsTypes = [...]string{
+		"physical_impact_from_employees",
+		"physical_impact_from_prisoners",
 
-	//if typeOfViolation == "" {
-	//	return countAllViolations()
-	//}
+		"psychological_impact_from_employees",
+		"psychological_impact_from_prisoners",
+
+		"corruption_from_employees",
+		"extortions_from_employees",
+		"extortions_from_prisoners",
+
+		"violations_of_medical_care",
+		"visits_with_relatives",
+		"communication_with_relatives",
+		"communication_with_lawyer",
+
+		"salary_of_prisoners",
+	}
+
+	var violationsCommonTypes = [...]string{
+		"physical_impact",
+		"psychological_impact",
+		"corruption",
+		"salary_of_prisoners",
+		"other",
+	}
+
+	var salaryTypes = [...]string{
+		"От 0 до 100 рублей",
+		"От 100 до 1000 рублей",
+		"От 1 000 до 10 000 рублей",
+		"Зарплата не выплачивается",
+	}
+
+	var violations = map[string]map[string]uint32{}
+	for _, v := range violationsCommonTypes {
+		violations[v] = map[string]uint32{}
+	}
 
 	violationsCollection := db.Collection("violations")
 	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
@@ -114,7 +146,27 @@ func CountViolations() map[string]uint32 {
 		for _, vType := range violationsTypes {
 			v := cursor.Current.Lookup(vType).StringValue()
 			if v != "" && v != "\t" && v != "\n" && strings.ToLower(v) != "нет" && v != "Не сталкивался с нарушениями" {
-				violations[vType]++
+				switch {
+				case vType == "physical_impact_from_employees" || vType == "physical_impact_from_prisoners":
+					violations["physical_impact"][vType]++
+				case vType == "psychological_impact_from_employees" || vType == "psychological_impact_from_prisoners":
+					violations["psychological_impact"][vType]++
+				case vType == "corruption_from_employees" || vType == "extortions_from_employees" || vType == "extortions_from_prisoners":
+					violations["corruption"][vType]++
+				case vType == "salary_of_prisoners":
+					var exist bool
+					for _, vSalary := range salaryTypes {
+						if v == vSalary {
+							exist = true
+							break
+						}
+					}
+					if exist {
+						violations["salary_of_prisoners"][v]++
+					}
+				default:
+					violations["other"][vType]++
+				}
 			}
 		}
 	}

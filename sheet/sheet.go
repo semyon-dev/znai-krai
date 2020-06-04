@@ -253,6 +253,13 @@ func Places(c *gin.Context) {
 	})
 }
 
+// получение всех нарушений
+func Violations(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"violations": violations,
+	})
+}
+
 func UpdateAllPlaces() {
 	for {
 		UpdateCoronaPlaces()
