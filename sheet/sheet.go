@@ -259,6 +259,7 @@ func Places(c *gin.Context) {
 			if v.ID.Hex() == c.Param("_id") {
 				for _, violation := range violations {
 					if violation.PlaceID == c.Param("_id") {
+						v.NumberOfViolations++
 						v.Violations = append(v.Violations, violation)
 					}
 				}
