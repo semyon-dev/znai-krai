@@ -8,7 +8,6 @@ import (
 	"github.com/semyon-dev/znai-krai/config"
 	"github.com/semyon-dev/znai-krai/db"
 	"github.com/semyon-dev/znai-krai/model"
-	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/oauth2/google"
 	"googlemaps.github.io/maps"
 	"gopkg.in/Iwark/spreadsheet.v2"
@@ -26,7 +25,7 @@ var Service *spreadsheet.Service
 // все места ФСИН учреждений
 var places []model.Place
 var MongoPlaces []model.Place
-var violations []bson.M
+var violations []model.Form
 
 var placesCorona []model.PlaceCorona
 
@@ -258,6 +257,11 @@ func Places(c *gin.Context) {
 	} else {
 		for _, v := range MongoPlaces {
 			if v.ID.Hex() == c.Param("_id") {
+				for _, violation := range violations {
+					if violation.PlaceID == c.Param("_id") {
+						v.Violations = append(v.Violations, violation)
+					}
+				}
 				c.JSON(http.StatusOK, gin.H{
 					"place": v,
 				})

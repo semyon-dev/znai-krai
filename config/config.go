@@ -24,7 +24,7 @@ func Load() {
 		fmt.Println(err)
 	}
 	GoogleMapsAPIKey = os.Getenv("GOOGLE_MAPS_API_KEY")
-	SpreadsheetIDForms = os.Getenv("SPREADSHEET_ID")
+	SpreadsheetIDForms = os.Getenv("SPREADSHEET_ID_NEW")
 	SpreadsheetIDFsinPlaces = os.Getenv("SPREADSHEET_ID_FSINPLACES")
 	SpreadsheetCoronavirus = os.Getenv("SPREADSHEET_CORONAVIRUS")
 	Credentials = os.Getenv("CREDENTIALS_ENV")

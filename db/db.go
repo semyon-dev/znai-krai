@@ -71,7 +71,16 @@ func Places() (places []model.Place) {
 	return places
 }
 
-func Violations() (violations []bson.M) {
+func FindPlace(position model.Position) (place model.Place, err error) {
+	fsinPlacesCollection := db.Collection("fsin_places")
+	err = fsinPlacesCollection.FindOne(context.TODO(), bson.M{"position": position}).Decode(&place)
+	if err != nil {
+		fmt.Println("MongoDB_error: ", err)
+	}
+	return place, err
+}
+
+func Violations() (violations []model.Form) {
 	violationsCollection := db.Collection("violations")
 	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
 	if err != nil {

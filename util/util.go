@@ -11,9 +11,11 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gin-gonic/gin"
 	"github.com/semyon-dev/znai-krai/config"
+	"github.com/semyon-dev/znai-krai/db"
 	"github.com/semyon-dev/znai-krai/model"
 	"github.com/semyon-dev/znai-krai/sheet"
 	"github.com/tidwall/gjson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"googlemaps.github.io/maps"
 	"gopkg.in/Iwark/spreadsheet.v2"
 	"io/ioutil"
@@ -27,6 +29,159 @@ import (
 
 // deprecated:
 var service *spreadsheet.Service
+
+// РУЧНОЙ СПОСОБ - выбираем координаты из Яндекс справочника для таблицы нарушений
+// https://tech.yandex.ru/maps/geosearch/doc/concepts/request-docpage/
+func ChooseCoordinatesFromYandexForViolations() {
+
+	spreadsheetID := config.SpreadsheetIDForms
+	fetchSpreadsheet, err := sheet.Service.FetchSpreadsheet(spreadsheetID)
+	checkError(err)
+
+	sheetViolations, err := fetchSpreadsheet.SheetByID(0)
+	checkError(err)
+
+	// 0 row это название полей, поэтому начинаем с 1 row
+	// НЕ более 500 запросов в день к search-maps.yandex.ru
+	// TODO: от 115 несколько учреждений раз раз сразу
+	for row := 115; row < 115; row++ {
+
+		fmt.Println("номер (row): ", row)
+		time.Sleep(444 * time.Millisecond)
+
+		var form model.Form
+
+		form.Region = sheetViolations.Rows[row][2].Value
+		form.FSINOrganization = sheetViolations.Rows[row][3].Value
+
+		// https://tech.yandex.ru/maps/geosearch/doc/concepts/response_structure_business-docpage/
+		myurl := "https://search-maps.yandex.ru/v1/"
+		req, err := http.NewRequest("GET", myurl, nil)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		// Обязательными параметрами запроса являются: text, lang и apikey.
+		q := req.URL.Query()
+		q.Add("apikey", config.YandexAPIKey)
+		q.Add("lang", "ru_RU")
+		q.Add("text", form.Region+" "+form.FSINOrganization)
+		fmt.Println(" ")
+		fmt.Println("--------------------------------------")
+		fmt.Println(" ")
+		fmt.Println("делаем запрос:", form.Region+" "+form.FSINOrganization)
+		req.URL.RawQuery = q.Encode()
+
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			fmt.Println(err)
+		}
+		defer res.Body.Close()
+		body, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			fmt.Println(err)
+		}
+		foundCount := gjson.Get(string(body), "properties.ResponseMetaData.SearchResponse.found").Uint()
+		//	fmt.Println("подходящих вариантов:", foundCount)
+
+		if foundCount > 1 {
+			//	fmt.Println("требуется проверка!")
+			// Контейнер результатов поиска. Обязательное поле.
+			features := gjson.Get(string(body), "features").Array()
+
+			for i := 0; i < len(features); i++ {
+				feature := features[i].Map()
+				companyMetaData := feature["properties"].Get("CompanyMetaData").Map()
+				fmt.Println("----------------------")
+				fmt.Println("номер: ", i)
+				fmt.Println("name: ", companyMetaData["name"].String())
+				fmt.Println("address: ", companyMetaData["address"].String())
+				fmt.Println("categories: ", companyMetaData["Categories"].Value())
+				fmt.Println("description: ", companyMetaData["description"].String())
+				fmt.Println("url: ", companyMetaData["url"].String())
+			}
+			fmt.Println("Какой добавить? (s - пропустить)")
+			var choice string
+			fmt.Scan(&choice)
+			if choice != "s" {
+				i, err := strconv.Atoi(choice)
+				checkError(err)
+				feature := features[i].Map()
+
+				// "coordinates":[
+				// 132.337293, // [0] долгота
+				// 43.987453 // [1] широта
+				//]
+				//	feature := features[0].Map()
+				coordinates := feature["geometry"].Get("coordinates").Array()
+
+				// долгота
+				form.Position.Lng = coordinates[0].Float()
+				// широта
+				form.Position.Lat = coordinates[1].Float()
+
+				sheetViolations.Update(row, 32, strconv.FormatFloat(form.Position.Lat, 'f', -1, 64))
+				sheetViolations.Update(row, 33, strconv.FormatFloat(form.Position.Lng, 'f', -1, 64))
+
+				sheetViolations.Update(row, 34, form.Warn)
+
+				var pos = model.Position{
+					Lat: form.Position.Lat,
+					Lng: form.Position.Lng,
+				}
+				place, err := db.FindPlace(pos)
+				switch err {
+				case mongo.ErrNoDocuments:
+					fmt.Println("не найдено в MongoDB")
+					sheetViolations.Update(row, 35, "not found")
+				case nil:
+					sheetViolations.Update(row, 35, place.ID.Hex())
+				default:
+					sheetViolations.Update(row, 35, "mongo error")
+				}
+				err = sheetViolations.Synchronize()
+				checkError(err)
+			} else {
+				continue
+			}
+		} else if foundCount == 1 {
+			fmt.Println("нашли однозначно")
+			features := gjson.Get(string(body), "features").Array()
+			feature := features[0].Map()
+			coordinates := feature["geometry"].Get("coordinates").Array()
+
+			// долгота
+			form.Position.Lng = coordinates[0].Float()
+			// широта
+			form.Position.Lat = coordinates[1].Float()
+
+			sheetViolations.Update(row, 32, strconv.FormatFloat(form.Position.Lat, 'f', -1, 64))
+			sheetViolations.Update(row, 33, strconv.FormatFloat(form.Position.Lng, 'f', -1, 64))
+
+			var pos = model.Position{
+				Lat: form.Position.Lat,
+				Lng: form.Position.Lng,
+			}
+			place, err := db.FindPlace(pos)
+			switch err {
+			case mongo.ErrNoDocuments:
+				fmt.Println("не найдено в MongoDB")
+				sheetViolations.Update(row, 35, "not found")
+			case nil:
+				sheetViolations.Update(row, 35, place.ID.Hex())
+			default:
+				sheetViolations.Update(row, 35, "mongo error")
+			}
+			err = sheetViolations.Synchronize()
+			checkError(err)
+		} else if foundCount == 0 {
+			fmt.Println("не нашли...")
+			sheetViolations.Update(row, 35, "not found")
+			sheetViolations.Update(row, 34, "not found")
+			continue
+		}
+	}
+}
 
 // РУЧНОЙ СПОСОБ - координаты для короны
 func HandChooseCoordinatesFromYandexForCorona() {
