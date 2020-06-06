@@ -298,15 +298,9 @@ func UpdateAllPlaces() {
 // получение всех ФСИН учреждений
 func CoronaPlaces(c *gin.Context) {
 	if c.Query("lat") != "" && c.Query("lng") != "" {
-		lat, err := strconv.ParseFloat(c.Query("lat"), 64)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"message": "bad request",
-			})
-			return
-		}
-		lng, err := strconv.ParseFloat(c.Query("lng"), 64)
-		if err != nil {
+		lat, err1 := strconv.ParseFloat(c.Query("lat"), 64)
+		lng, err2 := strconv.ParseFloat(c.Query("lng"), 64)
+		if err1 != nil || err2 != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"message": "bad request",
 			})
