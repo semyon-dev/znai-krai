@@ -248,6 +248,12 @@ func Analytics(c *gin.Context) {
 	})
 }
 
+const (
+	green  string = "#00FF7F"
+	yellow string = "#FFD700"
+	red    string = "#EFF0000"
+)
+
 // получение всех/одного ФСИН учреждений
 func Places(c *gin.Context) {
 	if c.Param("_id") == "" {
@@ -264,6 +270,14 @@ func Places(c *gin.Context) {
 							v.Violations = append(v.Violations, violation)
 						}
 					}
+				}
+				switch {
+				case v.NumberOfViolations == 0:
+					v.Color = green
+				case v.NumberOfViolations < 3:
+					v.Color = yellow
+				case v.NumberOfViolations >= 3:
+					v.Color = red
 				}
 				c.JSON(http.StatusOK, gin.H{
 					"place": v,
