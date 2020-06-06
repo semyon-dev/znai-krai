@@ -23,8 +23,6 @@ func main() {
 	// Подключение к MongoDB
 	db.Connect()
 
-	//util.ChooseCoordinatesFromYandexForViolations()
-
 	// обновляем места параллельно
 	go sheet.UpdateAllPlaces()
 
@@ -33,7 +31,7 @@ func main() {
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"znai-krai api": "v0.7.0",
+			"znai-krai api": "v0.8.1",
 		})
 	})
 

@@ -92,17 +92,17 @@ type Form struct {
 	HelpEuropeanCourt string `json:"help_european_court" bson:"help_european_court"`
 
 	// Источник поступления анкеты (если не Google Формы)
-	Source string `json:"source"`
+	Source string `json:"source" bson:"source"`
 
 	// Одобрено для публикации?
-	Approved string `json:"approved"`
+	Approved bool `json:"approved" bson:"approved"` // 31 колонка
 
-	Position `json:"position"` // 32 и 33
+	Positions []Position `json:"position" bson:"position"` // 32 и 33
 
-	Warn string `json:"warn"` // 34 колонка
+	Warn string `json:"warn" bson:"warn"` // 34 колонка
 
-	ID      primitive.ObjectID `json:"_id" bson:"_id"`           // для монги
-	PlaceID string             `json:"place_id" bson:"place_id"` // 35 колонка
+	ID      primitive.ObjectID   `json:"_id" bson:"_id"`             // для монги
+	PlacesID []primitive.ObjectID `json:"places_id" bson:"places_id"` // 35 колонка?
 }
 
 type Position struct {

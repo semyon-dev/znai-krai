@@ -80,6 +80,31 @@ func FindPlace(position model.Position) (place model.Place, err error) {
 	return place, err
 }
 
+func UpdateViolation(violation model.Form) {
+	var newViolation model.Form
+	violationsCollection := db.Collection("violations")
+	err := violationsCollection.FindOne(context.TODO(), bson.M{"time": violation.Time, "fsin_organization": violation.FSINOrganization}).Decode(&newViolation)
+	if err != nil {
+		log.Println("MongoDB err!: ", err)
+	}
+	//fmt.Printf("newViolation: \n %+v\n", newViolation.)
+
+	newViolation.PlacesID = violation.PlacesID
+	newViolation.Approved = violation.Approved
+	newViolation.Positions = violation.Positions
+	fmt.Println("violation.PlacesID: ", newViolation.PlacesID)
+	fmt.Println("violation.ID: ", newViolation.ID)
+	fmt.Println("violation.FSINOrganization: ", newViolation.FSINOrganization)
+	update := bson.M{
+		"$set": newViolation,
+	}
+	result, err := violationsCollection.UpdateOne(context.TODO(), bson.M{"time": violation.Time, "fsin_organization": violation.FSINOrganization}, update)
+	if err != nil {
+		log.Println("MongoDB error!!! -> ", err)
+	}
+	fmt.Printf("ModifiedCount: \n %+v\n", result.ModifiedCount)
+}
+
 func Violations() (violations []model.Form) {
 	violationsCollection := db.Collection("violations")
 	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})

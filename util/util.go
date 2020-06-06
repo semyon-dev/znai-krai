@@ -7,6 +7,7 @@ package util
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gin-gonic/gin"
@@ -30,8 +31,271 @@ import (
 // deprecated:
 var service *spreadsheet.Service
 
+// обновляем нарушения в MongoDB из Google Sheet всех учреждений
+func UpdateViolations() {
+	spreadsheetFsinPlaces := config.SpreadsheetIDForms
+	sheet, err := sheet.Service.FetchSpreadsheet(spreadsheetFsinPlaces)
+	checkError(err)
+	fmt.Println("updating violations...")
+	sheetForms, err := sheet.SheetByID(0)
+	checkErrorWithType("sheetForms", err)
+	for row := 1; row < 379; row++ {
+
+		fmt.Println("--------", row, "--------")
+		time.Sleep(200 * time.Millisecond)
+		var form model.Form
+		form.Time = sheetForms.Rows[row][0].Value
+		form.Status = sheetForms.Rows[row][1].Value
+		form.Region = sheetForms.Rows[row][2].Value
+		form.FSINOrganization = sheetForms.Rows[row][3].Value
+
+		if strings.Contains(sheetForms.Rows[row][3].Value, ",") {
+			fmt.Println("несколько МЛС")
+			names := strings.Split(sheetForms.Rows[row][3].Value, ",")
+			for _, name := range names {
+				body := yandexRequest(form.Region + " " + name)
+				foundCount := gjson.Get(string(body), "properties.ResponseMetaData.SearchResponse.found").Uint()
+				switch foundCount {
+				case 0:
+					fmt.Println("не нашли")
+					u := sheetForms.Rows[row][36].Value
+					sheetForms.Update(row, 36, u+" "+"not found by yandex")
+				case 1:
+					fmt.Println("нашли однозначно")
+					features := gjson.Get(string(body), "features").Array()
+					feature := features[0].Map()
+					coordinates := feature["geometry"].Get("coordinates").Array()
+
+					var pos = model.Position{Lat: coordinates[1].Float(), Lng: coordinates[0].Float()}
+
+					form.Positions = append(form.Positions, pos)
+
+					place, err := db.FindPlace(pos)
+					switch err {
+					case mongo.ErrNoDocuments:
+						fmt.Println("не найдено в MongoDB")
+						u := sheetForms.Rows[row][36].Value
+						sheetForms.Update(row, 36, u+","+"not found")
+					case nil:
+						form.PlacesID = append(form.PlacesID, place.ID)
+					default:
+						u := sheetForms.Rows[row][36].Value
+						sheetForms.Update(row, 36, u+","+"mongo error")
+					}
+					if err != nil {
+						err = sheetForms.Synchronize()
+						checkErrorWithType("_sheetForms.Synchronize()", err)
+					}
+				default:
+					features := gjson.Get(string(body), "features").Array()
+					for i := 0; i < len(features); i++ {
+						feature := features[i].Map()
+						companyMetaData := feature["properties"].Get("CompanyMetaData").Map()
+						fmt.Println("----------------------")
+						fmt.Println("номер: ", i)
+						fmt.Println("name: ", companyMetaData["name"].String())
+						fmt.Println("address: ", companyMetaData["address"].String())
+						fmt.Println("categories: ", companyMetaData["Categories"].Value())
+						fmt.Println("description: ", companyMetaData["description"].String())
+						fmt.Println("url: ", companyMetaData["url"].String())
+					}
+					fmt.Println("Какой добавить? (s - пропустить)")
+					var choice string
+					fmt.Scan(&choice)
+					if choice != "s" {
+						i, err := strconv.Atoi(choice)
+						checkErrorWithType("strconv ", err)
+						feature := features[i].Map()
+						coordinates := feature["geometry"].Get("coordinates").Array()
+
+						var pos = model.Position{Lat: coordinates[1].Float(), Lng: coordinates[0].Float()}
+
+						form.Positions = append(form.Positions, pos)
+
+						place, err := db.FindPlace(pos)
+						switch err {
+						case mongo.ErrNoDocuments:
+							fmt.Println("не найдено в MongoDB")
+							u := sheetForms.Rows[row][36].Value
+							sheetForms.Update(row, 36, u+" "+"not found")
+						case nil:
+							form.PlacesID = append(form.PlacesID, place.ID)
+						default:
+							u := sheetForms.Rows[row][36].Value
+							sheetForms.Update(row, 36, u+" "+"mongo error")
+						}
+						if err != nil {
+							err = sheetForms.Synchronize()
+							checkErrorWithType("_sheetForms.Synchronize()", err)
+						}
+					} else {
+						continue
+					}
+				}
+			}
+			// position and place_id
+			res, err := json.Marshal(form.Positions)
+			fmt.Println(string(res))
+			if err != nil {
+				fmt.Println("JSON err ", err)
+			}
+			sheetForms.Update(row, 33, string(res))
+
+			//res, err := primitive.ObjectIDFromHex(sheetForms.Rows[row][35].Value)
+			//if err == nil || sheetForms.Rows[row][35].Value != "not found" {
+			//	form.PlacesID = append(form.PlacesID, res)
+			//}
+			// position and place_id
+			res, err = json.Marshal(form.PlacesID)
+			if err != nil {
+				fmt.Println("JSON err ", err)
+			}
+			sheetForms.Update(row, 35, string(res))
+
+			err = sheetForms.Synchronize()
+			checkErrorWithType("sheetForms.Synchronize()", err)
+
+			form.Approved = true // у старых заявок стояло "Да"
+
+			db.UpdateViolation(form)
+
+			// если без запятой:
+		} else {
+			body := yandexRequest(form.Region + " " + form.FSINOrganization)
+			foundCount := gjson.Get(string(body), "properties.ResponseMetaData.SearchResponse.found").Uint()
+			if foundCount > 1 {
+				features := gjson.Get(string(body), "features").Array()
+				for i := 0; i < len(features); i++ {
+					feature := features[i].Map()
+					companyMetaData := feature["properties"].Get("CompanyMetaData").Map()
+					fmt.Println("----------------------")
+					fmt.Println("номер: ", i)
+					fmt.Println("name: ", companyMetaData["name"].String())
+					fmt.Println("address: ", companyMetaData["address"].String())
+					fmt.Println("categories: ", companyMetaData["Categories"].Value())
+					fmt.Println("description: ", companyMetaData["description"].String())
+					fmt.Println("url: ", companyMetaData["url"].String())
+				}
+				fmt.Println("Какой добавить? (s - пропустить)")
+				var choice string
+				fmt.Scan(&choice)
+				if choice != "s" {
+					i, err := strconv.Atoi(choice)
+					checkError(err)
+					feature := features[i].Map()
+
+					// "coordinates":[
+					// 132.337293, // [0] долгота
+					// 43.987453 // [1] широта
+					//]
+					//	feature := features[0].Map()
+					coordinates := feature["geometry"].Get("coordinates").Array()
+
+					var position model.Position
+					position = model.Position{
+						Lat: coordinates[1].Float(),
+						Lng: coordinates[0].Float(),
+					}
+					// долгота
+					form.Positions = append(form.Positions, position)
+
+					sheetForms.Update(row, 32, strconv.FormatFloat(position.Lat, 'f', -1, 64))
+					sheetForms.Update(row, 33, strconv.FormatFloat(position.Lng, 'f', -1, 64))
+					//	sheetViolations.Update(row, 34, form.Warn)
+
+					place, err := db.FindPlace(position)
+					switch err {
+					case mongo.ErrNoDocuments:
+						fmt.Println("не найдено в MongoDB")
+						sheetForms.Update(row, 35, "not found")
+					case nil:
+						sheetForms.Update(row, 35, place.ID.Hex())
+					default:
+						sheetForms.Update(row, 35, "mongo error")
+					}
+					err = sheetForms.Synchronize()
+					checkError(err)
+				} else {
+					continue
+				}
+			} else if foundCount == 1 {
+				fmt.Println("нашли однозначно")
+				features := gjson.Get(string(body), "features").Array()
+				feature := features[0].Map()
+				coordinates := feature["geometry"].Get("coordinates").Array()
+
+				var position model.Position
+				position = model.Position{
+					Lat: coordinates[1].Float(),
+					Lng: coordinates[0].Float(),
+				}
+				// долгота
+				form.Positions = append(form.Positions, position)
+
+				sheetForms.Update(row, 32, strconv.FormatFloat(position.Lat, 'f', -1, 64))
+				sheetForms.Update(row, 33, strconv.FormatFloat(position.Lng, 'f', -1, 64))
+
+				place, err := db.FindPlace(position)
+				switch err {
+				case mongo.ErrNoDocuments:
+					fmt.Println("не найдено в MongoDB")
+					sheetForms.Update(row, 35, "not found")
+				case nil:
+					sheetForms.Update(row, 35, place.ID.Hex())
+				default:
+					sheetForms.Update(row, 35, "mongo error")
+				}
+				err = sheetForms.Synchronize()
+				checkError(err)
+			} else if foundCount == 0 {
+				fmt.Println("не нашли...")
+				sheetForms.Update(row, 35, "not found")
+				sheetForms.Update(row, 34, "not found")
+				continue
+			}
+
+			form.Approved = true // у старых заявок стояло "Да"
+
+			db.UpdateViolation(form)
+		}
+	}
+}
+
+func yandexRequest(requestText string) (body []byte) {
+
+	// https://tech.yandex.ru/maps/geosearch/doc/concepts/response_structure_business-docpage/
+	myurl := "https://search-maps.yandex.ru/v1/"
+	req, err := http.NewRequest("GET", myurl, nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Обязательными параметрами запроса являются: text, lang и apikey.
+	q := req.URL.Query()
+	q.Add("apikey", config.YandexAPIKey)
+	q.Add("lang", "ru_RU")
+	q.Add("text", requestText)
+	fmt.Println(" ")
+	fmt.Println("--------------------------------------")
+	fmt.Println(" ")
+	fmt.Println("делаем запрос:", requestText)
+	req.URL.RawQuery = q.Encode()
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer res.Body.Close()
+	body, err = ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return body
+}
+
 // РУЧНОЙ СПОСОБ - выбираем координаты из Яндекс справочника для таблицы нарушений
 // https://tech.yandex.ru/maps/geosearch/doc/concepts/request-docpage/
+// Deprecated:
 func ChooseCoordinatesFromYandexForViolations() {
 
 	spreadsheetID := config.SpreadsheetIDForms
@@ -44,7 +308,7 @@ func ChooseCoordinatesFromYandexForViolations() {
 	// 0 row это название полей, поэтому начинаем с 1 row
 	// НЕ более 500 запросов в день к search-maps.yandex.ru
 	// TODO: от 115 несколько учреждений раз раз сразу
-	for row := 115; row < 115; row++ {
+	for row := 115; row < 116; row++ {
 
 		fmt.Println("номер (row): ", row)
 		time.Sleep(444 * time.Millisecond)
@@ -54,33 +318,8 @@ func ChooseCoordinatesFromYandexForViolations() {
 		form.Region = sheetViolations.Rows[row][2].Value
 		form.FSINOrganization = sheetViolations.Rows[row][3].Value
 
-		// https://tech.yandex.ru/maps/geosearch/doc/concepts/response_structure_business-docpage/
-		myurl := "https://search-maps.yandex.ru/v1/"
-		req, err := http.NewRequest("GET", myurl, nil)
-		if err != nil {
-			fmt.Println(err)
-		}
+		body := yandexRequest(form.Region + " " + form.FSINOrganization)
 
-		// Обязательными параметрами запроса являются: text, lang и apikey.
-		q := req.URL.Query()
-		q.Add("apikey", config.YandexAPIKey)
-		q.Add("lang", "ru_RU")
-		q.Add("text", form.Region+" "+form.FSINOrganization)
-		fmt.Println(" ")
-		fmt.Println("--------------------------------------")
-		fmt.Println(" ")
-		fmt.Println("делаем запрос:", form.Region+" "+form.FSINOrganization)
-		req.URL.RawQuery = q.Encode()
-
-		res, err := http.DefaultClient.Do(req)
-		if err != nil {
-			fmt.Println(err)
-		}
-		defer res.Body.Close()
-		body, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			fmt.Println(err)
-		}
 		foundCount := gjson.Get(string(body), "properties.ResponseMetaData.SearchResponse.found").Uint()
 		//	fmt.Println("подходящих вариантов:", foundCount)
 
@@ -115,21 +354,19 @@ func ChooseCoordinatesFromYandexForViolations() {
 				//	feature := features[0].Map()
 				coordinates := feature["geometry"].Get("coordinates").Array()
 
-				// долгота
-				form.Position.Lng = coordinates[0].Float()
-				// широта
-				form.Position.Lat = coordinates[1].Float()
-
-				sheetViolations.Update(row, 32, strconv.FormatFloat(form.Position.Lat, 'f', -1, 64))
-				sheetViolations.Update(row, 33, strconv.FormatFloat(form.Position.Lng, 'f', -1, 64))
-
-				sheetViolations.Update(row, 34, form.Warn)
-
-				var pos = model.Position{
-					Lat: form.Position.Lat,
-					Lng: form.Position.Lng,
+				var position model.Position
+				position = model.Position{
+					Lat: coordinates[1].Float(),
+					Lng: coordinates[0].Float(),
 				}
-				place, err := db.FindPlace(pos)
+				// долгота
+				form.Positions = append(form.Positions, position)
+
+				sheetViolations.Update(row, 32, strconv.FormatFloat(form.Positions[0].Lat, 'f', -1, 64))
+				sheetViolations.Update(row, 33, strconv.FormatFloat(form.Positions[0].Lng, 'f', -1, 64))
+				//	sheetViolations.Update(row, 34, form.Warn)
+
+				place, err := db.FindPlace(position)
 				switch err {
 				case mongo.ErrNoDocuments:
 					fmt.Println("не найдено в MongoDB")
@@ -150,19 +387,18 @@ func ChooseCoordinatesFromYandexForViolations() {
 			feature := features[0].Map()
 			coordinates := feature["geometry"].Get("coordinates").Array()
 
-			// долгота
-			form.Position.Lng = coordinates[0].Float()
-			// широта
-			form.Position.Lat = coordinates[1].Float()
-
-			sheetViolations.Update(row, 32, strconv.FormatFloat(form.Position.Lat, 'f', -1, 64))
-			sheetViolations.Update(row, 33, strconv.FormatFloat(form.Position.Lng, 'f', -1, 64))
-
-			var pos = model.Position{
-				Lat: form.Position.Lat,
-				Lng: form.Position.Lng,
+			var position model.Position
+			position = model.Position{
+				Lat: coordinates[1].Float(),
+				Lng: coordinates[0].Float(),
 			}
-			place, err := db.FindPlace(pos)
+			// долгота
+			form.Positions = append(form.Positions, position)
+
+			sheetViolations.Update(row, 32, strconv.FormatFloat(form.Positions[0].Lat, 'f', -1, 64))
+			sheetViolations.Update(row, 33, strconv.FormatFloat(form.Positions[0].Lng, 'f', -1, 64))
+
+			place, err := db.FindPlace(position)
 			switch err {
 			case mongo.ErrNoDocuments:
 				fmt.Println("не найдено в MongoDB")

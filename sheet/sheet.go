@@ -164,7 +164,7 @@ func NewForm(c *gin.Context) {
 	})
 }
 
-// обновляем массив мест каждые 5 минут из Google Sheet всех учреждений
+// обновляем массив мест из Google Sheet всех учреждений
 func UpdatePlaces() {
 	spreadsheetFsinPlaces := config.SpreadsheetIDFsinPlaces
 	sheet, err := Service.FetchSpreadsheet(spreadsheetFsinPlaces)
@@ -248,7 +248,7 @@ func Analytics(c *gin.Context) {
 	})
 }
 
-// получение всех ФСИН учреждений
+// получение всех/одного ФСИН учреждений
 func Places(c *gin.Context) {
 	if c.Param("_id") == "" {
 		c.JSON(http.StatusOK, gin.H{
@@ -258,9 +258,11 @@ func Places(c *gin.Context) {
 		for _, v := range MongoPlaces {
 			if v.ID.Hex() == c.Param("_id") {
 				for _, violation := range violations {
-					if violation.PlaceID == c.Param("_id") {
-						v.NumberOfViolations++
-						v.Violations = append(v.Violations, violation)
+					for _, placeID := range violation.PlacesID {
+						if placeID.Hex() == c.Param("_id") {
+							v.NumberOfViolations++
+							v.Violations = append(v.Violations, violation)
+						}
 					}
 				}
 				c.JSON(http.StatusOK, gin.H{
@@ -322,6 +324,12 @@ func CoronaPlaces(c *gin.Context) {
 
 func checkError(err error) {
 	if err != nil {
-		fmt.Println("Error: ", err.Error())
+		fmt.Println("Error ", err.Error())
+	}
+}
+
+func checkErrorWithType(_type string, err error) {
+	if err != nil {
+		fmt.Println(_type, err.Error())
 	}
 }
