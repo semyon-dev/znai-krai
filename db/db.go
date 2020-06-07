@@ -46,19 +46,6 @@ func Connect() {
 	fmt.Println("current db name " + db.Name())
 }
 
-func UpdatePlaces(places *[]model.Place) {
-	var placesDB []interface{}
-	for _, v := range *places {
-		placesDB = append(placesDB, v)
-	}
-	fsinPlacesCollection := db.Collection("fsin_places")
-	insertResult, err := fsinPlacesCollection.InsertMany(context.TODO(), placesDB)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("insert result:", insertResult)
-}
-
 func Places() (places []model.Place) {
 	fsinPlacesCollection := db.Collection("fsin_places")
 	cursor, err := fsinPlacesCollection.Find(context.TODO(), bson.M{})
@@ -87,26 +74,6 @@ func FindPlace(position model.Position) (place model.Place, err error) {
 		fmt.Println("MongoDB_error: ", err)
 	}
 	return place, err
-}
-
-func UpdatePlace(place model.Place) {
-	var newPlace model.Place
-	fsinPlacesCollection := db.Collection("fsin_places")
-	err := fsinPlacesCollection.FindOne(context.TODO(), bson.M{"_id": place.ID}).Decode(&newPlace)
-	if err != nil {
-		log.Fatal("MongoDB err!: ", err)
-	}
-	newPlace.Coronavirus = place.Coronavirus
-	fmt.Println("violation.ID: ", newPlace.ID)
-	fmt.Println("violation.NumberOfViolations: ", newPlace.NumberOfViolations)
-	update := bson.M{
-		"$set": newPlace,
-	}
-	result, err := fsinPlacesCollection.UpdateOne(context.TODO(), bson.M{"_id": newPlace.ID}, update)
-	if err != nil {
-		log.Fatal("MongoDB error!!! -> ", err)
-	}
-	fmt.Printf("ModifiedCount: \n %+v\n", result.ModifiedCount)
 }
 
 func UpdateViolation(violation model.Violation) {

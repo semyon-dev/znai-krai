@@ -119,16 +119,12 @@ func Violations(c *gin.Context) {
 
 func UpdateAllPlaces() {
 	for {
-		// UpdateCoronaPlaces()
-		// UpdateSheetPlaces()
-		//db.UpdateSheetPlaces(&sheetPlaces)
-
 		mongoPlaces = db.Places()
 		mongoViolations = db.Violations()
 		mongoCoronaViolations = db.CoronaViolations()
 
-		fmt.Println("updated all, sleep for 10 minutes...")
-		time.Sleep(10 * time.Minute)
+		fmt.Println("updated all, sleep for 3 minutes...")
+		time.Sleep(3 * time.Minute)
 	}
 }
 
