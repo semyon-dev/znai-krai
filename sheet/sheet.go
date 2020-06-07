@@ -205,7 +205,6 @@ func Places(c *gin.Context) {
 				for _, violation := range mongoViolations {
 					for _, placeID := range violation.PlacesID {
 						if placeID.Hex() == c.Param("_id") {
-							v.NumberOfViolations++
 							v.Violations = append(v.Violations, violation)
 						}
 					}
