@@ -106,8 +106,8 @@ type Violation struct {
 }
 
 type Position struct {
-	Lat float64 `json:"lat"`
-	Lng float64 `json:"lng"`
+	Lat float64 `json:"lat" bson:"lat"`
+	Lng float64 `json:"lng" bson:"lng"`
 }
 
 type CoronaViolation struct {
@@ -139,10 +139,9 @@ type Place struct {
 	// Доп информация from wiki
 	Notes string `json:"notes"` // 3 колонка
 
-	Position struct {
-		Lat float64 `json:"lat"` // широта - 4 колонка
-		Lng float64 `json:"lng"` // долгота - 5 колонка
-	} `json:"position"`
+	// широта - 4 колонка
+	// долгота - 5 колонка
+	Position `json:"position" bson:"position"`
 
 	// Общее кол-во нарушений по нашей статистике
 	NumberOfViolations uint64 `json:"number_of_violations" bson:"numberofviolations"` // 6 колонка
