@@ -1,32 +1,45 @@
 # Знай край
-Backend для проекта Руси Сидящей на хакатоне Новой Газеты (https://projector2020.te-st.ru/)
+Бэкенд проекта Руси Сидящей - Знай Край. Проект был начат на хакатоне Новой Газеты (https://projector2020.te-st.ru/)
 <img src="https://github.com/semyon-dev/znai-krai/blob/master/img.png" alt="drawing" width="500"/>
 
 ### Используемые технологии на бэкенде
-Go 1.14, Gin, Google Maps API, Yandex Search API, Google Sheets API и другие
+* Go 1.14
+* MongoDB
+* Gin
+* Google Maps API
+* Yandex Search API
+* Google Sheets API
 
 ### Ссылки
-* Наш сайт https://znaikrai.herokuapp.com/
+* Сайт проекта https://znaikrai.herokuapp.com/
 * API endpoint https://api-znaikrai.herokuapp.com/
 * Исходный код сайта: https://github.com/kniazevgeny/znaikrai
 
 ### Как запустить?
 `go run main.go`
 
-### Как скомпилировать в бинарник?
+### Как скомпилировать?
 `go build main.go`
 
-### Методы для клиентов
+### API Методы
 
-* метод для получения всех ФСИН учреждений \
-`GET /places`
+* методы для получения ФСИН учреждений \
+Все сразу `GET /places` \
+Конкретное `GET /places/<id>`
 
-* метод для получения всех ФСИН учреждений у которых есть информация по коронавирусу \
+Нарушения есть только для конкретных учреждений
+
+* получение всех ФСИН учреждений у которых есть информация по коронавирусу \
 `GET /corona_places` \
-Так же можно передавать lat и lng в параметрах если хотите получить конкретное учреждение.
+
+* получение всех нарушений сразу
+`GET /violations`
 
 * BETA: отзывы с Google Maps \
-`GET /reviews/:name`
+`GET /reviews/<name>`
+
+* аналитика по разным параметрам (общая статистика) \
+`GET /analytics`
 
 * получение всех вопросов для создания новых нарушений со стороны клиента `(/form)` \
 `GET /formQuestions`
