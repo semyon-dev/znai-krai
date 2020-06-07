@@ -89,6 +89,26 @@ func FindPlace(position model.Position) (place model.Place, err error) {
 	return place, err
 }
 
+func UpdatePlace(place model.Place) {
+	var newPlace model.Place
+	fsinPlacesCollection := db.Collection("fsin_places")
+	err := fsinPlacesCollection.FindOne(context.TODO(), bson.M{"_id": place.ID}).Decode(&newPlace)
+	if err != nil {
+		log.Fatal("MongoDB err!: ", err)
+	}
+	newPlace.NumberOfViolations = place.NumberOfViolations
+	fmt.Println("violation.ID: ", newPlace.ID)
+	fmt.Println("violation.NumberOfViolations: ", newPlace.NumberOfViolations)
+	update := bson.M{
+		"$set": newPlace,
+	}
+	result, err := fsinPlacesCollection.UpdateOne(context.TODO(), bson.M{"_id": newPlace.ID}, update)
+	if err != nil {
+		log.Fatal("MongoDB error!!! -> ", err)
+	}
+	fmt.Printf("ModifiedCount: \n %+v\n", result.ModifiedCount)
+}
+
 func UpdateViolation(violation model.Violation) {
 	var newViolation model.Violation
 	violationsCollection := db.Collection("violations")
@@ -124,6 +144,18 @@ func Violations() (violations []model.Violation) {
 		fmt.Println(err)
 	}
 	return violations
+}
+
+func CoronaViolations() (coronaViolations []model.CoronaViolation) {
+	coronaViolationsCollection := db.Collection("corona_violations")
+	cursor, err := coronaViolationsCollection.Find(context.TODO(), bson.M{})
+	if err != nil {
+		fmt.Println(err)
+	}
+	if err = cursor.All(context.TODO(), &coronaViolations); err != nil {
+		fmt.Println(err)
+	}
+	return coronaViolations
 }
 
 func CountAllViolations() int64 {

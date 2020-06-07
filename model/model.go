@@ -145,7 +145,7 @@ type Place struct {
 	} `json:"position"`
 
 	// Общее кол-во нарушений по нашей статистике
-	NumberOfViolations uint64 `json:"number_of_violations" bson:"number_of_violations"` // 6 колонка
+	NumberOfViolations uint64 `json:"number_of_violations" bson:"numberofviolations"` // 6 колонка
 
 	// Номер телефона учреждения ФСИН
 	Phones []string `json:"phones" bson:"phones"` // 7 колонка
@@ -162,8 +162,6 @@ type Place struct {
 	Coronavirus bool `json:"coronavirus" bson:"coronavirus"`
 
 	Violations []Violation `json:"violations" bson:"violations"`
-
-	Color string `json:"color"`
 }
 
 // credentialsFile is the unmarshalled representation of a credentials file.

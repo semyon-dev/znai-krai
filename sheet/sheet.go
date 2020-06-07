@@ -23,9 +23,11 @@ import (
 var Service *spreadsheet.Service
 
 var sheetPlaces []model.Place
+var sheetCoronaViolations []model.CoronaViolation
+
 var mongoPlaces []model.Place
 var mongoViolations []model.Violation
-var sheetCoronaViolations []model.CoronaViolation
+var mongoCoronaViolations []model.CoronaViolation
 
 // Connect to Google Sheets
 func Connect() {
@@ -148,6 +150,42 @@ func UpdateCoronaPlaces() {
 	}
 }
 
+func UpdateCoronaPlacesToMongo() {
+	spreadsheetCorona := config.SpreadsheetCoronavirus
+	sheet, err := Service.FetchSpreadsheet(spreadsheetCorona)
+	checkError(err)
+	fmt.Println("updating corona sheetPlaces...")
+	sheetCorona, err := sheet.SheetByID(0)
+	checkError(err)
+	sheetPlaces = nil
+	for i := 1; i <= len(sheetCorona.Rows)-1; i++ {
+
+		var coronaViolation model.CoronaViolation
+
+		coronaViolation.Date = sheetCorona.Rows[i][1].Value
+		coronaViolation.NameOfFSIN = sheetCorona.Rows[i][2].Value
+		coronaViolation.Region = sheetCorona.Rows[i][3].Value
+		coronaViolation.Info = sheetCorona.Rows[i][4].Value
+		coronaViolation.CommentFSIN = sheetCorona.Rows[i][5].Value
+		coronaViolation.Status = sheetCorona.Rows[i][12].Value
+
+		coronaViolation.Position.Lat, err = strconv.ParseFloat(sheetCorona.Rows[i][10].Value, 64)
+		if err != nil {
+			coronaViolation.Position.Lat = 0
+		}
+		coronaViolation.Position.Lng, err = strconv.ParseFloat(sheetCorona.Rows[i][11].Value, 64)
+		if err != nil {
+			coronaViolation.Position.Lng = 0
+		}
+		for _, mongoPlace := range mongoPlaces {
+			if coronaViolation.Position.Lat == mongoPlace.Position.Lat && coronaViolation.Position.Lng == mongoPlace.Position.Lng {
+				coronaViolation.PlaceID = mongoPlace.ID
+			}
+		}
+		db.AddCoronaViolation(coronaViolation)
+	}
+}
+
 func Analytics(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"violations_stats": db.CountViolations(),
@@ -159,7 +197,7 @@ func Analytics(c *gin.Context) {
 func Places(c *gin.Context) {
 	if c.Param("_id") == "" {
 		c.JSON(http.StatusOK, gin.H{
-			"sheetPlaces": mongoPlaces,
+			"places": mongoPlaces,
 		})
 	} else {
 		for _, v := range mongoPlaces {
@@ -194,13 +232,27 @@ func Violations(c *gin.Context) {
 
 func UpdateAllPlaces() {
 	for {
-		UpdateCoronaPlaces()
-		UpdateSheetPlaces()
+		// UpdateCoronaPlaces()
+		// UpdateSheetPlaces()
 		//db.UpdateSheetPlaces(&sheetPlaces)
+
 		mongoPlaces = db.Places()
 		mongoViolations = db.Violations()
-		fmt.Println("updated all, sleep for 30 minutes...")
-		time.Sleep(30 * time.Minute)
+		mongoCoronaViolations = db.CoronaViolations()
+
+		//for _, mongoPlace := range mongoPlaces {
+		//	for _, violation := range mongoViolations {
+		//		for _, placeID := range violation.PlacesID {
+		//			if placeID.Hex() == mongoPlace.ID.Hex() {
+		//				mongoPlace.NumberOfViolations++
+		//			}
+		//		}
+		//	}
+		//	db.UpdatePlace(mongoPlace)
+		//}
+
+		fmt.Println("updated all, sleep for 10 minutes...")
+		time.Sleep(10 * time.Minute)
 	}
 }
 
@@ -225,7 +277,7 @@ func CoronaPlaces(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"places_corona": sheetCoronaViolations,
+		"places_corona": mongoCoronaViolations,
 	})
 }
 
