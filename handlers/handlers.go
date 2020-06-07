@@ -1,4 +1,4 @@
-package sheet
+package handlers
 
 import (
 	"context"
@@ -67,9 +67,20 @@ func Connect() {
 	fmt.Println("таблица с информацией по Коронавирусу:", spreadsheetCoronavirus.Properties.Title)
 }
 
+var explanations = map[string]string{
+	"physical_impact_from_employees": "С какими фактами применения физического воздействия со стороны сотрудников ФСИН Вам приходилось сталкиваться?",
+	"physical_impact_from_prisoners": "С какими фактами применения физического воздействия со стороны заключенных Вам приходилось сталкиваться?",
+
+	"psychological_impact_from_employees": "С какими фактами психологического воздействия со стороны сотрудников ФСИН Вам приходилось сталкиваться?",
+	"psychological_impact_from_prisoners": "С какими фактами психологического воздействия со стороны заключенных Вам приходилось сталкиваться?",
+
+	"can_prisoners_submit_complaints": "Есть ли у заключенных возможность направлять жалобы, ходатайства и заявления в надзирающие органы и правозащитные организации?",
+}
+
 func Analytics(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"violations_stats": db.CountViolations(),
+		"explanations":     explanations,
 		"total_count":      db.CountAllViolations(),
 	})
 }

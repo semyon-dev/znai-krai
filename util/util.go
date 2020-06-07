@@ -38,7 +38,7 @@ var sheetPlaces []model.Place
 // обновляем нарушения коронавируса из Google Sheet всех учреждений
 func UpdateCoronaPlaces() {
 	spreadsheetFsinPlaces := config.SpreadsheetCoronavirus
-	sheet, err := sheet.Service.FetchSpreadsheet(spreadsheetFsinPlaces)
+	sheet, err := handlers.Service.FetchSpreadsheet(spreadsheetFsinPlaces)
 	checkError(err)
 	fmt.Println("updating corona sheetPlaces...")
 	sheetCorona, err := sheet.SheetByID(0)
@@ -68,7 +68,7 @@ func UpdateCoronaPlaces() {
 
 func UpdateCoronaPlacesToMongo() {
 	spreadsheetCorona := config.SpreadsheetCoronavirus
-	sheet, err := sheet.Service.FetchSpreadsheet(spreadsheetCorona)
+	sheet, err := handlers.Service.FetchSpreadsheet(spreadsheetCorona)
 	checkError(err)
 	fmt.Println("updating corona sheetPlaces...")
 	sheetCorona, err := sheet.SheetByID(0)
@@ -105,7 +105,7 @@ func UpdateCoronaPlacesToMongo() {
 // обновляем массив мест из Google Sheet всех учреждений
 func UpdateSheetPlaces() {
 	spreadsheetFsinPlaces := config.SpreadsheetIDFsinPlaces
-	sheet, err := sheet.Service.FetchSpreadsheet(spreadsheetFsinPlaces)
+	sheet, err := handlers.Service.FetchSpreadsheet(spreadsheetFsinPlaces)
 	checkError(err)
 	fmt.Println("updating sheetPlaces...")
 	sheetFSIN, err := sheet.SheetByID(0)
@@ -153,7 +153,7 @@ func UpdateSheetPlaces() {
 // обновляем нарушения в MongoDB из Google Sheet всех учреждений
 func UpdateViolations() {
 	spreadsheetFsinPlaces := config.SpreadsheetIDForms
-	sheet, err := sheet.Service.FetchSpreadsheet(spreadsheetFsinPlaces)
+	sheet, err := handlers.Service.FetchSpreadsheet(spreadsheetFsinPlaces)
 	checkError(err)
 	fmt.Println("updating violations...")
 	sheetForms, err := sheet.SheetByID(0)
@@ -416,7 +416,7 @@ func yandexRequest(requestText string) (body []byte) {
 func HandChooseCoordinatesFromYandexForCorona(row int) {
 
 	spreadsheetID := config.SpreadsheetCoronavirus
-	fetchSpreadsheet, err := sheet.Service.FetchSpreadsheet(spreadsheetID)
+	fetchSpreadsheet, err := handlers.Service.FetchSpreadsheet(spreadsheetID)
 	checkError(err)
 
 	mainSheetFSIN, err := fetchSpreadsheet.SheetByID(0)
@@ -511,7 +511,7 @@ func HandChooseCoordinatesFromYandexForCorona(row int) {
 func GetCoordinatesFromYandexForCoronavirus() {
 
 	spreadsheetID := config.SpreadsheetCoronavirus
-	mySheet, err := sheet.Service.FetchSpreadsheet(spreadsheetID)
+	mySheet, err := handlers.Service.FetchSpreadsheet(spreadsheetID)
 	checkError(err)
 
 	sheetCorona, err := mySheet.SheetByID(0)
@@ -571,7 +571,7 @@ func GetCoordinatesFromYandexForCoronavirus() {
 func ChooseCoordinatesFromYandex() {
 
 	spreadsheetID := config.SpreadsheetIDFsinPlaces
-	fetchSpreadsheet, err := sheet.Service.FetchSpreadsheet(spreadsheetID)
+	fetchSpreadsheet, err := handlers.Service.FetchSpreadsheet(spreadsheetID)
 	checkError(err)
 
 	mainSheetFSIN, err := fetchSpreadsheet.SheetByID(0)
@@ -845,7 +845,7 @@ func UpdatePlaceNotes() {
 func ChooseCoordinatesFromYandexForViolations() {
 
 	spreadsheetID := config.SpreadsheetIDForms
-	fetchSpreadsheet, err := sheet.Service.FetchSpreadsheet(spreadsheetID)
+	fetchSpreadsheet, err := handlers.Service.FetchSpreadsheet(spreadsheetID)
 	checkError(err)
 
 	sheetViolations, err := fetchSpreadsheet.SheetByID(0)

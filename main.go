@@ -6,7 +6,7 @@ import (
 	"github.com/semyon-dev/znai-krai/config"
 	"github.com/semyon-dev/znai-krai/db"
 	"github.com/semyon-dev/znai-krai/form"
-	"github.com/semyon-dev/znai-krai/sheet"
+	"github.com/semyon-dev/znai-krai/handlers"
 	"net/http"
 	"os"
 )
@@ -18,13 +18,13 @@ func main() {
 	gin.SetMode(os.Getenv("GIN_MODE"))
 
 	// Подключение to Google Sheets
-	sheet.Connect()
+	handlers.Connect()
 
 	// Подключение к MongoDB
 	db.Connect()
 
 	// обновляем места параллельно
-	go sheet.UpdateAllPlaces()
+	go handlers.UpdateAllPlaces()
 
 	router := gin.Default()
 	router.Use(cors.Default())
@@ -41,23 +41,23 @@ func main() {
 	})
 
 	// метод для получения всех аналитик
-	router.GET("/analytics", sheet.Analytics)
+	router.GET("/analytics", handlers.Analytics)
 
 	// все нарушения разом
-	router.GET("/violations", sheet.Violations)
+	router.GET("/violations", handlers.Violations)
 
 	// метод для получения всех учреждений из нашей таблицы
-	router.GET("/places/:_id", sheet.Places)
-	router.GET("/places/", sheet.Places)
+	router.GET("/places/:_id", handlers.Places)
+	router.GET("/places/", handlers.Places)
 
 	// метод для получения всех учреждений из нашей таблицы
-	router.GET("/corona_places", sheet.CoronaPlaces)
+	router.GET("/corona_places", handlers.CoronaPlaces)
 
 	// отзывы с Google Maps
-	router.GET("/reviews/:name", sheet.Reviews)
+	router.GET("/reviews/:name", handlers.Reviews)
 
 	// метод для создания новых форм - заявок
-	router.POST("/form", sheet.NewForm)
+	router.POST("/form", handlers.NewForm)
 
 	// получение всех вопросов для заполнения со стороны клиента
 	router.GET("/formQuestions", form.Questions)

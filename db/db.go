@@ -154,6 +154,8 @@ func CountViolations() map[string]map[string]uint32 {
 		"communication_with_lawyer",
 
 		"salary_of_prisoners",
+
+		"can_prisoners_submit_complaints",
 	}
 
 	var violationsCommonTypes = [...]string{
@@ -161,6 +163,10 @@ func CountViolations() map[string]map[string]uint32 {
 		"psychological_impact",
 		"corruption",
 		"salary_of_prisoners",
+
+		// Есть ли у заключенных возможность направлять жалобы, ходатайства и заявления в надзирающие органы и правозащитные организации?
+		"submit_complaints",
+
 		"other",
 	}
 
@@ -213,6 +219,11 @@ func CountViolations() map[string]map[string]uint32 {
 					}
 				default:
 					violations["other"][vType]++
+				}
+			}
+			if vType == "can_prisoners_submit_complaints" {
+				if v != "" {
+					violations["submit_complaints"][v]++
 				}
 			}
 		}
