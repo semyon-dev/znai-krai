@@ -5,7 +5,7 @@ import (
 )
 
 // структура для нарушений
-type Form struct {
+type Violation struct {
 	// отметка времени
 	Time string `json:"time" bson:"time"`
 	// Какой Ваш статус?
@@ -101,7 +101,7 @@ type Form struct {
 
 	Warn string `json:"warn" bson:"warn"` // 34 колонка
 
-	ID      primitive.ObjectID   `json:"_id" bson:"_id"`             // для монги
+	ID       primitive.ObjectID   `json:"_id" bson:"_id"`             // для монги
 	PlacesID []primitive.ObjectID `json:"places_id" bson:"places_id"` // 35 колонка?
 }
 
@@ -110,14 +110,18 @@ type Position struct {
 	Lng float64 `json:"lng"`
 }
 
-type PlaceCorona struct {
-	Info        string `json:"info"`
-	CommentFSIN string `json:"comment_fsin"`
-	Date        string `json:"date"`
+type CoronaViolation struct {
+	Date        string `json:"date" bson:"date"`
+	NameOfFSIN  string `json:"name_of_fsin" bson:"name_of_fsin"`
+	Region      string `json:"region" bson:"region"`
+	Info        string `json:"info" bson:"info"`
+	CommentFSIN string `json:"comment_fsin" bson:"comment_fsin"`
 
-	Position `json:"position"`
-	// широта - 4 колонка
-	// долгота - 5 колонка
+	Position `json:"position" bson:"position"`
+
+	PlaceID primitive.ObjectID `json:"place_id" bson:"place_id"`
+
+	Status string `json:"status" bson:"status"`
 }
 
 // структура учреждения ФСИН
@@ -157,8 +161,8 @@ type Place struct {
 
 	Coronavirus bool `json:"coronavirus" bson:"coronavirus"`
 
-	Violations []Form `json:"violations" bson:"violations"`
-	
+	Violations []Violation `json:"violations" bson:"violations"`
+
 	Color string `json:"color"`
 }
 
@@ -178,17 +182,4 @@ type CredentialsFile struct {
 	ClientSecret string `json:"client_secret"`
 	ClientID     string `json:"client_id"`
 	RefreshToken string `json:"refresh_token"`
-}
-
-// прошлая структура для учреждения ФСИН
-// Deprecated:
-type OldPlace struct {
-	// В каком регионе находится учреждение ФСИН о котором Вы рассказали?
-	Region string `json:"region"`
-
-	// О каком учреждении ФСИН Вы рассказали?
-	FSINOrganization string `json:"fsin_organization"`
-
-	// все сразу
-	FullName string `json:"full_name"`
 }

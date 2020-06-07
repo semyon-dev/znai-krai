@@ -71,6 +71,15 @@ func Places() (places []model.Place) {
 	return places
 }
 
+func AddCoronaViolation(violation model.CoronaViolation) {
+	coronaViolations := db.Collection("corona_violations")
+	insertResult, err := coronaViolations.InsertOne(context.TODO(), violation)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("InsertedID ", insertResult.InsertedID)
+}
+
 func FindPlace(position model.Position) (place model.Place, err error) {
 	fsinPlacesCollection := db.Collection("fsin_places")
 	err = fsinPlacesCollection.FindOne(context.TODO(), bson.M{"position": position}).Decode(&place)
@@ -80,8 +89,8 @@ func FindPlace(position model.Position) (place model.Place, err error) {
 	return place, err
 }
 
-func UpdateViolation(violation model.Form) {
-	var newViolation model.Form
+func UpdateViolation(violation model.Violation) {
+	var newViolation model.Violation
 	violationsCollection := db.Collection("violations")
 	err := violationsCollection.FindOne(context.TODO(), bson.M{"time": violation.Time, "fsin_organization": violation.FSINOrganization}).Decode(&newViolation)
 	if err != nil {
@@ -105,7 +114,7 @@ func UpdateViolation(violation model.Form) {
 	fmt.Printf("ModifiedCount: \n %+v\n", result.ModifiedCount)
 }
 
-func Violations() (violations []model.Form) {
+func Violations() (violations []model.Violation) {
 	violationsCollection := db.Collection("violations")
 	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
 	if err != nil {
