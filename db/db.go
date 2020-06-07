@@ -96,7 +96,7 @@ func UpdatePlace(place model.Place) {
 	if err != nil {
 		log.Fatal("MongoDB err!: ", err)
 	}
-	newPlace.NumberOfViolations = place.NumberOfViolations
+	newPlace.Coronavirus = place.Coronavirus
 	fmt.Println("violation.ID: ", newPlace.ID)
 	fmt.Println("violation.NumberOfViolations: ", newPlace.NumberOfViolations)
 	update := bson.M{

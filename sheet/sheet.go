@@ -15,15 +15,11 @@ import (
 	"net/http"
 	"os"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 )
 
 var Service *spreadsheet.Service
-
-var sheetPlaces []model.Place
-var sheetCoronaViolations []model.CoronaViolation
 
 var mongoPlaces []model.Place
 var mongoViolations []model.Violation
@@ -71,121 +67,6 @@ func Connect() {
 	fmt.Println("таблица с информацией по Коронавирусу:", spreadsheetCoronavirus.Properties.Title)
 }
 
-// обновляем массив мест из Google Sheet всех учреждений
-func UpdateSheetPlaces() {
-	spreadsheetFsinPlaces := config.SpreadsheetIDFsinPlaces
-	sheet, err := Service.FetchSpreadsheet(spreadsheetFsinPlaces)
-	checkError(err)
-	fmt.Println("updating sheetPlaces...")
-	sheetFSIN, err := sheet.SheetByID(0)
-	checkError(err)
-	sheetPlaces = nil
-	for i := 1; i <= len(sheetFSIN.Rows)-1; i++ {
-		var place model.Place
-
-		place.Name = sheetFSIN.Rows[i][0].Value
-		place.Type = sheetFSIN.Rows[i][1].Value
-		place.Location = sheetFSIN.Rows[i][2].Value
-
-		place.Notes = sheetFSIN.Rows[i][3].Value
-		place.Notes = strings.Trim(place.Notes, "\n")
-
-		place.Position.Lat, err = strconv.ParseFloat(sheetFSIN.Rows[i][4].Value, 64)
-		if err != nil {
-			place.Position.Lat = 0
-		}
-		place.Position.Lng, err = strconv.ParseFloat(sheetFSIN.Rows[i][5].Value, 64)
-		if err != nil {
-			place.Position.Lng = 0
-		}
-
-		place.NumberOfViolations, err = strconv.ParseUint(sheetFSIN.Rows[i][6].Value, 10, 64)
-		if err != nil {
-			place.NumberOfViolations = 0
-		}
-
-		place.Phones = strings.Split(sheetFSIN.Rows[i][7].Value, ",")
-		place.Hours = sheetFSIN.Rows[i][8].Value
-		place.Website = sheetFSIN.Rows[i][9].Value
-		place.Address = sheetFSIN.Rows[i][10].Value
-		place.Warn = sheetFSIN.Rows[i][11].Value
-
-		for _, coronaViolation := range sheetCoronaViolations {
-			if coronaViolation.Position.Lat == place.Position.Lat && coronaViolation.Position.Lng == place.Position.Lng {
-				place.Coronavirus = true
-			}
-		}
-		sheetPlaces = append(sheetPlaces, place)
-	}
-}
-
-// обновляем нарушения коронавируса из Google Sheet всех учреждений
-func UpdateCoronaPlaces() {
-	spreadsheetFsinPlaces := config.SpreadsheetCoronavirus
-	sheet, err := Service.FetchSpreadsheet(spreadsheetFsinPlaces)
-	checkError(err)
-	fmt.Println("updating corona sheetPlaces...")
-	sheetCorona, err := sheet.SheetByID(0)
-	checkError(err)
-	sheetPlaces = nil
-	for i := 1; i <= len(sheetCorona.Rows)-1; i++ {
-		var coronaViolation model.CoronaViolation
-
-		coronaViolation.Date = sheetCorona.Rows[i][1].Value
-		coronaViolation.NameOfFSIN = sheetCorona.Rows[i][2].Value
-		coronaViolation.Region = sheetCorona.Rows[i][3].Value
-		coronaViolation.Info = sheetCorona.Rows[i][4].Value
-		coronaViolation.CommentFSIN = sheetCorona.Rows[i][5].Value
-		coronaViolation.Status = sheetCorona.Rows[i][12].Value
-
-		coronaViolation.Position.Lat, err = strconv.ParseFloat(sheetCorona.Rows[i][10].Value, 64)
-		if err != nil {
-			coronaViolation.Position.Lat = 0
-		}
-		coronaViolation.Position.Lng, err = strconv.ParseFloat(sheetCorona.Rows[i][11].Value, 64)
-		if err != nil {
-			coronaViolation.Position.Lng = 0
-		}
-		sheetCoronaViolations = append(sheetCoronaViolations, coronaViolation)
-	}
-}
-
-func UpdateCoronaPlacesToMongo() {
-	spreadsheetCorona := config.SpreadsheetCoronavirus
-	sheet, err := Service.FetchSpreadsheet(spreadsheetCorona)
-	checkError(err)
-	fmt.Println("updating corona sheetPlaces...")
-	sheetCorona, err := sheet.SheetByID(0)
-	checkError(err)
-	sheetPlaces = nil
-	for i := 1; i <= len(sheetCorona.Rows)-1; i++ {
-
-		var coronaViolation model.CoronaViolation
-
-		coronaViolation.Date = sheetCorona.Rows[i][1].Value
-		coronaViolation.NameOfFSIN = sheetCorona.Rows[i][2].Value
-		coronaViolation.Region = sheetCorona.Rows[i][3].Value
-		coronaViolation.Info = sheetCorona.Rows[i][4].Value
-		coronaViolation.CommentFSIN = sheetCorona.Rows[i][5].Value
-		coronaViolation.Status = sheetCorona.Rows[i][12].Value
-
-		coronaViolation.Position.Lat, err = strconv.ParseFloat(sheetCorona.Rows[i][10].Value, 64)
-		if err != nil {
-			coronaViolation.Position.Lat = 0
-		}
-		coronaViolation.Position.Lng, err = strconv.ParseFloat(sheetCorona.Rows[i][11].Value, 64)
-		if err != nil {
-			coronaViolation.Position.Lng = 0
-		}
-		for _, mongoPlace := range mongoPlaces {
-			if coronaViolation.Position.Lat == mongoPlace.Position.Lat && coronaViolation.Position.Lng == mongoPlace.Position.Lng {
-				coronaViolation.PlaceID = mongoPlace.ID
-			}
-		}
-		db.AddCoronaViolation(coronaViolation)
-	}
-}
-
 func Analytics(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"violations_stats": db.CountViolations(),
@@ -225,7 +106,7 @@ func Places(c *gin.Context) {
 // получение всех нарушений
 func Violations(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"mongoViolations": mongoViolations,
+		"violations": mongoViolations,
 	})
 }
 
@@ -239,44 +120,14 @@ func UpdateAllPlaces() {
 		mongoViolations = db.Violations()
 		mongoCoronaViolations = db.CoronaViolations()
 
-		//for _, mongoPlace := range mongoPlaces {
-		//	for _, violation := range mongoViolations {
-		//		for _, placeID := range violation.PlacesID {
-		//			if placeID.Hex() == mongoPlace.ID.Hex() {
-		//				mongoPlace.NumberOfViolations++
-		//			}
-		//		}
-		//	}
-		//	db.UpdatePlace(mongoPlace)
-		//}
-
 		fmt.Println("updated all, sleep for 10 minutes...")
 		time.Sleep(10 * time.Minute)
 	}
 }
 
-// получение всех ФСИН учреждений
 func CoronaPlaces(c *gin.Context) {
-	if c.Query("lat") != "" && c.Query("lng") != "" {
-		lat, err1 := strconv.ParseFloat(c.Query("lat"), 64)
-		lng, err2 := strconv.ParseFloat(c.Query("lng"), 64)
-		if err1 != nil || err2 != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"message": "bad request",
-			})
-			return
-		}
-		for _, v := range sheetCoronaViolations {
-			if v.Position.Lat == lat && v.Position.Lng == lng {
-				c.JSON(http.StatusOK, gin.H{
-					"places_corona": v,
-				})
-				return
-			}
-		}
-	}
 	c.JSON(http.StatusOK, gin.H{
-		"places_corona": mongoCoronaViolations,
+		"corona_violations": mongoCoronaViolations,
 	})
 }
 
@@ -376,11 +227,5 @@ func NewForm(c *gin.Context) {
 func checkError(err error) {
 	if err != nil {
 		fmt.Println("Error ", err.Error())
-	}
-}
-
-func checkErrorWithType(_type string, err error) {
-	if err != nil {
-		fmt.Println(_type, err.Error())
 	}
 }
