@@ -58,6 +58,18 @@ func Places() (places []model.Place) {
 	return places
 }
 
+func ShortPlaces() (shortPlaces []model.ShortPlace) {
+	fsinPlacesCollection := db.Collection("fsin_places")
+	cursor, err := fsinPlacesCollection.Find(context.TODO(), bson.M{})
+	if err != nil {
+		fmt.Println(err)
+	}
+	if err = cursor.All(context.TODO(), &shortPlaces); err != nil {
+		fmt.Println(err)
+	}
+	return shortPlaces
+}
+
 func AddCoronaViolation(violation model.CoronaViolation) {
 	coronaViolations := db.Collection("corona_violations")
 	insertResult, err := coronaViolations.InsertOne(context.TODO(), violation)

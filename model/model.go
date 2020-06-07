@@ -124,27 +124,29 @@ type CoronaViolation struct {
 	Status string `json:"status" bson:"status"`
 }
 
-// структура учреждения ФСИН
+// полная структура учреждения ФСИН
 type Place struct {
 	ID primitive.ObjectID `bson:"_id" json:"_id"`
 
-	// Полное название учреждния ФСИн
+	// Полное название учреждения ФСИН
 	Name string `json:"name"` // 0 колонка
 
 	// Тип учреждения ФСИН
-	Type string `json:"type"` // 1 колонка
-
-	Location string `json:"location"` // 2 колонка
-
-	// Доп информация from wiki
-	Notes string `json:"notes"` // 3 колонка
+	Type string `json:"type" bson:"type"` // 1 колонка
 
 	// широта - 4 колонка
 	// долгота - 5 колонка
 	Position `json:"position" bson:"position"`
 
+	Coronavirus bool `json:"coronavirus" bson:"coronavirus"`
+
 	// Общее кол-во нарушений по нашей статистике
 	NumberOfViolations uint64 `json:"number_of_violations" bson:"numberofviolations"` // 6 колонка
+
+	Location string `json:"location"` // 2 колонка
+
+	// Доп информация from wiki
+	Notes string `json:"notes"` // 3 колонка
 
 	// Номер телефона учреждения ФСИН
 	Phones []string `json:"phones" bson:"phones"` // 7 колонка
@@ -158,11 +160,29 @@ type Place struct {
 
 	Warn string `json:"warning"` // 11 колонка
 
-	Coronavirus bool `json:"coronavirus" bson:"coronavirus"`
-
 	Violations []Violation `json:"violations" bson:"violations"`
 
 	CoronaViolations []CoronaViolation `json:"corona_violations" bson:"corona_violations"`
+}
+
+// для /places
+type ShortPlace struct {
+	ID primitive.ObjectID `bson:"_id" json:"_id"`
+
+	// Полное название учреждения ФСИН
+	Name string `json:"name"` // 0 колонка
+
+	// Тип учреждения ФСИН
+	Type string `json:"type" bson:"type"` // 1 колонка
+
+	// широта - 4 колонка
+	// долгота - 5 колонка
+	Position `json:"position" bson:"position"`
+
+	Coronavirus bool `json:"coronavirus" bson:"coronavirus"`
+
+	// Общее кол-во нарушений по нашей статистике
+	NumberOfViolations uint64 `json:"number_of_violations" bson:"numberofviolations"` // 6 колонка
 }
 
 // credentialsFile is the unmarshalled representation of a credentials file.

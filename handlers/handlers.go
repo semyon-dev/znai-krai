@@ -22,6 +22,7 @@ import (
 var Service *spreadsheet.Service
 
 var mongoPlaces []model.Place
+var mongoShortPlaces []model.ShortPlace
 var mongoViolations []model.Violation
 var mongoCoronaViolations []model.CoronaViolation
 
@@ -89,15 +90,17 @@ func Analytics(c *gin.Context) {
 func Places(c *gin.Context) {
 	if c.Param("_id") == "" {
 		c.JSON(http.StatusOK, gin.H{
-			"places": mongoPlaces,
+			"places": mongoShortPlaces,
 		})
 	} else {
 		for _, place := range mongoPlaces {
 			if place.ID.Hex() == c.Param("_id") {
-				for _, violation := range mongoViolations {
-					for _, placeID := range violation.PlacesID {
-						if placeID.Hex() == c.Param("_id") {
-							place.Violations = append(place.Violations, violation)
+				if place.NumberOfViolations != 0 {
+					for _, violation := range mongoViolations {
+						for _, placeID := range violation.PlacesID {
+							if placeID.Hex() == c.Param("_id") {
+								place.Violations = append(place.Violations, violation)
+							}
 						}
 					}
 				}
@@ -116,7 +119,6 @@ func Places(c *gin.Context) {
 		}
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "place not found",
-			"place":   "",
 		})
 	}
 }
@@ -130,12 +132,13 @@ func Violations(c *gin.Context) {
 
 func UpdateAllPlaces() {
 	for {
+		mongoShortPlaces = db.ShortPlaces()
 		mongoPlaces = db.Places()
 		mongoViolations = db.Violations()
 		mongoCoronaViolations = db.CoronaViolations()
 
-		fmt.Println("updated all, sleep for 3 minutes...")
-		time.Sleep(3 * time.Minute)
+		fmt.Println("updated all, sleep for 5 minutes...")
+		time.Sleep(5 * time.Minute)
 	}
 }
 
