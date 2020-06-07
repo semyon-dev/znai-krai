@@ -81,17 +81,24 @@ func Places(c *gin.Context) {
 			"places": mongoPlaces,
 		})
 	} else {
-		for _, v := range mongoPlaces {
-			if v.ID.Hex() == c.Param("_id") {
+		for _, place := range mongoPlaces {
+			if place.ID.Hex() == c.Param("_id") {
 				for _, violation := range mongoViolations {
 					for _, placeID := range violation.PlacesID {
 						if placeID.Hex() == c.Param("_id") {
-							v.Violations = append(v.Violations, violation)
+							place.Violations = append(place.Violations, violation)
+						}
+					}
+				}
+				if place.Coronavirus {
+					for _, corona := range mongoCoronaViolations {
+						if corona.PlaceID == place.ID {
+							place.CoronaViolations = append(place.CoronaViolations, corona)
 						}
 					}
 				}
 				c.JSON(http.StatusOK, gin.H{
-					"place": v,
+					"place": place,
 				})
 				return
 			}

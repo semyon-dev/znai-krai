@@ -162,6 +162,8 @@ type Place struct {
 	Coronavirus bool `json:"coronavirus" bson:"coronavirus"`
 
 	Violations []Violation `json:"violations" bson:"violations"`
+
+	CoronaViolations []CoronaViolation `json:"corona_violations" bson:"corona_violations"`
 }
 
 // credentialsFile is the unmarshalled representation of a credentials file.
