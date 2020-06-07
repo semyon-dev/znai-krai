@@ -134,7 +134,7 @@ func CountAllViolations() int64 {
 	return count
 }
 
-// получение кол-ва нарушений по типу
+// получение кол-ва нарушений по типу для Аналитики
 func CountViolations() map[string]map[string]uint32 {
 
 	var violationsTypes = [...]string{
@@ -166,7 +166,7 @@ func CountViolations() map[string]map[string]uint32 {
 
 	var salaryTypes = [...]string{
 		"От 0 до 100 рублей",
-		"От 100 до 1000 рублей",
+		"От 100 до 1 000 рублей",
 		"От 1 000 до 10 000 рублей",
 		"Зарплата не выплачивается",
 	}
@@ -178,9 +178,14 @@ func CountViolations() map[string]map[string]uint32 {
 
 	violationsCollection := db.Collection("violations")
 	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
+	if cursor == nil {
+		fmt.Println("cursor is nil!")
+		return nil
+	}
 	defer cursor.Close(context.TODO())
 	if err != nil {
 		fmt.Println(err)
+		return nil
 	}
 	// Finding multiple documents returns a cursor
 	// Iterating through the cursor allows us to decode documents one at a time
