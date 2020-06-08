@@ -13,12 +13,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/semyon-dev/znai-krai/config"
 	"github.com/semyon-dev/znai-krai/db"
+	"github.com/semyon-dev/znai-krai/handlers"
 	"github.com/semyon-dev/znai-krai/model"
-	"github.com/semyon-dev/znai-krai/sheet"
 	"github.com/tidwall/gjson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"googlemaps.github.io/maps"
-	"gopkg.in/Iwark/spreadsheet.v2"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -28,12 +27,22 @@ import (
 	"time"
 )
 
-// deprecated:
-var service *spreadsheet.Service
+var service = handlers.Service
 
 var sheetCoronaViolations []model.CoronaViolation
 
 var sheetPlaces []model.Place
+
+// fix TYPE
+func UpdatePlacesType() {
+	UpdateSheetPlaces()
+	for _, v := range sheetPlaces {
+		if strings.Contains(v.Type, "Исправительная колония") && v.Type != "Исправительная колония" {
+			v.Type = "Исправительная колония"
+			db.UpdatePlace(v)
+		}
+	}
+}
 
 // обновляем нарушения коронавируса из Google Sheet всех учреждений
 func UpdateCoronaPlaces() {
@@ -43,7 +52,7 @@ func UpdateCoronaPlaces() {
 	fmt.Println("updating corona sheetPlaces...")
 	sheetCorona, err := sheet.SheetByID(0)
 	checkError(err)
-	sheetPlaces = nil
+	sheetCoronaViolations = nil
 	for i := 1; i <= len(sheetCorona.Rows)-1; i++ {
 		var coronaViolation model.CoronaViolation
 
@@ -73,7 +82,7 @@ func UpdateCoronaPlacesToMongo() {
 	fmt.Println("updating corona sheetPlaces...")
 	sheetCorona, err := sheet.SheetByID(0)
 	checkError(err)
-	sheetPlaces = nil
+	sheetCoronaViolations = nil
 	for i := 1; i <= len(sheetCorona.Rows)-1; i++ {
 
 		var coronaViolation model.CoronaViolation
@@ -93,11 +102,11 @@ func UpdateCoronaPlacesToMongo() {
 		if err != nil {
 			coronaViolation.Position.Lng = 0
 		}
-		for _, mongoPlace := range mongoPlaces {
-			if coronaViolation.Position.Lat == mongoPlace.Position.Lat && coronaViolation.Position.Lng == mongoPlace.Position.Lng {
-				coronaViolation.PlaceID = mongoPlace.ID
-			}
-		}
+		//for _, mongoPlace := range mongoPlaces {
+		//	if coronaViolation.Position.Lat == mongoPlace.Position.Lat && coronaViolation.Position.Lng == mongoPlace.Position.Lng {
+		//		coronaViolation.PlaceID = mongoPlace.ID
+		//	}
+		//}
 		db.AddCoronaViolation(coronaViolation)
 	}
 }
