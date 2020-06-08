@@ -26,6 +26,9 @@ github.com/go-playground/universal-translator
 github.com/go-playground/validator/v10
 # github.com/go-stack/stack v1.8.0
 github.com/go-stack/stack
+# github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
+## explicit
+github.com/go-telegram-bot-api/telegram-bot-api
 # github.com/golang/protobuf v1.3.3
 github.com/golang/protobuf/proto
 # github.com/golang/snappy v0.0.1
@@ -54,8 +57,17 @@ github.com/modern-go/concurrent
 github.com/modern-go/reflect2
 # github.com/pkg/errors v0.8.1
 github.com/pkg/errors
+# github.com/rs/zerolog v1.19.0
+## explicit
+github.com/rs/zerolog
+github.com/rs/zerolog/internal/cbor
+github.com/rs/zerolog/internal/json
+github.com/rs/zerolog/log
 # github.com/sergi/go-diff v1.1.0
 ## explicit
+# github.com/technoweenie/multipartstreamer v1.0.1
+## explicit
+github.com/technoweenie/multipartstreamer
 # github.com/tidwall/gjson v1.6.0
 ## explicit
 github.com/tidwall/gjson

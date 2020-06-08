@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/semyon-dev/znai-krai/config"
 	"github.com/semyon-dev/znai-krai/db"
 	"github.com/semyon-dev/znai-krai/form"
@@ -13,8 +15,12 @@ import (
 
 func main() {
 
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+
 	// загружаем конфиги (API ключи и прочее)
 	config.Load()
+	config.ConnectBot()
+
 	gin.SetMode(os.Getenv("GIN_MODE"))
 
 	// Подключение to Google Sheets
@@ -31,7 +37,7 @@ func main() {
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"znai-krai api": "v0.9.3",
+			"znai-krai api": "v0.9.4",
 		})
 	})
 
@@ -62,12 +68,14 @@ func main() {
 	// получение всех вопросов для заполнения со стороны клиента
 	router.GET("/formQuestions", form.Questions)
 
+	router.POST("/report", form.Report)
+
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
 		port = "8080"
 	}
 	err := router.Run(":" + port)
 	if err != nil {
-		panic("Не получилось запустить:" + err.Error())
+		log.Panic().AnErr("Не получилось запустить:", err)
 	}
 }

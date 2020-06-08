@@ -6,9 +6,12 @@ require (
 	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.6.2
+	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
 	github.com/google/uuid v1.1.1 // indirect
 	github.com/joho/godotenv v1.3.0
+	github.com/rs/zerolog v1.19.0
 	github.com/sergi/go-diff v1.1.0 // indirect
+	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	github.com/tidwall/gjson v1.6.0
 	go.mongodb.org/mongo-driver v1.3.3
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d

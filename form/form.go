@@ -1,23 +1,33 @@
 package form
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
+	"github.com/semyon-dev/znai-krai/config"
 	"net/http"
 )
 
 func Questions(c *gin.Context) {
-	var data res
-	err := json.Unmarshal([]byte(questions), &data)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	c.JSON(http.StatusOK, data.Questions)
+	c.String(http.StatusOK, questions)
 }
 
-type res struct {
-	Questions []question `json:"questions"`
+func Report(c *gin.Context) {
+	var report report
+	err := c.ShouldBind(&report)
+	if err != nil {
+		log.Error().Err(err)
+		c.JSON(http.StatusBadRequest, report)
+		return
+	}
+	hooked := log.Hook(config.ReportHook{})
+	hooked.Error().Msg("new report: " + report.Bug + ", email: " + report.Email)
+	c.JSON(http.StatusOK, report)
+}
+
+// для кнопки "сообщить об ошибке"
+type report struct {
+	Email string `json:"email"` // почта для обратной связи
+	Bug   string `json:"bug"`
 }
 
 type question struct {

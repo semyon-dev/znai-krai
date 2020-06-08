@@ -15,6 +15,8 @@ var (
 	SpreadsheetCoronavirus  string
 	MongoDBLogin            string
 	MongoDBPass             string
+	TelegramAPIToken        string
+	TelegramChatID          string
 )
 
 // функция загрузки конфигов из .env файла/переменных окружения
@@ -31,4 +33,6 @@ func Load() {
 	YandexAPIKey = os.Getenv("YANDEX_API_KEY")
 	MongoDBPass = os.Getenv("MONGO_DB_PASS")
 	MongoDBLogin = os.Getenv("MONGO_DB_LOGIN")
+	TelegramAPIToken = os.Getenv("TELEGRAM_BOT")
+	TelegramChatID = os.Getenv("CHAT_LOGS")
 }
