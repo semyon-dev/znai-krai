@@ -46,13 +46,13 @@ func main() {
 		c.JSON(404, gin.H{"message": "not found"})
 	})
 
-	// метод для получения всех аналитик
+	// метод для получения аналитики
 	router.GET("/analytics", handlers.Analytics)
 
 	// все нарушения разом
 	router.GET("/violations", handlers.Violations)
 
-	// метод для получения всех учреждений из нашей таблицы
+	// методы для получения учреждений из нашей таблицы
 	router.GET("/places/:_id", handlers.Places)
 	router.GET("/places/", handlers.Places)
 
@@ -68,6 +68,7 @@ func main() {
 	// получение всех вопросов для заполнения со стороны клиента
 	router.GET("/formQuestions", form.Questions)
 
+	// репорт для ошибок/багов
 	router.POST("/report", form.Report)
 
 	port := os.Getenv("PORT")
