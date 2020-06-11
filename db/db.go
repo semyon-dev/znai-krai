@@ -235,6 +235,20 @@ func CountViolations() interface{} {
 		"перевозка заключенных в «стаканах»",
 	}
 
+	var extortionsFromEmployeesTypes = [...]string{
+		"при получении свиданий",
+		"при трудоустройстве заключенного",
+		"при решении вопроса об условно-досрочном освобождении",
+		"незаконные требования взамен на свидания и получения передач",
+		"требование купить материалы для ремонта",
+		"при получении лекарств",
+		"за доставку средств связи",
+		"сбор денег на ремонт барака",
+		"при каждом удобном случае",
+		"за поселение в нормальную камеру",
+		"при получении поощрений",
+	}
+
 	var physicalImpact = [...]string{
 		"избиение",
 		"применение наручников",
@@ -402,7 +416,13 @@ func CountViolations() interface{} {
 					stats.Corruption.ExtortionsFromPrisoners["total_count"]++
 				case "extortions_from_employees":
 					stats.Corruption.TotalCount++
-					stats.Corruption.ExtortionsFromEmployees["total_count"]++
+					stats.Corruption.ExtortionsFromEmployees["total_count_appeals"]++
+					for _, typ := range extortionsFromEmployeesTypes {
+						if strings.Contains(strings.ToLower(v), typ) {
+							stats.Corruption.ExtortionsFromEmployees["total_count"]++
+							stats.Corruption.ExtortionsFromEmployees[typ]++
+						}
+					}
 				case "communication_with_relatives":
 					for _, typ := range communicationWithOthers {
 						if strings.Contains(strings.ToLower(v), typ) {
