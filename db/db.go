@@ -408,12 +408,6 @@ func CountViolations() interface{} {
 							stats.PsychologicalImpact.PsychologicalImpactFromPrisoners[typ]++
 						}
 					}
-				case "corruption_from_employees":
-					stats.Corruption.TotalCount++
-					stats.Corruption.CorruptionFromEmployees["total_count"]++
-				case "extortions_from_prisoners":
-					stats.Corruption.TotalCount++
-					stats.Corruption.ExtortionsFromPrisoners["total_count"]++
 				case "extortions_from_employees":
 					stats.Corruption.TotalCount++
 					stats.Corruption.ExtortionsFromEmployees["total_count_appeals"]++
@@ -511,6 +505,7 @@ func CountViolations() interface{} {
 					}
 				}
 			}
+			// если требуется ответы "Да" и "Нет" то минуем проверку на "Нет" в if
 			if vType == "can_prisoners_submit_complaints" && v != "" {
 				if strings.ToLower(v) == "нет" {
 					stats.TotalCount++
@@ -518,6 +513,20 @@ func CountViolations() interface{} {
 				}
 				stats.Communication.CanPrisonersSubmitComplaints[v]++
 				stats.Communication.CanPrisonersSubmitComplaints["total_count"]++
+			} else if vType == "corruption_from_employees" {
+				stats.Corruption.TotalCount++
+				vLower := strings.ToLower(v)
+				if vLower == "да" || vLower == "нет" || vLower == "затрудняюсь ответить" {
+					stats.Corruption.CorruptionFromEmployees["total_count"]++
+					stats.Corruption.CorruptionFromEmployees[v]++
+				}
+			} else if vType == "extortions_from_prisoners" {
+				stats.Corruption.TotalCount++
+				vLower := strings.ToLower(v)
+				if vLower == "да" || vLower == "нет" || vLower == "затрудняюсь ответить" {
+					stats.Corruption.ExtortionsFromPrisoners["total_count"]++
+					stats.Corruption.ExtortionsFromPrisoners[v]++
+				}
 			}
 		}
 	}
