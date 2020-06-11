@@ -461,6 +461,7 @@ func CountViolations() interface{} {
 					for _, typ := range ViolationsMedicalCare {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.ViolationsOfMedicalCare.TotalCount++
+							stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare["total_count"]++
 							stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare[typ]++
 						}
 					}
@@ -481,9 +482,10 @@ func CountViolations() interface{} {
 						}
 					}
 				case "violations_staging":
+					stats.ViolationsStaging.TotalCount++
 					for _, typ := range stagingViolations {
 						if strings.Contains(strings.ToLower(v), typ) {
-							stats.ViolationsStaging.TotalCount++
+							stats.ViolationsStaging.ViolationsStaging["total_count"]++
 							stats.ViolationsStaging.ViolationsStaging[typ]++
 						}
 					}
