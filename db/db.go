@@ -269,9 +269,15 @@ func CountViolations() interface{} {
 			CommunicationWithLawyer      map[string]uint32 `json:"communication_with_lawyer"`
 			CanPrisonersSubmitComplaints map[string]uint32 `json:"can_prisoners_submit_complaints"`
 		} `json:"communication"`
-		ViolationsOfClothes     map[string]uint32 `json:"violations_of_clothes"`
-		ViolationsOfFood        map[string]uint32 `json:"violations_of_food"`
-		ViolationsOfMedicalCare map[string]uint32 `json:"violations_of_medical_care"`
+		ViolationsOfClothes struct {
+			ViolationsOfClothes map[string]uint32 `json:"violations_of_clothes"`
+		} `json:"violations_of_clothes"`
+		ViolationsOfFood struct {
+			ViolationsOfFood map[string]uint32 `json:"violations_of_food"`
+		} `json:"violations_of_food"`
+		ViolationsOfMedicalCare struct {
+			ViolationsOfMedicalCare map[string]uint32 `json:"violations_of_medical_care"`
+		} `json:"violations_of_medical_care"`
 	}
 
 	var stats Stats
@@ -293,9 +299,9 @@ func CountViolations() interface{} {
 	stats.Communication.CommunicationWithRelatives = make(map[string]uint32)
 	stats.Communication.CanPrisonersSubmitComplaints = make(map[string]uint32)
 
-	stats.ViolationsOfClothes = make(map[string]uint32)
-	stats.ViolationsOfFood = make(map[string]uint32)
-	stats.ViolationsOfMedicalCare = make(map[string]uint32)
+	stats.ViolationsOfClothes.ViolationsOfClothes = make(map[string]uint32)
+	stats.ViolationsOfFood.ViolationsOfFood = make(map[string]uint32)
+	stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare = make(map[string]uint32)
 
 	violationsCollection := db.Collection("violations")
 	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
@@ -399,27 +405,27 @@ func CountViolations() interface{} {
 						stats.Job.SalaryOfPrisoners[v]++
 					}
 				case "violations_of_clothes":
-					stats.ViolationsOfClothes["total_count_appeals"]++
+					stats.ViolationsOfClothes.ViolationsOfClothes["total_count_appeals"]++
 					for _, typ := range ViolationsClothes {
 						if strings.Contains(strings.ToLower(v), typ) {
-							stats.ViolationsOfClothes["total_count"]++
-							stats.ViolationsOfClothes[typ]++
+							stats.ViolationsOfClothes.ViolationsOfClothes["total_count"]++
+							stats.ViolationsOfClothes.ViolationsOfClothes[typ]++
 						}
 					}
 				case "violations_of_food":
-					stats.ViolationsOfFood["total_count_appeals"]++
+					stats.ViolationsOfFood.ViolationsOfFood["total_count_appeals"]++
 					for _, typ := range ViolationsFood {
 						if strings.Contains(strings.ToLower(v), typ) {
-							stats.ViolationsOfFood["total_count"]++
-							stats.ViolationsOfFood[typ]++
+							stats.ViolationsOfFood.ViolationsOfFood["total_count"]++
+							stats.ViolationsOfFood.ViolationsOfFood[typ]++
 						}
 					}
 				case "violations_of_medical_care":
-					stats.ViolationsOfMedicalCare["total_count_appeals"]++
+					stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare["total_count_appeals"]++
 					for _, typ := range ViolationsMedicalCare {
 						if strings.Contains(strings.ToLower(v), typ) {
-							stats.ViolationsOfMedicalCare["total_count"]++
-							stats.ViolationsOfMedicalCare[typ]++
+							stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare["total_count"]++
+							stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare[typ]++
 						}
 					}
 				default:
