@@ -69,6 +69,8 @@ func Connect() {
 }
 
 var explanations = map[string]string{
+	"total_count": "общее кол-во обращений",
+
 	"physical_impact_from_employees": "С какими фактами применения физического воздействия со стороны сотрудников ФСИН Вам приходилось сталкиваться?",
 	"physical_impact_from_prisoners": "С какими фактами применения физического воздействия со стороны заключенных Вам приходилось сталкиваться?",
 
@@ -76,13 +78,24 @@ var explanations = map[string]string{
 	"psychological_impact_from_prisoners": "С какими фактами психологического воздействия со стороны заключенных Вам приходилось сталкиваться?",
 
 	"can_prisoners_submit_complaints": "Есть ли у заключенных возможность направлять жалобы, ходатайства и заявления в надзирающие органы и правозащитные организации?",
+
+	"communication_with_relatives": "Какие нарушения, связанные с иными формами общения с Родственниками, Вам известны?",
+	"communication_with_lawyer":    "Какие нарушения, связанные с общением с адвокатом (иным лицом, имеющим право на оказание юридической помощи), Вам известны?",
+
+	"visits_with_relatives": "Какие нарушения, связанные с предоставлением свиданий с Родственниками, Вам известны?",
+
+	"corruption_from_employees": "Приходилось ли Вам сталкиваться с иными случаями коррупции сотрудников ФСИН?",
+	"extortions_from_employees": "В каких случаях Вы сталкивались с фактами вымогательства со стороны сотрудников ФСИН?",
+	"extortions_from_prisoners": "Приходилось ли Вам сталкиваться с фактами вымогательства со стороны заключенных?",
+
+	"violations_of_medical_care": "Какие нарушения, связанные с оказанием медицинской помощи, Вы можете отметить?",
 }
 
 func Analytics(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"violations_stats": db.CountViolations(),
-		"explanations":     explanations,
-		"total_count":      db.CountAllViolations(),
+		"violations_stats":    db.CountViolations(),
+		"explanations":        explanations,
+		"total_count_appeals": db.CountAllViolations(),
 	})
 }
 

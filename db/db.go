@@ -122,7 +122,7 @@ func CountAllViolations() int64 {
 }
 
 // получение кол-ва нарушений по типу для Аналитики
-func CountViolations() map[string]map[string]uint32 {
+func CountViolations() interface{} {
 
 	var violationsTypes = [...]string{
 		"physical_impact_from_employees",
@@ -145,16 +145,41 @@ func CountViolations() map[string]map[string]uint32 {
 		"can_prisoners_submit_complaints",
 	}
 
-	var violationsCommonTypes = [...]string{
-		"physical_impact",
-		"psychological_impact",
-		"corruption",
-		"salary_of_prisoners",
+	//var violationsCommonTypes = [...]string{
+	//	"physical_impact",
+	//	"psychological_impact",
+	//	"corruption",
+	//	"salary_of_prisoners",
+	//	"communication_with_relatives",
+	//	"communication_with_lawyer",
+	//	"visits_with_relatives",
+	//
+	//	// Есть ли у заключенных возможность направлять жалобы, ходатайства и заявления в надзирающие органы и правозащитные организации?
+	//	"can_prisoners_submit_complaints",
+	//
+	//	"other",
+	//}
 
-		// Есть ли у заключенных возможность направлять жалобы, ходатайства и заявления в надзирающие органы и правозащитные организации?
-		"submit_complaints",
+	var visitsWithRelatives = [...]string{
+		"сокращение времени свиданий",
+		"несвоевременной предоставление свиданий",
+		"отказ в предоставлении свиданий",
+	}
 
-		"other",
+	var communicationWithOthers = [...]string{
+		"отказ в телефонных звонках",
+		"отказ в почтовой (телеграфной) переписке",
+		"отказ в приёме передач", // отказ в приёме передач более 20 кг в колонии-поселении
+		"не сталкивался с нарушениями",
+		"не сразу отдают посылки",
+		"цензура",                      // цензура переписки
+		"нарушение конфиденциальности", // нарушение конфиденциальности свидания
+		"отказ в свидании",             // отказ в свидании с заключенным
+		"много нервотрепки и унижений со стороны администрации",
+		"затягивание предоставления свиданий",
+		"недопуск адвоката",
+		"Следователь беспрепятственно может устроить допрос без адвоката",
+		"ограничение времени",
 	}
 
 	var salaryTypes = [...]string{
@@ -164,10 +189,41 @@ func CountViolations() map[string]map[string]uint32 {
 		"Зарплата не выплачивается",
 	}
 
-	var violations = map[string]map[string]uint32{}
-	for _, v := range violationsCommonTypes {
-		violations[v] = map[string]uint32{}
+	//type Subcategory struct {
+	//	TotalCount uint32            `json:"total_count"`
+	//	Values     map[string]uint32 `json:"values"`
+	//}
+	//
+	//type Category struct {
+	//	TotalCount  uint32                 `json:"total_count"`
+	//	Subcategory map[string]Subcategory `json:"subcategory"`
+	//}
+
+	type Stats struct {
+		TotalCount     uint32 `json:"total_count"`
+		PhysicalImpact struct {
+			TotalCount                  uint32            `json:"total_count"`
+			PhysicalImpactFromEmployees map[string]uint32 `json:"physical_impact_from_employees"`
+			PhysicalImpactFromPrisoners map[string]uint32 `json:"physical_impact_from_prisoners"`
+		} `json:"physical_impact"`
+		PsychologicalImpact struct {
+			TotalCount                       uint32            `json:"total_count"`
+			PsychologicalImpactFromEmployees map[string]uint32 `json:"psychological_impact_from_employees"`
+			PsychologicalImpactFromPrisoners map[string]uint32 `json:"psychological_impact_from_prisoners"`
+		} `json:"psychological_impact"`
+		Job struct {
+			TotalCount        uint32            `json:"total_count"`
+			LaborSlavery      uint32            `json:"labor_slavery"`
+			SalaryOfPrisoners map[string]uint32 `json:"salary_of_prisoners"`
+		} `json:"job"`
 	}
+
+	var stats Stats
+	stats.PhysicalImpact.PhysicalImpactFromEmployees = make(map[string]uint32)
+	stats.PhysicalImpact.PhysicalImpactFromPrisoners = make(map[string]uint32)
+	stats.PsychologicalImpact.PsychologicalImpactFromEmployees = make(map[string]uint32)
+	stats.PsychologicalImpact.PsychologicalImpactFromPrisoners = make(map[string]uint32)
+	stats.Job.SalaryOfPrisoners = make(map[string]uint32)
 
 	violationsCollection := db.Collection("violations")
 	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
@@ -186,13 +242,34 @@ func CountViolations() map[string]map[string]uint32 {
 		for _, vType := range violationsTypes {
 			v := cursor.Current.Lookup(vType).StringValue()
 			if v != "" && v != "\t" && v != "\n" && strings.ToLower(v) != "нет" && v != "Не сталкивался с нарушениями" {
+				stats.TotalCount++
 				switch {
-				case vType == "physical_impact_from_employees" || vType == "physical_impact_from_prisoners":
-					violations["physical_impact"][vType]++
-				case vType == "psychological_impact_from_employees" || vType == "psychological_impact_from_prisoners":
-					violations["psychological_impact"][vType]++
+				case vType == "physical_impact_from_employees":
+					stats.PhysicalImpact.TotalCount++
+					stats.PhysicalImpact.PhysicalImpactFromEmployees["total_count"]++
+				case vType == "physical_impact_from_prisoners":
+					stats.PhysicalImpact.TotalCount++
+					stats.PhysicalImpact.PhysicalImpactFromPrisoners["total_count"]++
+				case vType == "psychological_impact_from_employees":
+					stats.PsychologicalImpact.TotalCount++
+					stats.PsychologicalImpact.PsychologicalImpactFromEmployees["total_count"]++
+				case vType == "psychological_impact_from_prisoners":
+					stats.PsychologicalImpact.TotalCount++
+					stats.PsychologicalImpact.PsychologicalImpactFromPrisoners["total_count"]++
 				case vType == "corruption_from_employees" || vType == "extortions_from_employees" || vType == "extortions_from_prisoners":
-					violations["corruption"][vType]++
+					// TODO
+				case vType == "communication_with_relatives" || vType == "communication_with_lawyer":
+					for _, typ := range communicationWithOthers {
+						if strings.Contains(strings.ToLower(v), typ) {
+							// TODO: violations[vType][typ]++
+						}
+					}
+				case vType == "visits_with_relatives":
+					for _, typ := range visitsWithRelatives {
+						if strings.Contains(strings.ToLower(v), typ) {
+							// TODO: violations[vType][typ]++
+						}
+					}
 				case vType == "salary_of_prisoners":
 					var exist bool
 					for _, vSalary := range salaryTypes {
@@ -202,15 +279,15 @@ func CountViolations() map[string]map[string]uint32 {
 						}
 					}
 					if exist {
-						violations["salary_of_prisoners"][v]++
+						stats.Job.SalaryOfPrisoners[v]++
 					}
 				default:
-					violations["other"][vType]++
+					// TODO: violations["other"][vType]++
 				}
 			}
 			if vType == "can_prisoners_submit_complaints" {
 				if v != "" {
-					violations["submit_complaints"][v]++
+					// TODO:  violations["can_prisoners_submit_complaints"][v]++
 				}
 			}
 		}
@@ -218,5 +295,13 @@ func CountViolations() map[string]map[string]uint32 {
 	if err := cursor.Err(); err != nil {
 		fmt.Println(err)
 	}
-	return violations
+	//
+	//categories["physical_impact"] = *physicalImpact
+	//categories["corruption"] = *corruption
+	//categories["psychological_impact"] = *psychologicalImpact
+
+	//physicalImpact.Subcategory["physical_impact_from_prisoners"] = *physicalImpactFromPrisoners
+	//physicalImpact.Subcategory["physical_impact_from_employees"] = *physicalImpactFromEmployees
+
+	return stats
 }
