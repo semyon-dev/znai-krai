@@ -145,21 +145,6 @@ func CountViolations() interface{} {
 		"can_prisoners_submit_complaints",
 	}
 
-	//var violationsCommonTypes = [...]string{
-	//	"physical_impact",
-	//	"psychological_impact",
-	//	"corruption",
-	//	"salary_of_prisoners",
-	//	"communication_with_relatives",
-	//	"communication_with_lawyer",
-	//	"visits_with_relatives",
-	//
-	//	// Есть ли у заключенных возможность направлять жалобы, ходатайства и заявления в надзирающие органы и правозащитные организации?
-	//	"can_prisoners_submit_complaints",
-	//
-	//	"other",
-	//}
-
 	var visitsWithRelatives = [...]string{
 		"сокращение времени свиданий",
 		"несвоевременной предоставление свиданий",
@@ -189,25 +174,49 @@ func CountViolations() interface{} {
 		"Зарплата не выплачивается",
 	}
 
-	//type Subcategory struct {
-	//	TotalCount uint32            `json:"total_count"`
-	//	Values     map[string]uint32 `json:"values"`
-	//}
-	//
-	//type Category struct {
-	//	TotalCount  uint32                 `json:"total_count"`
-	//	Subcategory map[string]Subcategory `json:"subcategory"`
-	//}
+	var PsychologicalImpact = [...]string{
+		"угроза применения пыток",
+		"угроза применения административного взыскания",
+		"унижение",
+		"применение коллективного взыскания к группе заключенных",
+		"угроза моим детям",
+		"угроза жизни", // Угроза жизни осуждённому
+		"применение силы без причины",
+		"угроза закрыть в ЕПКТ",
+	}
+
+	var physicalImpact = [...]string{
+		"избиение",
+		"применение наручников",
+		"избиение",
+		"унижение",
+		"унизительные процедуры",
+		"вымогательство",
+		"применение электрического тока",
+		"подвешивание",
+		"привязывание",
+		"нахождение в неудобной позе",
+		"удушение",
+		"провокация",
+		"воруют вещи",
+		"перекидывают в разные камеры",
+		"лишение еды и питья",
+		"поливание водой",
+		"оставляли зимой в бетонной комнате с открытыми окнами и раздетым до трусов",
+		"тяжелая физическая работа без ограничения продолжительности",
+	}
 
 	type Stats struct {
 		TotalCount     uint32 `json:"total_count"`
 		PhysicalImpact struct {
 			TotalCount                  uint32            `json:"total_count"`
+			TotalCountAppeals           uint32            `json:"total_count_appeals"`
 			PhysicalImpactFromEmployees map[string]uint32 `json:"physical_impact_from_employees"`
 			PhysicalImpactFromPrisoners map[string]uint32 `json:"physical_impact_from_prisoners"`
 		} `json:"physical_impact"`
 		PsychologicalImpact struct {
 			TotalCount                       uint32            `json:"total_count"`
+			TotalCountAppeals                uint32            `json:"total_count_appeals"`
 			PsychologicalImpactFromEmployees map[string]uint32 `json:"psychological_impact_from_employees"`
 			PsychologicalImpactFromPrisoners map[string]uint32 `json:"psychological_impact_from_prisoners"`
 		} `json:"psychological_impact"`
@@ -270,17 +279,41 @@ func CountViolations() interface{} {
 				stats.TotalCount++
 				switch vType {
 				case "physical_impact_from_employees":
-					stats.PhysicalImpact.TotalCount++
+					stats.PhysicalImpact.TotalCountAppeals++
 					stats.PhysicalImpact.PhysicalImpactFromEmployees["total_count"]++
+					for _, typ := range physicalImpact {
+						if strings.Contains(strings.ToLower(v), typ) {
+							stats.PhysicalImpact.TotalCount++
+							stats.PhysicalImpact.PhysicalImpactFromEmployees[typ]++
+						}
+					}
 				case "physical_impact_from_prisoners":
-					stats.PhysicalImpact.TotalCount++
+					stats.PhysicalImpact.TotalCountAppeals++
 					stats.PhysicalImpact.PhysicalImpactFromPrisoners["total_count"]++
+					for _, typ := range physicalImpact {
+						if strings.Contains(strings.ToLower(v), typ) {
+							stats.PhysicalImpact.TotalCount++
+							stats.PhysicalImpact.PhysicalImpactFromPrisoners[typ]++
+						}
+					}
 				case "psychological_impact_from_employees":
-					stats.PsychologicalImpact.TotalCount++
+					stats.PsychologicalImpact.TotalCountAppeals++
 					stats.PsychologicalImpact.PsychologicalImpactFromEmployees["total_count"]++
+					for _, typ := range PsychologicalImpact {
+						if strings.Contains(strings.ToLower(v), typ) {
+							stats.PsychologicalImpact.TotalCount++
+							stats.PsychologicalImpact.PsychologicalImpactFromEmployees[typ]++
+						}
+					}
 				case "psychological_impact_from_prisoners":
-					stats.PsychologicalImpact.TotalCount++
+					stats.PsychologicalImpact.TotalCountAppeals++
 					stats.PsychologicalImpact.PsychologicalImpactFromPrisoners["total_count"]++
+					for _, typ := range PsychologicalImpact {
+						if strings.Contains(strings.ToLower(v), typ) {
+							stats.PsychologicalImpact.TotalCount++
+							stats.PsychologicalImpact.PsychologicalImpactFromPrisoners[typ]++
+						}
+					}
 				case "corruption_from_employees":
 					stats.Corruption.TotalCount++
 					stats.Corruption.CorruptionFromEmployees["total_count"]++

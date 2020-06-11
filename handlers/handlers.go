@@ -26,6 +26,8 @@ var mongoShortPlaces []model.ShortPlace
 var mongoViolations []model.Violation
 var mongoCoronaViolations []model.CoronaViolation
 
+var violationsStats interface{}
+
 // Connect to Google Sheets
 func Connect() {
 	var data []byte
@@ -93,7 +95,7 @@ var explanations = map[string]string{
 
 func Analytics(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"violations_stats":    db.CountViolations(),
+		"violations_stats":    violationsStats,
 		"explanations":        explanations,
 		"total_count_appeals": db.CountAllViolations(),
 	})
@@ -149,6 +151,7 @@ func UpdateAllPlaces() {
 		mongoPlaces = db.Places()
 		mongoViolations = db.Violations()
 		mongoCoronaViolations = db.CoronaViolations()
+		violationsStats = db.CountViolations()
 
 		fmt.Println("updated all, sleep for 5 minutes...")
 		time.Sleep(5 * time.Minute)
