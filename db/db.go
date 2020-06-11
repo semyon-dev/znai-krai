@@ -216,14 +216,39 @@ func CountViolations() interface{} {
 			LaborSlavery      uint32            `json:"labor_slavery"`
 			SalaryOfPrisoners map[string]uint32 `json:"salary_of_prisoners"`
 		} `json:"job"`
+		Corruption struct {
+			TotalCount              uint32            `json:"total_count"`
+			CorruptionFromEmployees map[string]uint32 `json:"corruption_from_employees"`
+			ExtortionsFromEmployees map[string]uint32 `json:"extortions_from_employees"`
+			ExtortionsFromPrisoners map[string]uint32 `json:"extortions_from_prisoners"`
+		} `json:"corruption"`
+		Communication struct {
+			TotalCount                   uint32            `json:"total_count"`
+			VisitsWithRelatives          map[string]uint32 `json:"visits_with_relatives"`
+			CommunicationWithRelatives   map[string]uint32 `json:"communication_with_relatives"`
+			CommunicationWithLawyer      map[string]uint32 `json:"communication_with_lawyer"`
+			CanPrisonersSubmitComplaints map[string]uint32 `json:"can_prisoners_submit_complaints"`
+		} `json:"communication"`
 	}
 
 	var stats Stats
+
 	stats.PhysicalImpact.PhysicalImpactFromEmployees = make(map[string]uint32)
 	stats.PhysicalImpact.PhysicalImpactFromPrisoners = make(map[string]uint32)
+
 	stats.PsychologicalImpact.PsychologicalImpactFromEmployees = make(map[string]uint32)
 	stats.PsychologicalImpact.PsychologicalImpactFromPrisoners = make(map[string]uint32)
+
 	stats.Job.SalaryOfPrisoners = make(map[string]uint32)
+
+	stats.Corruption.CorruptionFromEmployees = make(map[string]uint32)
+	stats.Corruption.ExtortionsFromEmployees = make(map[string]uint32)
+	stats.Corruption.ExtortionsFromPrisoners = make(map[string]uint32)
+
+	stats.Communication.VisitsWithRelatives = make(map[string]uint32)
+	stats.Communication.CommunicationWithLawyer = make(map[string]uint32)
+	stats.Communication.CommunicationWithRelatives = make(map[string]uint32)
+	stats.Communication.CanPrisonersSubmitComplaints = make(map[string]uint32)
 
 	violationsCollection := db.Collection("violations")
 	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
@@ -243,34 +268,53 @@ func CountViolations() interface{} {
 			v := cursor.Current.Lookup(vType).StringValue()
 			if v != "" && v != "\t" && v != "\n" && strings.ToLower(v) != "нет" && v != "Не сталкивался с нарушениями" {
 				stats.TotalCount++
-				switch {
-				case vType == "physical_impact_from_employees":
+				switch vType {
+				case "physical_impact_from_employees":
 					stats.PhysicalImpact.TotalCount++
 					stats.PhysicalImpact.PhysicalImpactFromEmployees["total_count"]++
-				case vType == "physical_impact_from_prisoners":
+				case "physical_impact_from_prisoners":
 					stats.PhysicalImpact.TotalCount++
 					stats.PhysicalImpact.PhysicalImpactFromPrisoners["total_count"]++
-				case vType == "psychological_impact_from_employees":
+				case "psychological_impact_from_employees":
 					stats.PsychologicalImpact.TotalCount++
 					stats.PsychologicalImpact.PsychologicalImpactFromEmployees["total_count"]++
-				case vType == "psychological_impact_from_prisoners":
+				case "psychological_impact_from_prisoners":
 					stats.PsychologicalImpact.TotalCount++
 					stats.PsychologicalImpact.PsychologicalImpactFromPrisoners["total_count"]++
-				case vType == "corruption_from_employees" || vType == "extortions_from_employees" || vType == "extortions_from_prisoners":
-					// TODO
-				case vType == "communication_with_relatives" || vType == "communication_with_lawyer":
+				case "corruption_from_employees":
+					stats.Corruption.TotalCount++
+					stats.Corruption.CorruptionFromEmployees["total_count"]++
+				case "extortions_from_prisoners":
+					stats.Corruption.TotalCount++
+					stats.Corruption.ExtortionsFromPrisoners["total_count"]++
+				case "extortions_from_employees":
+					stats.Corruption.TotalCount++
+					stats.Corruption.ExtortionsFromEmployees["total_count"]++
+				case "communication_with_relatives":
 					for _, typ := range communicationWithOthers {
 						if strings.Contains(strings.ToLower(v), typ) {
-							// TODO: violations[vType][typ]++
+							stats.Communication.TotalCount++
+							stats.Communication.CommunicationWithRelatives["total_count"]++
+							stats.Communication.CommunicationWithRelatives[typ]++
 						}
 					}
-				case vType == "visits_with_relatives":
+				case "communication_with_lawyer":
+					for _, typ := range communicationWithOthers {
+						if strings.Contains(strings.ToLower(v), typ) {
+							stats.Communication.TotalCount++
+							stats.Communication.CommunicationWithLawyer["total_count"]++
+							stats.Communication.CommunicationWithLawyer[typ]++
+						}
+					}
+				case "visits_with_relatives":
 					for _, typ := range visitsWithRelatives {
 						if strings.Contains(strings.ToLower(v), typ) {
-							// TODO: violations[vType][typ]++
+							stats.Communication.TotalCount++
+							stats.Communication.VisitsWithRelatives["total_count"]++
+							stats.Communication.VisitsWithRelatives[typ]++
 						}
 					}
-				case vType == "salary_of_prisoners":
+				case "salary_of_prisoners":
 					var exist bool
 					for _, vSalary := range salaryTypes {
 						if v == vSalary {
@@ -279,29 +323,26 @@ func CountViolations() interface{} {
 						}
 					}
 					if exist {
+						stats.Job.TotalCount++
+						stats.Job.SalaryOfPrisoners["total_count"]++
 						stats.Job.SalaryOfPrisoners[v]++
 					}
 				default:
 					// TODO: violations["other"][vType]++
 				}
 			}
-			if vType == "can_prisoners_submit_complaints" {
-				if v != "" {
-					// TODO:  violations["can_prisoners_submit_complaints"][v]++
+			if vType == "can_prisoners_submit_complaints" && v != "" {
+				if strings.ToLower(v) == "нет" {
+					stats.TotalCount++
+					stats.Communication.TotalCount++
 				}
+				stats.Communication.CanPrisonersSubmitComplaints[v]++
 			}
 		}
 	}
 	if err := cursor.Err(); err != nil {
 		fmt.Println(err)
 	}
-	//
-	//categories["physical_impact"] = *physicalImpact
-	//categories["corruption"] = *corruption
-	//categories["psychological_impact"] = *psychologicalImpact
-
-	//physicalImpact.Subcategory["physical_impact_from_prisoners"] = *physicalImpactFromPrisoners
-	//physicalImpact.Subcategory["physical_impact_from_employees"] = *physicalImpactFromEmployees
 
 	return stats
 }
