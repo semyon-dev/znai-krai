@@ -37,7 +37,7 @@ func main() {
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"znai-krai api": "v0.9.6.1 beta",
+			"znai-krai api": "v0.9.7.0 beta",
 		})
 	})
 
@@ -48,6 +48,8 @@ func main() {
 
 	// метод для получения аналитики
 	router.GET("/analytics", handlers.Analytics)
+
+	router.GET("/explanations", handlers.Explanations)
 
 	// все нарушения разом
 	router.GET("/violations", handlers.Violations)

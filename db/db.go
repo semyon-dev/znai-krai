@@ -135,14 +135,22 @@ func CountViolations() interface{} {
 		"extortions_from_employees",
 		"extortions_from_prisoners",
 
-		"violations_of_medical_care",
 		"visits_with_relatives",
 		"communication_with_relatives",
 		"communication_with_lawyer",
+		"can_prisoners_submit_complaints",
 
 		"salary_of_prisoners",
+		"labor_slavery",
 
-		"can_prisoners_submit_complaints",
+		"violations_of_food",
+		"violations_of_medical_care",
+		"violations_of_clothes",
+
+		"violations_staging",
+		"violations_religious_rites_from_employees",
+		"violations_religious_rites_from_prisoners",
+		"violations_penalties_related_to_placement",
 	}
 
 	var visitsWithRelatives = [...]string{
@@ -163,7 +171,7 @@ func CountViolations() interface{} {
 		"много нервотрепки и унижений со стороны администрации",
 		"затягивание предоставления свиданий",
 		"недопуск адвоката",
-		"Следователь беспрепятственно может устроить допрос без адвоката",
+		"следователь беспрепятственно может устроить допрос без адвоката",
 		"ограничение времени",
 	}
 
@@ -172,6 +180,29 @@ func CountViolations() interface{} {
 		"От 100 до 1 000 рублей",
 		"От 1 000 до 10 000 рублей",
 		"Зарплата не выплачивается",
+	}
+
+	var ViolationsClothes = [...]string{
+		"отсутствие (несвоевременная выдача) зимней одежды и обуви",
+		"отсутствие одежды и обуви по размеру",
+	}
+
+	var ViolationsFood = [...]string{
+		"маленькие порции",
+		"отсутствие мясных продуктов",
+		"испорченные продукты",
+		"однообразное питание",
+		"однообразное меню",
+		"кислые овощи",
+		"отсутствие молочных продуктов, грязные каши",
+		"грязные каши",
+	}
+
+	var ViolationsMedicalCare = [...]string{
+		"отказ в оказании медицинской помощи",
+		"медицинская помощь была недостаточная или оказана с задержкой",
+		"отказ в стоматологической помощи",
+		"медикаменты отсутствовали или были испорчены",
 	}
 
 	var PsychologicalImpact = [...]string{
@@ -238,6 +269,9 @@ func CountViolations() interface{} {
 			CommunicationWithLawyer      map[string]uint32 `json:"communication_with_lawyer"`
 			CanPrisonersSubmitComplaints map[string]uint32 `json:"can_prisoners_submit_complaints"`
 		} `json:"communication"`
+		ViolationsOfClothes     map[string]uint32 `json:"violations_of_clothes"`
+		ViolationsOfFood        map[string]uint32 `json:"violations_of_food"`
+		ViolationsOfMedicalCare map[string]uint32 `json:"violations_of_medical_care"`
 	}
 
 	var stats Stats
@@ -258,6 +292,10 @@ func CountViolations() interface{} {
 	stats.Communication.CommunicationWithLawyer = make(map[string]uint32)
 	stats.Communication.CommunicationWithRelatives = make(map[string]uint32)
 	stats.Communication.CanPrisonersSubmitComplaints = make(map[string]uint32)
+
+	stats.ViolationsOfClothes = make(map[string]uint32)
+	stats.ViolationsOfFood = make(map[string]uint32)
+	stats.ViolationsOfMedicalCare = make(map[string]uint32)
 
 	violationsCollection := db.Collection("violations")
 	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
@@ -360,6 +398,30 @@ func CountViolations() interface{} {
 						stats.Job.SalaryOfPrisoners["total_count"]++
 						stats.Job.SalaryOfPrisoners[v]++
 					}
+				case "violations_of_clothes":
+					stats.ViolationsOfClothes["total_count_appeals"]++
+					for _, typ := range ViolationsClothes {
+						if strings.Contains(strings.ToLower(v), typ) {
+							stats.ViolationsOfClothes["total_count"]++
+							stats.ViolationsOfClothes[typ]++
+						}
+					}
+				case "violations_of_food":
+					stats.ViolationsOfFood["total_count_appeals"]++
+					for _, typ := range ViolationsFood {
+						if strings.Contains(strings.ToLower(v), typ) {
+							stats.ViolationsOfFood["total_count"]++
+							stats.ViolationsOfFood[typ]++
+						}
+					}
+				case "violations_of_medical_care":
+					stats.ViolationsOfMedicalCare["total_count_appeals"]++
+					for _, typ := range ViolationsMedicalCare {
+						if strings.Contains(strings.ToLower(v), typ) {
+							stats.ViolationsOfMedicalCare["total_count"]++
+							stats.ViolationsOfMedicalCare[typ]++
+						}
+					}
 				default:
 					// TODO: violations["other"][vType]++
 				}
@@ -376,6 +438,5 @@ func CountViolations() interface{} {
 	if err := cursor.Err(); err != nil {
 		fmt.Println(err)
 	}
-
 	return stats
 }

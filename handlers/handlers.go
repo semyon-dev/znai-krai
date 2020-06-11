@@ -96,9 +96,12 @@ var explanations = map[string]string{
 func Analytics(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"violations_stats":    violationsStats,
-		"explanations":        explanations,
 		"total_count_appeals": db.CountAllViolations(),
 	})
+}
+
+func Explanations(c *gin.Context) {
+	c.JSON(http.StatusOK, explanations)
 }
 
 // получение всех/одного ФСИН учреждений
