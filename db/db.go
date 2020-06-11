@@ -216,6 +216,25 @@ func CountViolations() interface{} {
 		"угроза закрыть в ЕПКТ",
 	}
 
+	var religiousViolations = [...]string{
+		"отказ в посещении храма",
+		"запрет ночной молитвы",
+		"запрет на хранение (передачу) религиозной литературы",
+		"предметов культа",
+		"оскорбления",
+		"притеснения по религиозным мотивам",
+		"в браке не давали молиться активисты",
+	}
+
+	var stagingViolations = [...]string{
+		"переполненность сборочной камеры",
+		"отсутствие вентиляции (отопления)",
+		"совместное нахождение с инфекционными больными",
+		"неоказание медицинской помощи",
+		"отсутствие (недостаток) питания",
+		"перевозка заключенных в «стаканах»",
+	}
+
 	var physicalImpact = [...]string{
 		"избиение",
 		"применение наручников",
@@ -270,14 +289,26 @@ func CountViolations() interface{} {
 			CanPrisonersSubmitComplaints map[string]uint32 `json:"can_prisoners_submit_complaints"`
 		} `json:"communication"`
 		ViolationsOfClothes struct {
+			TotalCount          uint32            `json:"total_count"`
 			ViolationsOfClothes map[string]uint32 `json:"violations_of_clothes"`
 		} `json:"violations_of_clothes"`
 		ViolationsOfFood struct {
+			TotalCount       uint32            `json:"total_count"`
 			ViolationsOfFood map[string]uint32 `json:"violations_of_food"`
 		} `json:"violations_of_food"`
 		ViolationsOfMedicalCare struct {
+			TotalCount              uint32            `json:"total_count"`
 			ViolationsOfMedicalCare map[string]uint32 `json:"violations_of_medical_care"`
 		} `json:"violations_of_medical_care"`
+		ViolationsStaging struct {
+			TotalCount        uint32            `json:"total_count"`
+			ViolationsStaging map[string]uint32 `json:"violations_staging"`
+		} `json:"violations_staging"`
+		Religion struct {
+			TotalCount                            uint32            `json:"total_count"`
+			ViolationsReligiousRitesFromEmployees map[string]uint32 `json:"violations_religious_rites_from_employees"`
+			ViolationsReligiousRitesFromPrisoners map[string]uint32 `json:"violations_religious_rites_from_prisoners"`
+		} `json:"religion"`
 	}
 
 	var stats Stats
@@ -302,6 +333,11 @@ func CountViolations() interface{} {
 	stats.ViolationsOfClothes.ViolationsOfClothes = make(map[string]uint32)
 	stats.ViolationsOfFood.ViolationsOfFood = make(map[string]uint32)
 	stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare = make(map[string]uint32)
+
+	stats.Religion.ViolationsReligiousRitesFromEmployees = make(map[string]uint32)
+	stats.Religion.ViolationsReligiousRitesFromPrisoners = make(map[string]uint32)
+
+	stats.ViolationsStaging.ViolationsStaging = make(map[string]uint32)
 
 	violationsCollection := db.Collection("violations")
 	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
@@ -408,7 +444,7 @@ func CountViolations() interface{} {
 					stats.ViolationsOfClothes.ViolationsOfClothes["total_count_appeals"]++
 					for _, typ := range ViolationsClothes {
 						if strings.Contains(strings.ToLower(v), typ) {
-							stats.ViolationsOfClothes.ViolationsOfClothes["total_count"]++
+							stats.ViolationsOfClothes.TotalCount++
 							stats.ViolationsOfClothes.ViolationsOfClothes[typ]++
 						}
 					}
@@ -416,7 +452,7 @@ func CountViolations() interface{} {
 					stats.ViolationsOfFood.ViolationsOfFood["total_count_appeals"]++
 					for _, typ := range ViolationsFood {
 						if strings.Contains(strings.ToLower(v), typ) {
-							stats.ViolationsOfFood.ViolationsOfFood["total_count"]++
+							stats.ViolationsOfFood.TotalCount++
 							stats.ViolationsOfFood.ViolationsOfFood[typ]++
 						}
 					}
@@ -424,12 +460,33 @@ func CountViolations() interface{} {
 					stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare["total_count_appeals"]++
 					for _, typ := range ViolationsMedicalCare {
 						if strings.Contains(strings.ToLower(v), typ) {
-							stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare["total_count"]++
+							stats.ViolationsOfMedicalCare.TotalCount++
 							stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare[typ]++
 						}
 					}
-				default:
-					// TODO: violations["other"][vType]++
+				case "violations_religious_rites_from_employees":
+					stats.Religion.TotalCount++
+					for _, typ := range religiousViolations {
+						if strings.Contains(strings.ToLower(v), typ) {
+							stats.Religion.ViolationsReligiousRitesFromEmployees["total_count"]++
+							stats.Religion.ViolationsReligiousRitesFromEmployees[typ]++
+						}
+					}
+				case "violations_religious_rites_from_prisoners":
+					stats.Religion.TotalCount++
+					for _, typ := range religiousViolations {
+						if strings.Contains(strings.ToLower(v), typ) {
+							stats.Religion.ViolationsReligiousRitesFromPrisoners["total_count"]++
+							stats.Religion.ViolationsReligiousRitesFromPrisoners[typ]++
+						}
+					}
+				case "violations_staging":
+					for _, typ := range stagingViolations {
+						if strings.Contains(strings.ToLower(v), typ) {
+							stats.ViolationsStaging.TotalCount++
+							stats.ViolationsStaging.ViolationsStaging[typ]++
+						}
+					}
 				}
 			}
 			if vType == "can_prisoners_submit_complaints" && v != "" {
