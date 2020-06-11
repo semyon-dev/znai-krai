@@ -246,6 +246,15 @@ func CountViolations() interface{} {
 		"перевозка заключенных в «стаканах»",
 	}
 
+	var violationsWithPlacementInPunishmentCellTypes = [...]string{
+		"наказание за жалобу на условия содержания",
+		"наказание за отказ от сотрудничества с администрацией",
+		"непризнание вины",
+		"наказание за отказ от дачи показаний",
+		"произвольное продление сроков взыскания",
+		"курение сигарет",
+	}
+
 	var extortionsFromEmployeesTypes = [...]string{
 		"при получении свиданий",
 		"при трудоустройстве заключенного",
@@ -334,6 +343,10 @@ func CountViolations() interface{} {
 			ViolationsReligiousRitesFromEmployees map[string]uint32 `json:"violations_religious_rites_from_employees"`
 			ViolationsReligiousRitesFromPrisoners map[string]uint32 `json:"violations_religious_rites_from_prisoners"`
 		} `json:"religion"`
+		ViolationsWithPlacementInPunishmentCell struct {
+			TotalCount                              uint32            `json:"total_count"`
+			ViolationsWithPlacementInPunishmentCell map[string]uint32 `json:"violations_with_placement_in_punishment_cell"`
+		} `json:"violations_with_placement_in_punishment_cell"`
 	}
 
 	var stats Stats
@@ -363,6 +376,7 @@ func CountViolations() interface{} {
 	stats.Religion.ViolationsReligiousRitesFromPrisoners = make(map[string]uint32)
 
 	stats.ViolationsStaging.ViolationsStaging = make(map[string]uint32)
+	stats.ViolationsWithPlacementInPunishmentCell.ViolationsWithPlacementInPunishmentCell = make(map[string]uint32)
 
 	violationsCollection := db.Collection("violations")
 	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
@@ -450,6 +464,14 @@ func CountViolations() interface{} {
 							stats.Communication.TotalCount++
 							stats.Communication.VisitsWithRelatives["total_count"]++
 							stats.Communication.VisitsWithRelatives[typ]++
+						}
+					}
+				case "violations_penalties_related_to_placement":
+					for _, typ := range violationsWithPlacementInPunishmentCellTypes {
+						if strings.Contains(strings.ToLower(v), typ) {
+							stats.ViolationsWithPlacementInPunishmentCell.TotalCount++
+							stats.ViolationsWithPlacementInPunishmentCell.ViolationsWithPlacementInPunishmentCell["total_count"]++
+							stats.ViolationsWithPlacementInPunishmentCell.ViolationsWithPlacementInPunishmentCell[typ]++
 						}
 					}
 				case "salary_of_prisoners":
