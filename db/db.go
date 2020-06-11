@@ -432,6 +432,7 @@ func CountViolations() interface{} {
 					stats.Communication.TotalCount++
 				}
 				stats.Communication.CanPrisonersSubmitComplaints[v]++
+				stats.Communication.CanPrisonersSubmitComplaints["total_count"]++
 			}
 		}
 	}
