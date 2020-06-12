@@ -293,14 +293,14 @@ func CountViolations() interface{} {
 	type Stats struct {
 		TotalCount     uint32 `json:"total_count"`
 		PhysicalImpact struct {
-			TotalCount                  uint32            `json:"total_count"`
 			TotalCountAppeals           uint32            `json:"total_count_appeals"`
+			TotalCount                  uint32            `json:"total_count"`
 			PhysicalImpactFromEmployees map[string]uint32 `json:"physical_impact_from_employees"`
 			PhysicalImpactFromPrisoners map[string]uint32 `json:"physical_impact_from_prisoners"`
 		} `json:"physical_impact"`
 		PsychologicalImpact struct {
-			TotalCount                       uint32            `json:"total_count"`
 			TotalCountAppeals                uint32            `json:"total_count_appeals"`
+			TotalCount                       uint32            `json:"total_count"`
 			PsychologicalImpactFromEmployees map[string]uint32 `json:"psychological_impact_from_employees"`
 			PsychologicalImpactFromPrisoners map[string]uint32 `json:"psychological_impact_from_prisoners"`
 		} `json:"psychological_impact"`
@@ -311,12 +311,14 @@ func CountViolations() interface{} {
 			SalaryOfPrisoners map[string]uint32 `json:"salary_of_prisoners"`
 		} `json:"job"`
 		Corruption struct {
+			TotalCountAppeals       uint32            `json:"total_count_appeals"`
 			TotalCount              uint32            `json:"total_count"`
 			CorruptionFromEmployees map[string]uint32 `json:"corruption_from_employees"`
 			ExtortionsFromEmployees map[string]uint32 `json:"extortions_from_employees"`
 			ExtortionsFromPrisoners map[string]uint32 `json:"extortions_from_prisoners"`
 		} `json:"corruption"`
 		Communication struct {
+			TotalCountAppeals            uint32            `json:"total_count_appeals"`
 			TotalCount                   uint32            `json:"total_count"`
 			VisitsWithRelatives          map[string]uint32 `json:"visits_with_relatives"`
 			CommunicationWithRelatives   map[string]uint32 `json:"communication_with_relatives"`
@@ -339,15 +341,18 @@ func CountViolations() interface{} {
 			ViolationsOfMedicalCare map[string]uint32 `json:"violations_of_medical_care"`
 		} `json:"violations_of_medical_care"`
 		ViolationsStaging struct {
+			TotalCountAppeals uint32            `json:"total_count_appeals"`
 			TotalCount        uint32            `json:"total_count"`
 			ViolationsStaging map[string]uint32 `json:"violations_staging"`
 		} `json:"violations_staging"`
 		Religion struct {
+			TotalCountAppeals                     uint32            `json:"total_count_appeals"`
 			TotalCount                            uint32            `json:"total_count"`
 			ViolationsReligiousRitesFromEmployees map[string]uint32 `json:"violations_religious_rites_from_employees"`
 			ViolationsReligiousRitesFromPrisoners map[string]uint32 `json:"violations_religious_rites_from_prisoners"`
 		} `json:"religion"`
 		ViolationsWithPlacementInPunishmentCell struct {
+			TotalCountAppeals                       uint32            `json:"total_count_appeals"`
 			TotalCount                              uint32            `json:"total_count"`
 			ViolationsWithPlacementInPunishmentCell map[string]uint32 `json:"violations_with_placement_in_punishment_cell"`
 		} `json:"violations_with_placement_in_punishment_cell"`
@@ -404,50 +409,57 @@ func CountViolations() interface{} {
 				switch vType {
 				case "physical_impact_from_employees":
 					stats.PhysicalImpact.TotalCountAppeals++
-					stats.PhysicalImpact.PhysicalImpactFromEmployees["total_count"]++
+					stats.PhysicalImpact.PhysicalImpactFromEmployees["total_count_appeals"]++
 					for _, typ := range physicalImpact {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.PhysicalImpact.TotalCount++
+							stats.PhysicalImpact.PhysicalImpactFromEmployees["total_count"]++
 							stats.PhysicalImpact.PhysicalImpactFromEmployees[typ]++
 						}
 					}
 				case "physical_impact_from_prisoners":
 					stats.PhysicalImpact.TotalCountAppeals++
-					stats.PhysicalImpact.PhysicalImpactFromPrisoners["total_count"]++
+					stats.PhysicalImpact.PhysicalImpactFromPrisoners["total_count_appeals"]++
 					for _, typ := range physicalImpact {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.PhysicalImpact.TotalCount++
+							stats.PhysicalImpact.PhysicalImpactFromPrisoners["total_count"]++
 							stats.PhysicalImpact.PhysicalImpactFromPrisoners[typ]++
 						}
 					}
 				case "psychological_impact_from_employees":
 					stats.PsychologicalImpact.TotalCountAppeals++
-					stats.PsychologicalImpact.PsychologicalImpactFromEmployees["total_count"]++
+					stats.PsychologicalImpact.PsychologicalImpactFromEmployees["total_count_appeals"]++
 					for _, typ := range PsychologicalImpact {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.PsychologicalImpact.TotalCount++
+							stats.PsychologicalImpact.PsychologicalImpactFromEmployees["total_count"]++
 							stats.PsychologicalImpact.PsychologicalImpactFromEmployees[typ]++
 						}
 					}
 				case "psychological_impact_from_prisoners":
 					stats.PsychologicalImpact.TotalCountAppeals++
-					stats.PsychologicalImpact.PsychologicalImpactFromPrisoners["total_count"]++
+					stats.PsychologicalImpact.PsychologicalImpactFromPrisoners["total_count_appeals"]++
 					for _, typ := range PsychologicalImpact {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.PsychologicalImpact.TotalCount++
+							stats.PsychologicalImpact.PsychologicalImpactFromPrisoners["total_count"]++
 							stats.PsychologicalImpact.PsychologicalImpactFromPrisoners[typ]++
 						}
 					}
 				case "extortions_from_employees":
-					stats.Corruption.TotalCount++
+					stats.Corruption.TotalCountAppeals++
 					stats.Corruption.ExtortionsFromEmployees["total_count_appeals"]++
 					for _, typ := range extortionsFromEmployeesTypes {
 						if strings.Contains(strings.ToLower(v), typ) {
+							stats.Corruption.TotalCount++
 							stats.Corruption.ExtortionsFromEmployees["total_count"]++
 							stats.Corruption.ExtortionsFromEmployees[typ]++
 						}
 					}
 				case "communication_with_relatives":
+					stats.Communication.TotalCountAppeals++
+					stats.Communication.CommunicationWithRelatives["total_count_appeals"]++
 					for _, typ := range communicationWithOthers {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.Communication.TotalCount++
@@ -456,6 +468,8 @@ func CountViolations() interface{} {
 						}
 					}
 				case "communication_with_lawyer":
+					stats.Communication.TotalCountAppeals++
+					stats.Communication.CommunicationWithLawyer["total_count_appeals"]++
 					for _, typ := range communicationWithOthers {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.Communication.TotalCount++
@@ -464,6 +478,8 @@ func CountViolations() interface{} {
 						}
 					}
 				case "visits_with_relatives":
+					stats.Communication.TotalCountAppeals++
+					stats.Communication.VisitsWithRelatives["total_count_appeals"]++
 					for _, typ := range visitsWithRelatives {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.Communication.TotalCount++
@@ -523,25 +539,31 @@ func CountViolations() interface{} {
 						}
 					}
 				case "violations_religious_rites_from_employees":
-					stats.Religion.TotalCount++
+					stats.Religion.TotalCountAppeals++
+					stats.Religion.ViolationsReligiousRitesFromEmployees["total_count_appeals"]++
 					for _, typ := range religiousViolations {
 						if strings.Contains(strings.ToLower(v), typ) {
+							stats.Religion.TotalCount++
 							stats.Religion.ViolationsReligiousRitesFromEmployees["total_count"]++
 							stats.Religion.ViolationsReligiousRitesFromEmployees[typ]++
 						}
 					}
 				case "violations_religious_rites_from_prisoners":
-					stats.Religion.TotalCount++
+					stats.Religion.TotalCountAppeals++
+					stats.Religion.ViolationsReligiousRitesFromPrisoners["total_count_appeals"]++
 					for _, typ := range religiousViolations {
 						if strings.Contains(strings.ToLower(v), typ) {
+							stats.Religion.TotalCount++
 							stats.Religion.ViolationsReligiousRitesFromPrisoners["total_count"]++
 							stats.Religion.ViolationsReligiousRitesFromPrisoners[typ]++
 						}
 					}
 				case "violations_staging":
-					stats.ViolationsStaging.TotalCount++
-					for _, typ := range stagingViolations {
+					stats.ViolationsStaging.TotalCountAppeals++
+					stats.ViolationsStaging.ViolationsStaging["total_count_appeals"]++
+					for _, typ := range religiousViolations {
 						if strings.Contains(strings.ToLower(v), typ) {
+							stats.ViolationsStaging.TotalCount++
 							stats.ViolationsStaging.ViolationsStaging["total_count"]++
 							stats.ViolationsStaging.ViolationsStaging[typ]++
 						}
