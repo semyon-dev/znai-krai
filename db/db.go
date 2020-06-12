@@ -324,14 +324,17 @@ func CountViolations() interface{} {
 			CanPrisonersSubmitComplaints map[string]uint32 `json:"can_prisoners_submit_complaints"`
 		} `json:"communication"`
 		ViolationsOfClothes struct {
+			TotalCountAppeals   uint32            `json:"total_count_appeals"`
 			TotalCount          uint32            `json:"total_count"`
 			ViolationsOfClothes map[string]uint32 `json:"violations_of_clothes"`
 		} `json:"violations_of_clothes"`
 		ViolationsOfFood struct {
-			TotalCount       uint32            `json:"total_count"`
-			ViolationsOfFood map[string]uint32 `json:"violations_of_food"`
+			TotalCountAppeals uint32            `json:"total_count_appeals"`
+			TotalCount        uint32            `json:"total_count"`
+			ViolationsOfFood  map[string]uint32 `json:"violations_of_food"`
 		} `json:"violations_of_food"`
 		ViolationsOfMedicalCare struct {
+			TotalCountAppeals       uint32            `json:"total_count_appeals"`
 			TotalCount              uint32            `json:"total_count"`
 			ViolationsOfMedicalCare map[string]uint32 `json:"violations_of_medical_care"`
 		} `json:"violations_of_medical_care"`
@@ -490,22 +493,27 @@ func CountViolations() interface{} {
 						stats.Job.SalaryOfPrisoners[v]++
 					}
 				case "violations_of_clothes":
+					stats.ViolationsOfClothes.TotalCountAppeals++
 					stats.ViolationsOfClothes.ViolationsOfClothes["total_count_appeals"]++
 					for _, typ := range ViolationsClothes {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.ViolationsOfClothes.TotalCount++
+							stats.ViolationsOfClothes.ViolationsOfClothes["total_count"]++
 							stats.ViolationsOfClothes.ViolationsOfClothes[typ]++
 						}
 					}
 				case "violations_of_food":
+					stats.ViolationsOfFood.TotalCountAppeals++
 					stats.ViolationsOfFood.ViolationsOfFood["total_count_appeals"]++
 					for _, typ := range ViolationsFood {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.ViolationsOfFood.TotalCount++
+							stats.ViolationsOfFood.ViolationsOfFood["total_count"]++
 							stats.ViolationsOfFood.ViolationsOfFood[typ]++
 						}
 					}
 				case "violations_of_medical_care":
+					stats.ViolationsOfMedicalCare.TotalCountAppeals++
 					stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare["total_count_appeals"]++
 					for _, typ := range ViolationsMedicalCare {
 						if strings.Contains(strings.ToLower(v), typ) {
