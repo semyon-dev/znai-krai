@@ -203,7 +203,6 @@ func NewForm(c *gin.Context) {
 	var message string
 	var status int
 	err := c.ShouldBind(&form)
-
 	if err != nil {
 		fmt.Println(err.Error())
 		status = 400
@@ -233,9 +232,9 @@ func NewForm(c *gin.Context) {
 			field := msValue.Field(column)
 
 			// Ignore fields that don't have the same type as a string
-			//if field.Type() != reflect.TypeOf("") {
-			//	continue
-			//}
+			if field.Type() != reflect.TypeOf("") {
+				continue
+			}
 
 			str := field.Interface().(string)
 			str = strings.TrimSpace(str)
@@ -244,7 +243,6 @@ func NewForm(c *gin.Context) {
 			// добавляем в таблицу
 			formsSheet.Update(row, column, field.String())
 		}
-
 		err = formsSheet.Synchronize()
 		if err == nil {
 			status = 200
