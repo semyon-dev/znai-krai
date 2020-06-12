@@ -572,36 +572,45 @@ func CountViolations() interface{} {
 					}
 				}
 			}
-			// если требуется ответы "Да" и "Нет" то минуем проверку на "Нет" в if
+			// если требуется ответы "Да" и "Нет" то минуем проверку на "Нет" в if перед верхним switch
 			if vType == "can_prisoners_submit_complaints" && v != "" {
-				if strings.ToLower(v) == "нет" {
-					stats.TotalCount++
-					stats.Communication.TotalCount++
-				}
 				stats.Communication.CanPrisonersSubmitComplaints[v]++
-				stats.Communication.CanPrisonersSubmitComplaints["total_count"]++
+				stats.Communication.CanPrisonersSubmitComplaints["total_count_appeals"]++
+				stats.Communication.TotalCountAppeals++
+				if strings.ToLower(v) == "нет" {
+					stats.Communication.TotalCount++
+					stats.Communication.CanPrisonersSubmitComplaints["total_count"]++
+				}
 			} else if vType == "corruption_from_employees" {
-				stats.Corruption.TotalCount++
+				stats.Corruption.TotalCountAppeals++
+				stats.Corruption.CorruptionFromEmployees["total_count_appeals"]++
 				vLower := strings.ToLower(v)
 				if vLower == "да" || vLower == "нет" || vLower == "затрудняюсь ответить" {
 					stats.Corruption.CorruptionFromEmployees["total_count"]++
 					stats.Corruption.CorruptionFromEmployees[v]++
+					stats.Corruption.TotalCount++
 				}
 			} else if vType == "extortions_from_prisoners" {
-				stats.Corruption.TotalCount++
+				stats.Corruption.TotalCountAppeals++
+				stats.Corruption.ExtortionsFromPrisoners["total_count_appeals"]++
 				vLower := strings.ToLower(v)
 				if vLower == "да" || vLower == "нет" || vLower == "затрудняюсь ответить" {
 					stats.Corruption.ExtortionsFromPrisoners["total_count"]++
 					stats.Corruption.ExtortionsFromPrisoners[v]++
+					stats.Corruption.TotalCount++
 				}
 			} else if vType == "labor_slavery" {
 				stats.Job.TotalCountAppeals++
+				stats.Job.LaborSlavery["total_count_appeals"]++
 				vLower := strings.ToLower(v)
 				if vLower == "да" || vLower == "нет" || vLower == "затрудняюсь ответить" {
 					stats.Job.LaborSlavery["total_count"]++
 					stats.Job.LaborSlavery[v]++
 					stats.Job.TotalCount++
 				}
+			}
+			if v == "Да" {
+				stats.TotalCount++
 			}
 		}
 	}
