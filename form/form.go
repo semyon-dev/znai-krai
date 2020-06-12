@@ -58,7 +58,7 @@ func Questions(c *gin.Context) {
 		Name:     "violations_of_food",
 		Question: "Какие нарушения, связанные с оказанием еды, вы можете отметить?",
 		Required: false,
-		Type:     "choose_one",
+		Type:     "choose_multiply",
 		Values:   model.ViolationsFoodTypes,
 	}
 
@@ -66,7 +66,7 @@ func Questions(c *gin.Context) {
 		Name:     "violations_of_medical_care",
 		Question: "Какие нарушения, связанные с оказанием медицинской помощи, вы можете отметить?",
 		Required: false,
-		Type:     "choose_one",
+		Type:     "choose_multiply",
 		Values:   model.ViolationsMedicalCareTypes,
 	}
 
@@ -81,7 +81,7 @@ func Questions(c *gin.Context) {
 		Name:     "physical_impact_from_employees",
 		Question: "С какими фактами применения физического воздействия со стороны сотрудников ФСИН Вам приходилось сталкиваться?",
 		Required: false,
-		Type:     "choose_one",
+		Type:     "choose_multiply",
 		Values:   model.ViolationsPhysicalImpactTypes,
 	}
 
@@ -89,7 +89,7 @@ func Questions(c *gin.Context) {
 		Name:     "physical_impact_from_prisoners",
 		Question: "С какими фактами применения физического воздействия со стороны заключенных вам приходилось сталкиваться?",
 		Required: false,
-		Type:     "choose_one",
+		Type:     "choose_multiply",
 		Values:   model.ViolationsPhysicalImpactTypes,
 	}
 
