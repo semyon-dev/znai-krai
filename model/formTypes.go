@@ -38,7 +38,6 @@ var ViolationsMedicalCareTypes = []string{
 var ViolationsPhysicalImpactTypes = []string{
 	"избиение",
 	"применение наручников",
-	"избиение",
 	"унижение",
 	"унизительные процедуры",
 	"вымогательство",
