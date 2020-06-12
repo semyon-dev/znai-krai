@@ -488,6 +488,8 @@ func CountViolations() interface{} {
 						}
 					}
 				case "violations_penalties_related_to_placement":
+					stats.ViolationsWithPlacementInPunishmentCell.TotalCountAppeals++
+					stats.ViolationsWithPlacementInPunishmentCell.ViolationsWithPlacementInPunishmentCell["total_count_appeals"]++
 					for _, typ := range violationsWithPlacementInPunishmentCellTypes {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.ViolationsWithPlacementInPunishmentCell.TotalCount++
