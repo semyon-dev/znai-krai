@@ -305,8 +305,9 @@ func CountViolations() interface{} {
 			PsychologicalImpactFromPrisoners map[string]uint32 `json:"psychological_impact_from_prisoners"`
 		} `json:"psychological_impact"`
 		Job struct {
+			TotalCountAppeals uint32            `json:"total_count_appeals"`
 			TotalCount        uint32            `json:"total_count"`
-			LaborSlavery      uint32            `json:"labor_slavery"`
+			LaborSlavery      map[string]uint32 `json:"labor_slavery"`
 			SalaryOfPrisoners map[string]uint32 `json:"salary_of_prisoners"`
 		} `json:"job"`
 		Corruption struct {
@@ -358,6 +359,7 @@ func CountViolations() interface{} {
 	stats.PsychologicalImpact.PsychologicalImpactFromPrisoners = make(map[string]uint32)
 
 	stats.Job.SalaryOfPrisoners = make(map[string]uint32)
+	stats.Job.LaborSlavery = make(map[string]uint32)
 
 	stats.Corruption.CorruptionFromEmployees = make(map[string]uint32)
 	stats.Corruption.ExtortionsFromEmployees = make(map[string]uint32)
@@ -559,6 +561,14 @@ func CountViolations() interface{} {
 				if vLower == "да" || vLower == "нет" || vLower == "затрудняюсь ответить" {
 					stats.Corruption.ExtortionsFromPrisoners["total_count"]++
 					stats.Corruption.ExtortionsFromPrisoners[v]++
+				}
+			} else if vType == "labor_slavery" {
+				stats.Job.TotalCountAppeals++
+				vLower := strings.ToLower(v)
+				if vLower == "да" || vLower == "нет" || vLower == "затрудняюсь ответить" {
+					stats.Job.LaborSlavery["total_count"]++
+					stats.Job.LaborSlavery[v]++
+					stats.Job.TotalCount++
 				}
 			}
 		}
