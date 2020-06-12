@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"github.com/semyon-dev/znai-krai/config"
+	"github.com/semyon-dev/znai-krai/model"
 	"net/http"
 )
 
@@ -17,7 +18,7 @@ func Questions(c *gin.Context) {
 	}
 	for i, v := range data {
 		if v.Type == "" {
-			data[i].Type = "text"
+			data[i].Type = "textarea"
 		}
 	}
 
@@ -45,7 +46,54 @@ func Questions(c *gin.Context) {
 		Values:   []string{"Да"},
 	}
 
-	data = append(data, questionStatus, questionPublicDisclosure, questionProcessingPersonalData)
+	var salaryOfPrisoners = question{
+		Name:     "salary_of_prisoners",
+		Question: "Укажите, в каком диапазоне находится месячная зарплата заключенных?",
+		Required: false,
+		Type:     "choose_one",
+		Values:   model.ViolationsSalaryTypes,
+	}
+
+	var violationFood = question{
+		Name:     "violations_of_food",
+		Question: "Какие нарушения, связанные с оказанием еды, вы можете отметить?",
+		Required: false,
+		Type:     "choose_one",
+		Values:   model.ViolationsFoodTypes,
+	}
+
+	var violationsMedicalCare = question{
+		Name:     "violations_of_medical_care",
+		Question: "Какие нарушения, связанные с оказанием медицинской помощи, вы можете отметить?",
+		Required: false,
+		Type:     "choose_one",
+		Values:   model.ViolationsMedicalCareTypes,
+	}
+
+	var contacts = question{
+		Name:     "provide_name_and_contacts",
+		Question: "Готовы ли вы сообщить свое имя и контакты? Если нет - пропустите поле.",
+		Required: false,
+		Type:     "textfield",
+	}
+
+	var physicalImpactFromEmployees = question{
+		Name:     "physical_impact_from_employees",
+		Question: "С какими фактами применения физического воздействия со стороны сотрудников ФСИН Вам приходилось сталкиваться?",
+		Required: false,
+		Type:     "choose_one",
+		Values:   model.ViolationsPhysicalImpactTypes,
+	}
+
+	var physicalImpactFromPrisoners = question{
+		Name:     "physical_impact_from_prisoners",
+		Question: "С какими фактами применения физического воздействия со стороны заключенных вам приходилось сталкиваться?",
+		Required: false,
+		Type:     "choose_one",
+		Values:   model.ViolationsPhysicalImpactTypes,
+	}
+
+	data = append(data, questionStatus, questionPublicDisclosure, questionProcessingPersonalData, salaryOfPrisoners, violationFood, violationsMedicalCare, contacts, physicalImpactFromEmployees, physicalImpactFromPrisoners)
 	c.JSON(http.StatusOK, data)
 }
 
@@ -89,23 +137,17 @@ var questions = ` [
 {"name": "region","question":" В каком регионе находится учреждение ФСИН о котором Вы рассказали?", "required":true},
 {"name": "fsin_organization","question":" О каком учреждении ФСИН Вы рассказали?", "required":true},
 {"name": "time_of_offence","question":" Укажите когда произошли нарушения о которых Вы рассказали?"},
-{"name": "physical_impact_from_employees","question":" С какими фактами применения физического воздействия со стороны сотрудников ФСИН Вам приходилось сталкиваться?"},
-{"name": "physical_impact_from_prisoners","question":" С какими фактами применения физического воздействия со стороны заключенных Вам приходилось сталкиваться?"},
 {"name": "psychological_impact_from_employees","question":" С какими фактами применения психологического воздействия со стороны отрудников ФСИН Вам приходилось сталкиваться?"},
 {"name": "psychological_impact_from_prisoners","question":" С какими фактами применения психологического воздействия со стороны заключенных Вам приходилось сталкиваться?"},
 {"name": "extortions_from_employees","question":" С какими фактами применения физического воздействия со стороны заключенных Вам приходилось сталкиваться?"},
 {"name": "сorruption_from_employees","question":" Приходилось ли Вам сталкиваться с иными случаями коррупции сотрудников ФСИН?"},
 {"name": "extortions_from_prisoners","question":" Приходилось ли Вам сталкиваться с фактами вымогательства со стороны заключенных?"},
-{"name": "violations_of_medical_care","question":" Какие нарушения, связанные с оказанием медицинской помощи, Вы можете отметить?"},
-{"name": "violations_of_food","question":" Какие нарушения, связанные с оказанием еды, Вы можете отметить?"},
 {"name": "violations_of_clothes","question":" Какие нарушения, связанные с одеждой, Вы можете отметить?"},
 {"name": "labor_slavery","question":" Известны ли Вам случаи трудового рабства?"},
-{"name": "salary_of_prisoners","question":" Укажите, в каком диапазоне находится месячная зарплата заключенных?"},
 {"name": "visits_with_relatives","question":" Какие нарушения, связанные с предоставлением свиданий с Родственниками, Вам известны?"},
 {"name": "communication_with_lawyer","question":" Какие нарушения, связанные с общением с адвокатом (иным лицом, имеющим право на оказание юридической помощи), Вам известны?"},
 {"name": "can_prisoners_submit_complaints","question":" Какие нарушения, связанные с общением с адвокатом (иным лицом, имеющим право на оказание юридической помощи), Вам известны?"},
 {"name": "additional_information","question":" Если ли у Вас есть дополнительная информация, которой Вы готовы поделиться с нами, то ее можно написать здесь:"},
-{"name": "provide_name_and_contacts","question":"Готовы ли Вы сообщить свое имя и контакты?"},
 {"name": "violations_staging","question":" Какие нарушения, связанные с этапированием заключенных Вам известны?"},
 {"name": "violations_religious_rites_from_employees","question":" С какими запретами (нарушениями) на отправление религиозных обрядов со стороны сотрудников ФСИН Вам приходилось сталкиваться?"},
 {"name": "violations_religious_rites_from_prisoners","question":" С какими запретами (нарушениями) на отправление религиозных обрядов со стороны заключенных Вам приходилось сталкиваться?"},

@@ -176,44 +176,11 @@ func CountViolations() interface{} {
 		"ограничение времени",
 	}
 
-	var salaryTypes = [...]string{
-		"От 0 до 100 рублей",
-		"От 100 до 1 000 рублей",
-		"От 1 000 до 10 000 рублей",
-		"Зарплата не выплачивается",
-	}
-
 	var ViolationsClothes = [...]string{
 		"отсутствие (несвоевременная выдача) зимней одежды и обуви",
 		"отсутствие одежды и обуви по размеру",
 		"вещи только чёрного цвета",
 		"Переданная Родственниками одежда периодически \"теряется\"",
-	}
-
-	var ViolationsFood = [...]string{
-		"маленькие порции",
-		"отсутствие мясных продуктов",
-		"испорченные продукты",
-		"однообразное питание",
-		"однообразное меню",
-		"кислые овощи",
-		"отсутствие молочных продуктов, грязные каши",
-		"грязные каши",
-		"несъедобно",
-		"очень плохая еда",
-		"нет витаминов",
-		"кормят очень плохо",
-	}
-
-	var ViolationsMedicalCare = [...]string{
-		"отказ в оказании медицинской помощи",
-		"медицинская помощь была недостаточная или оказана с задержкой",
-		"отказ в стоматологической помощи",
-		"медикаменты отсутствовали или были испорчены",
-		"отказ или необъективное медицинское освидетельствование",
-		"отказ в выдаче медицинских документов",
-		"фальсификация и уничтожение медицинских документов",
-		"несоответствие лечения и обследования медицинским стандартам",
 	}
 
 	var PsychologicalImpact = [...]string{
@@ -267,27 +234,6 @@ func CountViolations() interface{} {
 		"при каждом удобном случае",
 		"за поселение в нормальную камеру",
 		"при получении поощрений",
-	}
-
-	var physicalImpact = [...]string{
-		"избиение",
-		"применение наручников",
-		"избиение",
-		"унижение",
-		"унизительные процедуры",
-		"вымогательство",
-		"применение электрического тока",
-		"подвешивание",
-		"привязывание",
-		"нахождение в неудобной позе",
-		"удушение",
-		"провокация",
-		"воруют вещи",
-		"перекидывают в разные камеры",
-		"лишение еды и питья",
-		"поливание водой",
-		"оставляли зимой в бетонной комнате с открытыми окнами и раздетым до трусов",
-		"тяжелая физическая работа без ограничения продолжительности",
 	}
 
 	type Stats struct {
@@ -410,7 +356,7 @@ func CountViolations() interface{} {
 				case "physical_impact_from_employees":
 					stats.PhysicalImpact.TotalCountAppeals++
 					stats.PhysicalImpact.PhysicalImpactFromEmployees["total_count_appeals"]++
-					for _, typ := range physicalImpact {
+					for _, typ := range model.ViolationsPhysicalImpactTypes {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.PhysicalImpact.TotalCount++
 							stats.PhysicalImpact.PhysicalImpactFromEmployees["total_count"]++
@@ -420,7 +366,7 @@ func CountViolations() interface{} {
 				case "physical_impact_from_prisoners":
 					stats.PhysicalImpact.TotalCountAppeals++
 					stats.PhysicalImpact.PhysicalImpactFromPrisoners["total_count_appeals"]++
-					for _, typ := range physicalImpact {
+					for _, typ := range model.ViolationsPhysicalImpactTypes {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.PhysicalImpact.TotalCount++
 							stats.PhysicalImpact.PhysicalImpactFromPrisoners["total_count"]++
@@ -499,7 +445,7 @@ func CountViolations() interface{} {
 					}
 				case "salary_of_prisoners":
 					var exist bool
-					for _, vSalary := range salaryTypes {
+					for _, vSalary := range model.ViolationsSalaryTypes {
 						if v == vSalary {
 							exist = true
 							break
@@ -523,7 +469,7 @@ func CountViolations() interface{} {
 				case "violations_of_food":
 					stats.ViolationsOfFood.TotalCountAppeals++
 					stats.ViolationsOfFood.ViolationsOfFood["total_count_appeals"]++
-					for _, typ := range ViolationsFood {
+					for _, typ := range model.ViolationsFoodTypes {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.ViolationsOfFood.TotalCount++
 							stats.ViolationsOfFood.ViolationsOfFood["total_count"]++
@@ -533,7 +479,7 @@ func CountViolations() interface{} {
 				case "violations_of_medical_care":
 					stats.ViolationsOfMedicalCare.TotalCountAppeals++
 					stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare["total_count_appeals"]++
-					for _, typ := range ViolationsMedicalCare {
+					for _, typ := range model.ViolationsMedicalCareTypes {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.ViolationsOfMedicalCare.TotalCount++
 							stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare["total_count"]++
