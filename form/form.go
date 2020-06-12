@@ -27,7 +27,7 @@ func Questions(c *gin.Context) {
 		Question: "Какой ваш статус?",
 		Required: true,
 		Type:     "choose_one",
-		Values:   []string{"Бывший заключенный", "Родственник заключенного", "Заключенный в настоящее время", "Адвокат", "Другое"},
+		Values:   []string{"Бывший заключенный", "Родственник заключенного", "Заключенный в настоящее время", "Адвокат", "другое"},
 	}
 
 	var questionPublicDisclosure = question{
