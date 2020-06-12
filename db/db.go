@@ -561,7 +561,7 @@ func CountViolations() interface{} {
 				case "violations_staging":
 					stats.ViolationsStaging.TotalCountAppeals++
 					stats.ViolationsStaging.ViolationsStaging["total_count_appeals"]++
-					for _, typ := range religiousViolations {
+					for _, typ := range stagingViolations {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.ViolationsStaging.TotalCount++
 							stats.ViolationsStaging.ViolationsStaging["total_count"]++
