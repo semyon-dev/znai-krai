@@ -134,16 +134,16 @@ type question struct {
 }
 
 var questions = ` [
-{"name": "region","question":" В каком регионе находится учреждение ФСИН о котором Вы рассказали?", "required":true},
-{"name": "fsin_organization","question":" О каком учреждении ФСИН Вы рассказали?", "required":true},
-{"name": "time_of_offence","question":" Укажите когда произошли нарушения о которых Вы рассказали?"},
+{"name": "region","question":" В каком регионе находится учреждение ФСИН о котором Вы рассказали?", "required":true, "type":"textfield"},
+{"name": "fsin_organization","question":" О каком учреждении ФСИН Вы рассказали?", "required":true , "type":"textfield"},
+{"name": "time_of_offence","question":" Укажите когда произошли нарушения о которых Вы рассказали?", "type":"textfield"},
 {"name": "psychological_impact_from_employees","question":" С какими фактами применения психологического воздействия со стороны отрудников ФСИН Вам приходилось сталкиваться?"},
 {"name": "psychological_impact_from_prisoners","question":" С какими фактами применения психологического воздействия со стороны заключенных Вам приходилось сталкиваться?"},
 {"name": "extortions_from_employees","question":" С какими фактами применения физического воздействия со стороны заключенных Вам приходилось сталкиваться?"},
 {"name": "сorruption_from_employees","question":" Приходилось ли Вам сталкиваться с иными случаями коррупции сотрудников ФСИН?"},
 {"name": "extortions_from_prisoners","question":" Приходилось ли Вам сталкиваться с фактами вымогательства со стороны заключенных?"},
 {"name": "violations_of_clothes","question":" Какие нарушения, связанные с одеждой, Вы можете отметить?"},
-{"name": "labor_slavery","question":" Известны ли Вам случаи трудового рабства?"},
+{"name": "labor_slavery","question":" Известны ли Вам случаи трудового рабства?","type":"textfield"},
 {"name": "visits_with_relatives","question":" Какие нарушения, связанные с предоставлением свиданий с Родственниками, Вам известны?"},
 {"name": "communication_with_lawyer","question":" Какие нарушения, связанные с общением с адвокатом (иным лицом, имеющим право на оказание юридической помощи), Вам известны?"},
 {"name": "can_prisoners_submit_complaints","question":" Какие нарушения, связанные с общением с адвокатом (иным лицом, имеющим право на оказание юридической помощи), Вам известны?"},
