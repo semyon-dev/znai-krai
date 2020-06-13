@@ -174,7 +174,7 @@ func Questions(c *gin.Context) {
 		Question: "Приходилось ли вам сталкиваться с иными случаями коррупции сотрудников ФСИН?",
 		Required: false,
 		Type:     "choose_one",
-		Values:   []string{"Да", "Нет", "Затрудняюсь ответить", "Другое"},
+		Values:   []string{"Да", "Нет", "Затрудняюсь ответить", "другое"},
 	}
 
 	var extortionsFromPrisoners = question{
@@ -182,7 +182,7 @@ func Questions(c *gin.Context) {
 		Question: "Приходилось ли вам сталкиваться с фактами вымогательства со стороны заключенных?",
 		Required: false,
 		Type:     "choose_one",
-		Values:   []string{"Да", "Нет", "Затрудняюсь ответить", "Другое"},
+		Values:   []string{"Да", "Нет", "Затрудняюсь ответить", "другое"},
 	}
 
 	var canPrisonersSubmitComplaints = question{
@@ -190,7 +190,7 @@ func Questions(c *gin.Context) {
 		Question: "Есть ли у заключенных возможность направлять жалобы, ходатайства и заявления в надзирающие органы и правозащитные организации?",
 		Required: false,
 		Type:     "choose_one",
-		Values:   []string{"Да", "Нет", "Затрудняюсь ответить", "Другое"},
+		Values:   []string{"Да", "Нет", "Затрудняюсь ответить", "другое"},
 	}
 
 	var laborSlavery = question{
@@ -198,7 +198,7 @@ func Questions(c *gin.Context) {
 		Question: "Известны ли вам случаи трудового рабства?",
 		Required: false,
 		Type:     "choose_one",
-		Values:   []string{"Да", "Нет", "Затрудняюсь ответить", "Другое"},
+		Values:   []string{"Да", "Нет", "Затрудняюсь ответить", "другое"},
 	}
 
 	var helpEuropeanCourt = question{
@@ -206,7 +206,7 @@ func Questions(c *gin.Context) {
 		Question: "Мы могли бы помочь вам в составлении жалобы в Европейский суд по поводу нарушений в местах лишения свободы. Хотели бы вы получить такую помощь?",
 		Required: false,
 		Type:     "choose_one",
-		Values:   []string{"Да", "Нет", "Другое"},
+		Values:   []string{"Да", "Нет", "другое"},
 	}
 
 	var questionPublicDisclosure = question{
