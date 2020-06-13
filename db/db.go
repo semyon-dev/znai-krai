@@ -153,89 +153,6 @@ func CountViolations() interface{} {
 		"violations_penalties_related_to_placement",
 	}
 
-	var visitsWithRelatives = [...]string{
-		"сокращение времени свиданий",
-		"несвоевременной предоставление свиданий",
-		"отказ в предоставлении свиданий",
-		"недостаточное количество комнат",
-	}
-
-	var communicationWithOthers = [...]string{
-		"отказ в телефонных звонках",
-		"отказ в почтовой (телеграфной) переписке",
-		"отказ в приёме передач", // отказ в приёме передач более 20 кг в колонии-поселении
-		"не сталкивался с нарушениями",
-		"не сразу отдают посылки",
-		"цензура",                      // цензура переписки
-		"нарушение конфиденциальности", // нарушение конфиденциальности свидания
-		"отказ в свидании",             // отказ в свидании с заключенным
-		"много нервотрепки и унижений со стороны администрации",
-		"затягивание предоставления свиданий",
-		"недопуск адвоката",
-		"следователь беспрепятственно может устроить допрос без адвоката",
-		"ограничение времени",
-	}
-
-	var ViolationsClothes = [...]string{
-		"отсутствие (несвоевременная выдача) зимней одежды и обуви",
-		"отсутствие одежды и обуви по размеру",
-		"вещи только чёрного цвета",
-		"Переданная Родственниками одежда периодически \"теряется\"",
-	}
-
-	var PsychologicalImpact = [...]string{
-		"угроза применения пыток",
-		"угроза применения административного взыскания",
-		"унижение",
-		"применение коллективного взыскания к группе заключенных",
-		"угроза моим детям",
-		"угроза жизни", // Угроза жизни осуждённому
-		"применение силы без причины",
-		"угроза закрыть в ЕПКТ",
-	}
-
-	var religiousViolations = [...]string{
-		"отказ в посещении храма",
-		"запрет ночной молитвы",
-		"запрет на хранение (передачу) религиозной литературы",
-		"предметов культа",
-		"оскорбления",
-		"притеснения по религиозным мотивам",
-		"в браке не давали молиться активисты",
-	}
-
-	var stagingViolations = [...]string{
-		"переполненность сборочной камеры",
-		"отсутствие вентиляции (отопления)",
-		"совместное нахождение с инфекционными больными",
-		"неоказание медицинской помощи",
-		"отсутствие (недостаток) питания",
-		"перевозка заключенных в «стаканах»",
-	}
-
-	var violationsWithPlacementInPunishmentCellTypes = [...]string{
-		"наказание за жалобу на условия содержания",
-		"наказание за отказ от сотрудничества с администрацией",
-		"непризнание вины",
-		"наказание за отказ от дачи показаний",
-		"произвольное продление сроков взыскания",
-		"курение сигарет",
-	}
-
-	var extortionsFromEmployeesTypes = [...]string{
-		"при получении свиданий",
-		"при трудоустройстве заключенного",
-		"при решении вопроса об условно-досрочном освобождении",
-		"незаконные требования взамен на свидания и получения передач",
-		"требование купить материалы для ремонта",
-		"при получении лекарств",
-		"за доставку средств связи",
-		"сбор денег на ремонт барака",
-		"при каждом удобном случае",
-		"за поселение в нормальную камеру",
-		"при получении поощрений",
-	}
-
 	type Stats struct {
 		TotalCount     uint32 `json:"total_count"`
 		PhysicalImpact struct {
@@ -376,7 +293,7 @@ func CountViolations() interface{} {
 				case "psychological_impact_from_employees":
 					stats.PsychologicalImpact.TotalCountAppeals++
 					stats.PsychologicalImpact.PsychologicalImpactFromEmployees["total_count_appeals"]++
-					for _, typ := range PsychologicalImpact {
+					for _, typ := range model.ViolationsPsychologicalImpact {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.PsychologicalImpact.TotalCount++
 							stats.PsychologicalImpact.PsychologicalImpactFromEmployees["total_count"]++
@@ -386,7 +303,7 @@ func CountViolations() interface{} {
 				case "psychological_impact_from_prisoners":
 					stats.PsychologicalImpact.TotalCountAppeals++
 					stats.PsychologicalImpact.PsychologicalImpactFromPrisoners["total_count_appeals"]++
-					for _, typ := range PsychologicalImpact {
+					for _, typ := range model.ViolationsPsychologicalImpact {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.PsychologicalImpact.TotalCount++
 							stats.PsychologicalImpact.PsychologicalImpactFromPrisoners["total_count"]++
@@ -396,7 +313,7 @@ func CountViolations() interface{} {
 				case "extortions_from_employees":
 					stats.Corruption.TotalCountAppeals++
 					stats.Corruption.ExtortionsFromEmployees["total_count_appeals"]++
-					for _, typ := range extortionsFromEmployeesTypes {
+					for _, typ := range model.ViolationsExtortionsFromEmployeesTypes {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.Corruption.TotalCount++
 							stats.Corruption.ExtortionsFromEmployees["total_count"]++
@@ -406,7 +323,7 @@ func CountViolations() interface{} {
 				case "communication_with_relatives":
 					stats.Communication.TotalCountAppeals++
 					stats.Communication.CommunicationWithRelatives["total_count_appeals"]++
-					for _, typ := range communicationWithOthers {
+					for _, typ := range model.ViolationsCommunicationWithOthers {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.Communication.TotalCount++
 							stats.Communication.CommunicationWithRelatives["total_count"]++
@@ -416,7 +333,7 @@ func CountViolations() interface{} {
 				case "communication_with_lawyer":
 					stats.Communication.TotalCountAppeals++
 					stats.Communication.CommunicationWithLawyer["total_count_appeals"]++
-					for _, typ := range communicationWithOthers {
+					for _, typ := range model.ViolationsCommunicationWithOthers {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.Communication.TotalCount++
 							stats.Communication.CommunicationWithLawyer["total_count"]++
@@ -426,7 +343,7 @@ func CountViolations() interface{} {
 				case "visits_with_relatives":
 					stats.Communication.TotalCountAppeals++
 					stats.Communication.VisitsWithRelatives["total_count_appeals"]++
-					for _, typ := range visitsWithRelatives {
+					for _, typ := range model.ViolationsVisitsWithRelatives {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.Communication.TotalCount++
 							stats.Communication.VisitsWithRelatives["total_count"]++
@@ -436,7 +353,7 @@ func CountViolations() interface{} {
 				case "violations_penalties_related_to_placement":
 					stats.ViolationsWithPlacementInPunishmentCell.TotalCountAppeals++
 					stats.ViolationsWithPlacementInPunishmentCell.ViolationsWithPlacementInPunishmentCell["total_count_appeals"]++
-					for _, typ := range violationsWithPlacementInPunishmentCellTypes {
+					for _, typ := range model.ViolationsWithPlacementInPunishmentCellTypes {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.ViolationsWithPlacementInPunishmentCell.TotalCount++
 							stats.ViolationsWithPlacementInPunishmentCell.ViolationsWithPlacementInPunishmentCell["total_count"]++
@@ -459,7 +376,7 @@ func CountViolations() interface{} {
 				case "violations_of_clothes":
 					stats.ViolationsOfClothes.TotalCountAppeals++
 					stats.ViolationsOfClothes.ViolationsOfClothes["total_count_appeals"]++
-					for _, typ := range ViolationsClothes {
+					for _, typ := range model.ViolationsClothes {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.ViolationsOfClothes.TotalCount++
 							stats.ViolationsOfClothes.ViolationsOfClothes["total_count"]++
@@ -489,7 +406,7 @@ func CountViolations() interface{} {
 				case "violations_religious_rites_from_employees":
 					stats.Religion.TotalCountAppeals++
 					stats.Religion.ViolationsReligiousRitesFromEmployees["total_count_appeals"]++
-					for _, typ := range religiousViolations {
+					for _, typ := range model.ViolationsReligiousViolations {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.Religion.TotalCount++
 							stats.Religion.ViolationsReligiousRitesFromEmployees["total_count"]++
@@ -499,7 +416,7 @@ func CountViolations() interface{} {
 				case "violations_religious_rites_from_prisoners":
 					stats.Religion.TotalCountAppeals++
 					stats.Religion.ViolationsReligiousRitesFromPrisoners["total_count_appeals"]++
-					for _, typ := range religiousViolations {
+					for _, typ := range model.ViolationsReligiousViolations {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.Religion.TotalCount++
 							stats.Religion.ViolationsReligiousRitesFromPrisoners["total_count"]++
@@ -509,7 +426,7 @@ func CountViolations() interface{} {
 				case "violations_staging":
 					stats.ViolationsStaging.TotalCountAppeals++
 					stats.ViolationsStaging.ViolationsStaging["total_count_appeals"]++
-					for _, typ := range stagingViolations {
+					for _, typ := range model.ViolationsStagingViolations {
 						if strings.Contains(strings.ToLower(v), typ) {
 							stats.ViolationsStaging.TotalCount++
 							stats.ViolationsStaging.ViolationsStaging["total_count"]++
