@@ -25,6 +25,7 @@ func Questions(c *gin.Context) {
 		Question: "О каком учреждении ФСИН вы рассказываете?",
 		Required: true,
 		Type:     "textfield",
+		Hint:     "СИЗО 1",
 	}
 
 	var timeOfOffence = question{
@@ -32,7 +33,7 @@ func Questions(c *gin.Context) {
 		Question: "Укажите когда произошли нарушения о которых вы хотите рассказать?",
 		Required: true,
 		Type:     "textfield",
-		Hint:     "СИЗО 1",
+		Hint:     "2015-2018",
 	}
 
 	var questionStatus = question{
@@ -72,6 +73,7 @@ func Questions(c *gin.Context) {
 		Question: "Готовы ли вы сообщить свое имя и контакты? Если нет - пропустите вопрос.",
 		Required: false,
 		Type:     "textfield",
+		Hint:     "Мамонтов Власий Демьянович, 89001112233",
 	}
 
 	var physicalImpactFromEmployees = question{
@@ -245,19 +247,19 @@ func Questions(c *gin.Context) {
 		extortionsFromPrisoners,
 		extortionsFromEmployees,
 		psychologicalImpactFromPrisoners,
-		violationsReligiousRitesFromEmployees,
 		psychologicalImpactFromEmployees,
+		violationsReligiousRitesFromEmployees,
 		violationsReligiousRitesFromPrisoners,
 		communicationWithLawyer,
-		violationsPenaltiesRelatedToPlacement,
+		visitsWithRelatives,
+		canPrisonersSubmitComplaints,
 		violationsOfClothes,
 		laborSlavery,
-		canPrisonersSubmitComplaints,
 		salaryOfPrisoners,
 		violationFood,
 		violationsMedicalCare,
 		violationsStaging,
-		visitsWithRelatives,
+		violationsPenaltiesRelatedToPlacement,
 		additionalInformation,
 		helpEuropeanCourt,
 		questionPublicDisclosure,
