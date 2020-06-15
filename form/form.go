@@ -54,7 +54,7 @@ func Questions(c *gin.Context) {
 
 	var violationFood = question{
 		Name:     "violations_of_food",
-		Question: "Какие нарушения, связанные с оказанием еды, вы можете отметить?",
+		Question: "Какие нарушения, связанные с питанием, вы можете отметить?",
 		Required: false,
 		Type:     "choose_multiply",
 		Values:   model.ViolationsFoodTypes,
@@ -234,6 +234,14 @@ func Questions(c *gin.Context) {
 		Type:     "textarea",
 	}
 
+	var addFiles = question{
+		Name:     "add_files",
+		Question: "Если ли у вас есть файлы которые относятся к нарушениям, то можете загрузить их здесь:",
+		Required: false,
+		Type:     "button",
+		Button:   "<iframe width=\"250\" height=\"54\" frameborder=\"0\" src=\"https://mega.nz/drop#!0SWpxKkiXk4!d!en\"></iframe>",
+	}
+
 	data = append(
 		data,
 		questionStatus,
@@ -264,6 +272,7 @@ func Questions(c *gin.Context) {
 		helpEuropeanCourt,
 		questionPublicDisclosure,
 		questionProcessingPersonalData,
+		addFiles,
 	)
 
 	c.JSON(http.StatusOK, data)
@@ -297,4 +306,5 @@ type question struct {
 	Type     string   `json:"type"`
 	Values   []string `json:"values"`
 	Hint     string   `json:"hint"`
+	Button   string   `json:"button"`
 }

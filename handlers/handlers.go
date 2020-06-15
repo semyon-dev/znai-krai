@@ -233,7 +233,7 @@ func NewForm(c *gin.Context) {
 			field := msValue.Field(column)
 
 			// Ignore fields that don't have the same type as a string
-			if field.Type() != reflect.TypeOf("") {
+			if field.Type() != reflect.TypeOf("") || "add_files" == reflect.ValueOf(field).Type().Name() {
 				continue
 			}
 
