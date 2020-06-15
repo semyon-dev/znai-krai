@@ -37,7 +37,7 @@ func main() {
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"znai-krai api": "v0.11.3",
+			"znai-krai api": "v0.11.4",
 		})
 	})
 

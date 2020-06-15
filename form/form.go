@@ -149,7 +149,7 @@ func Questions(c *gin.Context) {
 
 	var psychologicalImpactFromEmployees = question{
 		Name:     "psychological_impact_from_employees",
-		Question: "С какими фактами применения психологического воздействия со стороны отрудников ФСИН вам приходилось сталкиваться?",
+		Question: "С какими фактами применения психологического воздействия со стороны сотрудников ФСИН вам приходилось сталкиваться?",
 		Required: false,
 		Type:     "choose_multiply",
 		Values:   model.ViolationsPsychologicalImpact,
@@ -243,9 +243,9 @@ func Questions(c *gin.Context) {
 		contacts,
 		physicalImpactFromEmployees,
 		physicalImpactFromPrisoners,
+		extortionsFromEmployees,
 		corruptionFromEmployees,
 		extortionsFromPrisoners,
-		extortionsFromEmployees,
 		psychologicalImpactFromPrisoners,
 		psychologicalImpactFromEmployees,
 		violationsReligiousRitesFromEmployees,
