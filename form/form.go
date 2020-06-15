@@ -238,8 +238,8 @@ func Questions(c *gin.Context) {
 		Name:     "add_files",
 		Question: "Если ли у вас есть файлы которые относятся к нарушениям, то можете загрузить их здесь:",
 		Required: false,
-		Type:     "button",
-		Button:   "<iframe width=\"250\" height=\"54\" frameborder=\"0\" src=\"https://mega.nz/drop#!0SWpxKkiXk4!d!en\"></iframe>",
+		Type:     "html",
+		Html:     "<iframe width=\"250\" height=\"54\" frameborder=\"0\" src=\"https://mega.nz/drop#!0SWpxKkiXk4!d!en\"></iframe>",
 	}
 
 	data = append(
@@ -306,5 +306,5 @@ type question struct {
 	Type     string   `json:"type"`
 	Values   []string `json:"values"`
 	Hint     string   `json:"hint"`
-	Button   string   `json:"button"`
+	Html     string   `json:"button"`
 }
