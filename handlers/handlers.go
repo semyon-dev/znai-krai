@@ -95,8 +95,9 @@ var explanations = map[string]string{
 
 func Analytics(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"violations_stats":    violationsStats,
-		"total_count_appeals": db.CountAllViolations(),
+		"violations_stats":           violationsStats,
+		"total_count_appeals":        db.CountAllViolations(),
+		"total_count_appeals_corona": db.CountCoronaViolations(),
 	})
 }
 

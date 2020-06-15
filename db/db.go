@@ -121,6 +121,16 @@ func CountAllViolations() int64 {
 	return count
 }
 
+func CountCoronaViolations() int64 {
+	violationsCollection := db.Collection("corona_violations")
+	count, err := violationsCollection.EstimatedDocumentCount(context.TODO(), nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return count
+}
+
+
 // получение кол-ва нарушений по типу для Аналитики
 func CountViolations() interface{} {
 
