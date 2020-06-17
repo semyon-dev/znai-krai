@@ -239,7 +239,7 @@ func Questions(c *gin.Context) {
 		Question: "Если ли у вас есть файлы которые относятся к нарушениям, то можете загрузить их здесь:",
 		Required: false,
 		Type:     "html",
-		Html:     "<iframe width=\"250\" height=\"54\" frameborder=\"0\" src=\"https://mega.nz/drop#!0SWpxKkiXk4!d!en\"></iframe>",
+		Html:     "<iframe width=\"250\" height=\"54\" frameborder=\"0\" src=\"https://mega.nz/drop#!0SWpxKkiXk4!l!en\"></iframe>",
 	}
 
 	data = append(
