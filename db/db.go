@@ -130,7 +130,6 @@ func CountCoronaViolations() int64 {
 	return count
 }
 
-
 // получение кол-ва нарушений по типу для Аналитики
 func CountViolations() interface{} {
 
@@ -459,27 +458,33 @@ func CountViolations() interface{} {
 				stats.Corruption.CorruptionFromEmployees["total_count_appeals"]++
 				vLower := strings.ToLower(v)
 				if vLower == "да" || vLower == "нет" || vLower == "затрудняюсь ответить" {
-					stats.Corruption.CorruptionFromEmployees["total_count"]++
+					if vLower == "да" {
+						stats.Corruption.CorruptionFromEmployees["total_count"]++
+						stats.Corruption.TotalCount++
+					}
 					stats.Corruption.CorruptionFromEmployees[v]++
-					stats.Corruption.TotalCount++
 				}
 			} else if vType == "extortions_from_prisoners" {
 				stats.Corruption.TotalCountAppeals++
 				stats.Corruption.ExtortionsFromPrisoners["total_count_appeals"]++
 				vLower := strings.ToLower(v)
 				if vLower == "да" || vLower == "нет" || vLower == "затрудняюсь ответить" {
-					stats.Corruption.ExtortionsFromPrisoners["total_count"]++
+					if vLower == "да" {
+						stats.Corruption.TotalCount++
+						stats.Corruption.ExtortionsFromPrisoners["total_count"]++
+					}
 					stats.Corruption.ExtortionsFromPrisoners[v]++
-					stats.Corruption.TotalCount++
 				}
 			} else if vType == "labor_slavery" {
 				stats.Job.TotalCountAppeals++
 				stats.Job.LaborSlavery["total_count_appeals"]++
 				vLower := strings.ToLower(v)
 				if vLower == "да" || vLower == "нет" || vLower == "затрудняюсь ответить" {
-					stats.Job.LaborSlavery["total_count"]++
+					if vLower == "да" {
+						stats.Job.LaborSlavery["total_count"]++
+						stats.Job.TotalCount++
+					}
 					stats.Job.LaborSlavery[v]++
-					stats.Job.TotalCount++
 				}
 			}
 			if v == "Да" {
