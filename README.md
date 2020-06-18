@@ -8,18 +8,22 @@
 * MongoDB
 * Gin
 * Google Maps API
-* Yandex Search API
 * Google Sheets API
+* Yandex Search API
 
 ### Ссылки
-* Сайт проекта https://znaikrai.herokuapp.com/
-* API endpoint https://api-znaikrai.herokuapp.com/
+* Сайт проекта https://znai-krai.zekovnet.ru/ и https://znaikrai.herokuapp.com/
+* Публичный API https://api-znaikrai.herokuapp.com/
 * Исходный код сайта: https://github.com/kniazevgeny/znaikrai
 
 ### Как запустить?
+
+Необходимо добавить переменные окружения (смотри config)
+
 `go run main.go`
 
-### Как скомпилировать?
+Или скомпилировать:
+
 `go build main.go`
 
 ### API Методы
