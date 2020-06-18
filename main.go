@@ -9,6 +9,8 @@ import (
 	"github.com/semyon-dev/znai-krai/db"
 	"github.com/semyon-dev/znai-krai/form"
 	"github.com/semyon-dev/znai-krai/handlers"
+	log2 "github.com/semyon-dev/znai-krai/log"
+	"github.com/semyon-dev/znai-krai/sheet"
 	"net/http"
 	"os"
 )
@@ -19,12 +21,12 @@ func main() {
 
 	// загружаем конфиги (API ключи и прочее)
 	config.Load()
-	config.ConnectBot()
+	log2.ConnectBot()
 
 	gin.SetMode(os.Getenv("GIN_MODE"))
 
 	// Подключение to Google Sheets
-	handlers.Connect()
+	sheet.Connect()
 
 	// Подключение к MongoDB
 	db.Connect()
@@ -37,7 +39,7 @@ func main() {
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"znai-krai api": "v0.11.5",
+			"znai-krai api": "v0.12.0",
 		})
 	})
 
@@ -66,6 +68,7 @@ func main() {
 
 	// метод для создания новых форм - заявок
 	router.POST("/form", handlers.NewForm)
+	router.POST("/form_corona", handlers.NewFormCorona)
 
 	// получение всех вопросов для заполнения со стороны клиента
 	router.GET("/formQuestions", form.Questions)

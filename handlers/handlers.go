@@ -2,24 +2,17 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/semyon-dev/znai-krai/config"
 	"github.com/semyon-dev/znai-krai/db"
+	"github.com/semyon-dev/znai-krai/log"
 	"github.com/semyon-dev/znai-krai/model"
-	"golang.org/x/oauth2/google"
+	"github.com/semyon-dev/znai-krai/sheet"
 	"googlemaps.github.io/maps"
-	"gopkg.in/Iwark/spreadsheet.v2"
-	"io/ioutil"
 	"net/http"
-	"os"
-	"reflect"
-	"strings"
 	"time"
 )
-
-var Service *spreadsheet.Service
 
 var mongoPlaces []model.Place
 var mongoShortPlaces []model.ShortPlace
@@ -27,71 +20,6 @@ var mongoViolations []model.Violation
 var mongoCoronaViolations []model.CoronaViolation
 
 var violationsStats interface{}
-
-// Connect to Google Sheets
-func Connect() {
-	var data []byte
-	var err error
-	// если нет переменных окружения значит читаем файл credentials.json
-	if len(config.Credentials) == 0 {
-		data, err = ioutil.ReadFile("credentials.json")
-		fmt.Println("read credentials from file")
-		if err != nil {
-			fmt.Println("критическая ошибка: не удалось импортировать переменные:", err)
-		}
-	} else {
-		var f model.CredentialsFile
-		fmt.Println("read credentials from env var")
-		f.Type = "service_account"
-		f.ProjectID = "zekovnet"
-		f.PrivateKeyID = os.Getenv("private_key_id")
-		f.PrivateKey = strings.ReplaceAll(os.Getenv("private_key"), "\\n", "\n")
-		f.ClientEmail = os.Getenv("client_email")
-		f.ClientID = os.Getenv("client_id")
-		f.TokenURL = os.Getenv("token_uri")
-		data, err = json.Marshal(f)
-		checkError(err)
-	}
-
-	conf, err := google.JWTConfigFromJSON(data, spreadsheet.Scope)
-	checkError(err)
-
-	client := conf.Client(context.TODO())
-	Service = spreadsheet.NewServiceWithClient(client)
-
-	formSpreadsheet, err := Service.FetchSpreadsheet(config.SpreadsheetIDForms)
-	checkError(err)
-	spreadsheetCoronavirus, err := Service.FetchSpreadsheet(config.SpreadsheetCoronavirus)
-	checkError(err)
-	fsinPlacesSpreadsheet, err := Service.FetchSpreadsheet(config.SpreadsheetIDFsinPlaces)
-	checkError(err)
-	fmt.Println("таблица нарушений (форм):", formSpreadsheet.Properties.Title)
-	fmt.Println("таблица ФСИН учреждений:", fsinPlacesSpreadsheet.Properties.Title)
-	fmt.Println("таблица с информацией по Коронавирусу:", spreadsheetCoronavirus.Properties.Title)
-}
-
-var explanations = map[string]string{
-	"total_count": "общее кол-во обращений",
-
-	"physical_impact_from_employees": "С какими фактами применения физического воздействия со стороны сотрудников ФСИН Вам приходилось сталкиваться?",
-	"physical_impact_from_prisoners": "С какими фактами применения физического воздействия со стороны заключенных Вам приходилось сталкиваться?",
-
-	"psychological_impact_from_employees": "С какими фактами психологического воздействия со стороны сотрудников ФСИН Вам приходилось сталкиваться?",
-	"psychological_impact_from_prisoners": "С какими фактами психологического воздействия со стороны заключенных Вам приходилось сталкиваться?",
-
-	"can_prisoners_submit_complaints": "Есть ли у заключенных возможность направлять жалобы, ходатайства и заявления в надзирающие органы и правозащитные организации?",
-
-	"communication_with_relatives": "Какие нарушения, связанные с иными формами общения с Родственниками, Вам известны?",
-	"communication_with_lawyer":    "Какие нарушения, связанные с общением с адвокатом (иным лицом, имеющим право на оказание юридической помощи), Вам известны?",
-
-	"visits_with_relatives": "Какие нарушения, связанные с предоставлением свиданий с Родственниками, Вам известны?",
-
-	"corruption_from_employees": "Приходилось ли Вам сталкиваться с иными случаями коррупции сотрудников ФСИН?",
-	"extortions_from_employees": "В каких случаях Вы сталкивались с фактами вымогательства со стороны сотрудников ФСИН?",
-	"extortions_from_prisoners": "Приходилось ли Вам сталкиваться с фактами вымогательства со стороны заключенных?",
-
-	"violations_of_medical_care": "Какие нарушения, связанные с оказанием медицинской помощи, Вы можете отметить?",
-}
 
 func Analytics(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
@@ -102,7 +30,7 @@ func Analytics(c *gin.Context) {
 }
 
 func Explanations(c *gin.Context) {
-	c.JSON(http.StatusOK, explanations)
+	c.JSON(http.StatusOK, model.Explanations)
 }
 
 // получение всех/одного ФСИН учреждений
@@ -169,12 +97,11 @@ func CoronaPlaces(c *gin.Context) {
 }
 
 // получение отзывов с Google Maps
-// TODO: refactor & testing
 func Reviews(c *gin.Context) {
 
 	cMaps, err := maps.NewClient(maps.WithAPIKey(config.GoogleMapsAPIKey))
 	if err != nil {
-		fmt.Printf("fatal error: %s", err)
+		log.HandleErr(err)
 	}
 
 	var r maps.FindPlaceFromTextRequest
@@ -198,60 +125,50 @@ func Reviews(c *gin.Context) {
 }
 
 // новая форма нарушения
-// TODO: refactor & testing
 func NewForm(c *gin.Context) {
 	var form model.Violation
 	var message string
 	var status int
 	err := c.ShouldBind(&form)
 	if err != nil {
-		fmt.Println(err.Error())
-		status = 400
+		status = http.StatusBadRequest
 		message = "error: " + err.Error()
+		checkError(err)
 	} else {
 		form.Source = "сайт"
-
-		// We need a pointer so that we can set the value via reflection
-		msValuePtr := reflect.ValueOf(&form)
-		msValue := msValuePtr.Elem()
-
-		// нужно для синхронизации
-		formSpreadsheet, err := Service.FetchSpreadsheet(config.SpreadsheetIDForms)
-		checkError(err)
-
-		formsSheet, err := formSpreadsheet.SheetByID(0)
-		checkError(err)
-
-		row := len(formsSheet.Rows)
-		column := 0
-		currentTime := time.Now()
-
-		formsSheet.Update(row, column, currentTime.Format("2006.01.02 15:04:05"))
-		column++
-
-		for ; column < msValue.NumField(); column++ {
-			field := msValue.Field(column)
-
-			// Ignore fields that don't have the same type as a string
-			if field.Type() != reflect.TypeOf("") || "add_files" == reflect.ValueOf(field).Type().Name() {
-				continue
-			}
-
-			str := field.Interface().(string)
-			str = strings.TrimSpace(str)
-			field.SetString(str)
-
-			// добавляем в таблицу
-			formsSheet.Update(row, column, field.String())
-		}
-		err = formsSheet.Synchronize()
+		err = sheet.AddViolation(form)
 		if err == nil {
-			status = 200
+			status = http.StatusOK
 			message = "ok"
 		} else {
-			status = 400
-			fmt.Println(err.Error())
+			status = http.StatusInternalServerError
 			message = "error " + err.Error()
+		}
+	}
+	c.JSON(status, gin.H{
+		"message": message,
+	})
+}
+
+// новая форма нарушения по коронавируса
+func NewFormCorona(c *gin.Context) {
+	var form model.CoronaViolation
+	var message string
+	var status int
+	err := c.ShouldBindJSON(&form)
+	if err != nil {
+		status = http.StatusBadRequest
+		message = "error: " + err.Error()
+		log.HandleErr(err)
+	} else {
+		form.Source = "сайт"
+		err = sheet.AddCoronaViolation(form)
+		if err == nil {
+			status = http.StatusOK
+			message = "ok"
+		} else {
+			status = http.StatusInternalServerError
+			message = "InternalServerError"
 		}
 	}
 	c.JSON(status, gin.H{
@@ -261,6 +178,6 @@ func NewForm(c *gin.Context) {
 
 func checkError(err error) {
 	if err != nil {
-		fmt.Println("Error ", err.Error())
+		log.HandleErr(err)
 	}
 }

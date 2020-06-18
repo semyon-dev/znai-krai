@@ -122,6 +122,8 @@ type CoronaViolation struct {
 	PlaceID primitive.ObjectID `json:"place_id" bson:"place_id"`
 
 	Status string `json:"status" bson:"status"`
+
+	Source string `json:"source" bson:"source"`
 }
 
 // полная структура учреждения ФСИН

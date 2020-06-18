@@ -38,14 +38,25 @@
 * аналитика по разным параметрам (общая статистика) \
 `GET /analytics`
 
+* пояснения по разным параметрам (скорее для аналитики) \
+`GET /explanations`
+
 * получение всех вопросов для создания новых нарушений со стороны клиента `(/form)` \
 `GET /formQuestions`
+
+* BETA: отзывы с Google Maps \
+`GET /reviews/<name>`
+
+Только для нашего сайта:
 
 * метод для создания новых нарушений (форм - заявок) \
 `POST /form`
 
-* BETA: отзывы с Google Maps \
-`GET /reviews/<name>`
+* метод для создания новых нарушений по коронавирусу (форм - заявок) \
+`POST /form_corona`
+
+* метод для сообщения ошибок/багов \
+`POST /report`
 
 ### Лицензия
 znai-krai is licensed under the Creative Commons Attribution NonCommercial ShareAlike (CC-NC-SA)

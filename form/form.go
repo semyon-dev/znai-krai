@@ -3,7 +3,7 @@ package form
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
-	"github.com/semyon-dev/znai-krai/config"
+	log2 "github.com/semyon-dev/znai-krai/log"
 	"github.com/semyon-dev/znai-krai/model"
 	"net/http"
 )
@@ -321,7 +321,7 @@ func Report(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, report)
 		return
 	}
-	hooked := log.Hook(config.ReportHook{})
+	hooked := log.Hook(log2.ReportHook{})
 	hooked.Error().Msg("new report: " + report.Bug + ", email: " + report.Email)
 	c.JSON(http.StatusOK, report)
 }
