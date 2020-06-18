@@ -10,272 +10,307 @@ import (
 
 func Questions(c *gin.Context) {
 
-	var data QuestionsData
+	var data = QuestionsData{}
 
-	var region = question{
-		Name:     "region",
-		Question: "В каком регионе находится учреждение ФСИН о котором вы будете рассказывать?",
-		Required: true,
-		Type:     "textfield",
-		Hint:     "Новосибирск",
-	}
+	data.newQuestionTextfield(
+		"region",
+		"В каком регионе находится учреждение ФСИН о котором вы будете рассказывать?",
+		true,
+		"Новосибирск",
+		"",
+		nil,
+	)
 
-	var fsinOrganization = question{
-		Name:     "fsin_organization",
-		Question: "О каком учреждении ФСИН вы рассказываете?",
-		Required: true,
-		Type:     "textfield",
-		Hint:     "СИЗО 1",
-	}
+	data.newQuestionTextfield(
+		"fsin_organization",
+		"О каком учреждении ФСИН вы рассказываете?",
+		true,
+		"СИЗО 1",
+		"",
+		nil,
+	)
 
-	var timeOfOffence = question{
-		Name:     "time_of_offence",
-		Question: "Укажите когда произошли нарушения о которых вы хотите рассказать?",
-		Required: true,
-		Type:     "textfield",
-		Hint:     "2015-2018",
-	}
+	data.newQuestionTextfield(
+		"time_of_offence",
+		"Укажите когда произошли нарушения о которых вы хотите рассказать?",
+		true,
+		"2015-2018",
+		"",
+		nil,
+	)
 
-	var questionStatus = question{
-		Name:     "status",
-		Question: "Какой ваш статус?",
-		Required: true,
-		Type:     "choose_one",
-		Values:   []string{"Бывший заключенный", "Родственник заключенного", "Заключенный в настоящее время", "Адвокат", "другое"},
-	}
+	data.newQuestionChooseOne(
+		"status",
+		"Какой ваш статус?",
+		true,
+		"",
+		valuesStatusOther,
+	)
 
-	var salaryOfPrisoners = question{
-		Name:     "salary_of_prisoners",
-		Question: "Укажите, в каком диапазоне находится месячная зарплата заключенных?",
-		Required: false,
-		Type:     "choose_one",
-		Values:   model.ViolationsSalaryTypes,
-	}
+	data.newQuestionChooseOne(
+		"salary_of_prisoners",
+		"Укажите, в каком диапазоне находится месячная зарплата заключенных?",
+		false,
+		"",
+		model.ViolationsSalaryTypes,
+	)
 
-	var violationFood = question{
-		Name:     "violations_of_food",
-		Question: "Какие нарушения, связанные с питанием, вы можете отметить?",
-		Required: false,
-		Type:     "choose_multiply",
-		Values:   model.ViolationsFoodTypes,
-	}
+	data.newQuestionChooseOne(
+		"violations_of_food_sure",
+		"Были ли нарушения, связанные с питанием?",
+		false,
+		"",
+		valuesYesNoDifficult,
+	)
 
-	var violationsMedicalCare = question{
-		Name:     "violations_of_medical_care",
-		Question: "Какие нарушения, связанные с оказанием медицинской помощи, вы можете отметить?",
-		Required: false,
-		Type:     "choose_multiply",
-		Values:   model.ViolationsMedicalCareTypes,
-	}
+	data.newQuestionMultiply(
+		"violations_of_food",
+		"Какие нарушения, связанные с питанием, вы можете отметить?",
+		false,
+		"violations_of_food_sure",
+		model.ViolationsFoodTypes,
+	)
 
-	var contacts = question{
-		Name:     "provide_name_and_contacts",
-		Question: "Готовы ли вы сообщить свое имя и контакты? Если нет - пропустите вопрос.",
-		Required: false,
-		Type:     "textfield",
-		Hint:     "Мамонтов Власий Демьянович, 89001112233",
-	}
+	data.newQuestionChooseOne(
+		"violations_of_medical_care_sure",
+		"Были ли нарушения, связанные с оказанием медицинской помощи?",
+		false,
+		"",
+		valuesYesNoDifficult,
+	)
 
-	var physicalImpactFromEmployees = question{
-		Name:     "physical_impact_from_employees",
-		Question: "С какими фактами применения физического воздействия со стороны сотрудников ФСИН вам приходилось сталкиваться?",
-		Required: false,
-		Type:     "choose_multiply",
-		Values:   model.ViolationsPhysicalImpactTypes,
-	}
+	data.newQuestionMultiply(
+		"violations_of_medical_care",
+		"Какие нарушения, связанные с оказанием медицинской помощи, вы можете отметить?",
+		false,
+		"violations_of_medical_care_sure",
+		model.ViolationsMedicalCareTypes,
+	)
 
-	var physicalImpactFromPrisoners = question{
-		Name:     "physical_impact_from_prisoners",
-		Question: "С какими фактами применения физического воздействия со стороны заключенных вам приходилось сталкиваться?",
-		Required: false,
-		Type:     "choose_multiply",
-		Values:   model.ViolationsPhysicalImpactTypes,
-	}
+	data.newQuestionTextfield(
+		"provide_name_and_contacts",
+		"Готовы ли вы сообщить свое имя и контакты? Если нет - пропустите вопрос.",
+		false,
+		"Мамонтов Власий Демьянович, 89001112233",
+		"",
+		nil,
+	)
 
-	var visitsWithRelatives = question{
-		Name:     "visits_with_relatives",
-		Question: "Какие нарушения, связанные с предоставлением свиданий с Родственниками, вам известны?",
-		Required: false,
-		Type:     "choose_multiply",
-		Values:   model.ViolationsVisitsWithRelatives,
-	}
+	data.newQuestionMultiply(
+		"physical_impact_from_employees",
+		"С какими фактами применения физического воздействия со стороны сотрудников ФСИН вам приходилось сталкиваться?",
+		false,
+		"",
+		model.ViolationsPhysicalImpactTypes,
+	)
 
-	var violationsOfClothes = question{
-		Name:     "violations_of_clothes",
-		Question: "Какие нарушения, связанные с одеждой, вы можете отметить?",
-		Required: false,
-		Type:     "choose_multiply",
-		Values:   model.ViolationsClothes,
-	}
+	data.newQuestionMultiply(
+		"physical_impact_from_prisoners",
+		"С какими фактами применения физического воздействия со стороны заключенных вам приходилось сталкиваться?",
+		false,
+		"",
+		model.ViolationsPhysicalImpactTypes,
+	)
 
-	var violationsStaging = question{
-		Name:     "violations_staging",
-		Question: "Какие нарушения, связанные с этапированием заключенных вам известны?",
-		Required: false,
-		Type:     "choose_multiply",
-		Values:   model.ViolationsClothes,
-	}
+	data.newQuestionMultiply(
+		"visits_with_relatives",
+		"Какие нарушения, связанные с предоставлением свиданий с Родственниками, вам известны?",
+		false,
+		"",
+		model.ViolationsVisitsWithRelatives,
+	)
 
-	var violationsPenaltiesRelatedToPlacement = question{
-		Name:     "violations_penalties_related_to_placement",
-		Question: "С какими нарушениями при применении мер взыскания, связанных с водворением в карцер и ШИЗО, переводом в ПКТ, ЕПКТ и на СУС, вам приходилось сталкиваться?",
-		Required: false,
-		Type:     "choose_multiply",
-		Values:   model.ViolationsWithPlacementInPunishmentCellTypes,
-	}
+	data.newQuestionMultiply(
+		"violations_of_clothes",
+		"Какие нарушения, связанные с одеждой, вы можете отметить?",
+		false,
+		"",
+		model.ViolationsClothes,
+	)
 
-	var communicationWithLawyer = question{
-		Name:     "communication_with_lawyer",
-		Question: "Какие нарушения, связанные с общением с адвокатом (иным лицом, имеющим право на оказание юридической помощи), вам известны?",
-		Required: false,
-		Type:     "choose_multiply",
-		Values:   model.ViolationsCommunicationWithOthers,
-	}
+	data.newQuestionMultiply(
+		"violations_staging",
+		"Какие нарушения, связанные с этапированием заключенных вам известны?",
+		false,
+		"",
+		model.ViolationsClothes,
+	)
 
-	var violationsReligiousRitesFromEmployees = question{
-		Name:     "violations_religious_rites_from_employees",
-		Question: "С какими запретами (нарушениями) на отправление религиозных обрядов со стороны сотрудников ФСИН вам приходилось сталкиваться?",
-		Required: false,
-		Type:     "choose_multiply",
-		Values:   model.ViolationsReligiousViolations,
-	}
-	var violationsReligiousRitesFromPrisoners = question{
-		Name:     "violations_religious_rites_from_prisoners",
-		Question: "С какими запретами (нарушениями) на отправление религиозных обрядов со стороны заключенных вам приходилось сталкиваться?",
-		Required: false,
-		Type:     "choose_multiply",
-		Values:   model.ViolationsReligiousViolations,
-	}
+	data.newQuestionMultiply(
+		"violations_penalties_related_to_placement",
+		"С какими нарушениями при применении мер взыскания, связанных с водворением в карцер и ШИЗО, переводом в ПКТ, ЕПКТ и на СУС, вам приходилось сталкиваться?",
+		false,
+		"",
+		model.ViolationsWithPlacementInPunishmentCellTypes,
+	)
 
-	var psychologicalImpactFromEmployees = question{
-		Name:     "psychological_impact_from_employees",
-		Question: "С какими фактами применения психологического воздействия со стороны сотрудников ФСИН вам приходилось сталкиваться?",
-		Required: false,
-		Type:     "choose_multiply",
-		Values:   model.ViolationsPsychologicalImpact,
-	}
+	data.newQuestionMultiply(
+		"communication_with_lawyer",
+		"Какие нарушения, связанные с общением с адвокатом (иным лицом, имеющим право на оказание юридической помощи), вам известны?",
+		false,
+		"",
+		model.ViolationsCommunicationWithOthers,
+	)
 
-	var psychologicalImpactFromPrisoners = question{
-		Name:     "psychological_impact_from_prisoners",
-		Question: "С какими фактами применения психологического воздействия со стороны заключенных вам приходилось сталкиваться?",
-		Required: false,
-		Type:     "choose_multiply",
-		Values:   model.ViolationsPsychologicalImpact,
-	}
+	data.newQuestionMultiply(
+		"violations_religious_rites_from_employees",
+		"С какими запретами (нарушениями) на отправление религиозных обрядов со стороны сотрудников ФСИН вам приходилось сталкиваться?",
+		false,
+		"",
+		model.ViolationsReligiousViolations,
+	)
+	data.newQuestionMultiply(
+		"violations_religious_rites_from_prisoners",
+		"С какими запретами (нарушениями) на отправление религиозных обрядов со стороны заключенных вам приходилось сталкиваться?",
+		false,
+		"",
+		model.ViolationsReligiousViolations,
+	)
 
-	var extortionsFromEmployees = question{
-		Name:     "extortions_from_employees",
-		Question: "В каких случаях вы сталкивались с фактами вымогательства со стороны сотрудников ФСИН?",
-		Required: false,
-		Type:     "choose_multiply",
-		Values:   model.ViolationsExtortionsFromEmployeesTypes,
-	}
+	data.newQuestionMultiply(
+		"psychological_impact_from_employees",
+		"С какими фактами применения психологического воздействия со стороны сотрудников ФСИН вам приходилось сталкиваться?",
+		false,
+		"",
+		model.ViolationsPsychologicalImpact,
+	)
 
-	var corruptionFromEmployees = question{
-		Name:     "corruption_from_employees",
-		Question: "Приходилось ли вам сталкиваться с иными случаями коррупции сотрудников ФСИН?",
-		Required: false,
-		Type:     "choose_one",
-		Values:   []string{"Да", "Нет", "Затрудняюсь ответить", "другое"},
-	}
+	data.newQuestionMultiply(
+		"psychological_impact_from_prisoners",
+		"С какими фактами применения психологического воздействия со стороны заключенных вам приходилось сталкиваться?",
+		false,
+		"",
+		model.ViolationsPsychologicalImpact,
+	)
 
-	var extortionsFromPrisoners = question{
-		Name:     "extortions_from_prisoners",
-		Question: "Приходилось ли вам сталкиваться с фактами вымогательства со стороны заключенных?",
-		Required: false,
-		Type:     "choose_one",
-		Values:   []string{"Да", "Нет", "Затрудняюсь ответить", "другое"},
-	}
+	data.newQuestionMultiply(
+		"extortions_from_employees",
+		"В каких случаях вы сталкивались с фактами вымогательства со стороны сотрудников ФСИН?",
+		false,
+		"",
+		model.ViolationsExtortionsFromEmployeesTypes,
+	)
 
-	var canPrisonersSubmitComplaints = question{
-		Name:     "can_prisoners_submit_complaints",
-		Question: "Есть ли у заключенных возможность направлять жалобы, ходатайства и заявления в надзирающие органы и правозащитные организации?",
-		Required: false,
-		Type:     "choose_one",
-		Values:   []string{"Да", "Нет", "Затрудняюсь ответить", "другое"},
-	}
+	data.newQuestionChooseOne(
+		"corruption_from_employees",
+		"Приходилось ли вам сталкиваться с иными случаями коррупции сотрудников ФСИН?",
+		false,
+		"",
+		valuesYesNoDifficultOther,
+	)
 
-	var laborSlavery = question{
-		Name:     "labor_slavery",
-		Question: "Известны ли вам случаи трудового рабства?",
-		Required: false,
-		Type:     "choose_one",
-		Values:   []string{"Да", "Нет", "Затрудняюсь ответить", "другое"},
-	}
+	data.newQuestionChooseOne(
+		"extortions_from_prisoners",
+		"Приходилось ли вам сталкиваться с фактами вымогательства со стороны заключенных?",
+		false,
+		"",
+		valuesYesNoDifficultOther,
+	)
 
-	var helpEuropeanCourt = question{
-		Name:     "help_european_court",
-		Question: "Мы могли бы помочь вам в составлении жалобы в Европейский суд по поводу нарушений в местах лишения свободы. Хотели бы вы получить такую помощь?",
-		Required: false,
-		Type:     "choose_one",
-		Values:   []string{"Да", "Нет", "другое"},
-	}
+	data.newQuestionChooseOne(
+		"can_prisoners_submit_complaints",
+		"Есть ли у заключенных возможность направлять жалобы, ходатайства и заявления в надзирающие органы и правозащитные организации?",
+		false,
+		"",
+		valuesYesNoDifficultOther,
+	)
 
-	var questionPublicDisclosure = question{
-		Name:     "public_disclosure",
-		Question: "Согласны ли Вы на публичную огласку приведенных вами фактов?",
-		Required: true,
-		Type:     "choose_one",
-		Values:   []string{"Да", "Нет"},
-	}
+	data.newQuestionChooseOne(
+		"labor_slavery",
+		"Известны ли вам случаи трудового рабства?",
+		false,
+		"",
+		valuesYesNoDifficultOther,
+	)
 
-	var questionProcessingPersonalData = question{
-		Name:     "processing_personal_data",
-		Question: "Согласны ли вы на обработку Ваших персональных данных?",
-		Required: true,
-		Type:     "choose_one",
-		Values:   []string{"Да"},
-	}
+	data.newQuestionChooseOne(
+		"help_european_court",
+		"Мы могли бы помочь вам в составлении жалобы в Европейский суд по поводу нарушений в местах лишения свободы. Хотели бы вы получить такую помощь?",
+		false,
+		"",
+		valuesYesNoOther,
+	)
 
-	var additionalInformation = question{
-		Name:     "additional_information",
-		Question: "Если ли у вас есть дополнительная информация, которой вы готовы поделиться с нами, то ее можно написать здесь:",
-		Required: false,
-		Type:     "textarea",
-	}
+	data.newQuestionChooseOne(
+		"public_disclosure",
+		"Согласны ли Вы на публичную огласку приведенных вами фактов?",
+		true,
+		"",
+		valuesYesNo,
+	)
 
-	var addFiles = question{
-		Name:     "add_files",
-		Question: "Если ли у вас есть файлы которые относятся к нарушениям, то можете загрузить их здесь:",
-		Required: false,
-		Type:     "html",
-		Html:     "<iframe width=\"250\" height=\"54\" frameborder=\"0\" src=\"https://mega.nz/drop#!0SWpxKkiXk4!l!en\"></iframe>",
-	}
+	data.newQuestionChooseOne(
+		"processing_personal_data",
+		"Согласны ли вы на обработку Ваших персональных данных?",
+		true,
+		"",
+		valuesYes,
+	)
 
-	data = append(
-		data,
-		questionStatus,
-		region,
-		timeOfOffence,
-		fsinOrganization,
-		contacts,
-		physicalImpactFromEmployees,
-		physicalImpactFromPrisoners,
-		extortionsFromEmployees,
-		corruptionFromEmployees,
-		extortionsFromPrisoners,
-		psychologicalImpactFromPrisoners,
-		psychologicalImpactFromEmployees,
-		violationsReligiousRitesFromEmployees,
-		violationsReligiousRitesFromPrisoners,
-		communicationWithLawyer,
-		visitsWithRelatives,
-		canPrisonersSubmitComplaints,
-		violationsOfClothes,
-		laborSlavery,
-		salaryOfPrisoners,
-		violationFood,
-		violationsMedicalCare,
-		violationsStaging,
-		violationsPenaltiesRelatedToPlacement,
-		additionalInformation,
-		helpEuropeanCourt,
-		questionPublicDisclosure,
-		questionProcessingPersonalData,
-		addFiles,
+	data.newQuestionTextarea(
+		"additional_information",
+		"Если ли у вас есть дополнительная информация, которой вы готовы поделиться с нами, то ее можно написать здесь:",
+		false,
+		"",
+		"",
+		nil,
+	)
+
+	data.newQuestionWithHtml(
+		"add_files",
+		"Если ли у вас есть файлы которые относятся к нарушениям, то можете загрузить их здесь:",
+		"<iframe width=\"250\" height=\"54\" frameborder=\"0\" src=\"https://mega.nz/drop#!0SWpxKkiXk4!l!en\"></iframe>",
+		false,
 	)
 
 	c.JSON(http.StatusOK, data)
+}
+
+func (data *QuestionsData) newQuestion(name, questionName, typ string, required bool, hint, requires string, values []string, html string) {
+	*data = append(*data, question{
+		Name:     name,
+		Question: questionName,
+		Required: required,
+		Type:     typ,
+		Values:   values,
+		Hint:     hint,
+		Requires: requires,
+		Html:     html,
+	})
+}
+
+func (data *QuestionsData) newQuestionMultiply(name, questionName string, required bool, requires string, values []string) {
+	data.newQuestion(name, questionName, "choose_multiply", required, "", requires, values, "")
+}
+
+func (data *QuestionsData) newQuestionChooseOne(name, questionName string, required bool, requires string, values []string) {
+	data.newQuestion(name, questionName, "choose_one", required, "", requires, values, "")
+}
+
+func (data *QuestionsData) newQuestionTextfield(name, questionName string, required bool, hint, requires string, values []string) {
+	data.newQuestion(name, questionName, "textfield", required, hint, requires, values, "")
+}
+
+func (data *QuestionsData) newQuestionTextarea(name, questionName string, required bool, hint, requires string, values []string) {
+	data.newQuestion(name, questionName, "textarea", required, hint, requires, values, "")
+}
+
+// for upload files
+func (data *QuestionsData) newQuestionWithHtml(name, questionName, html string, required bool) {
+	data.newQuestion(name, questionName, "html", required, "", "", nil, html)
+}
+
+var valuesYes = []string{"Да"}
+var valuesYesNo = []string{"Да", "Нет"}
+var valuesYesNoOther = []string{"Да", "Нет", "другое"}
+var valuesYesNoDifficult = []string{"Да", "Нет", "Затрудняюсь ответить"}
+var valuesYesNoDifficultOther = []string{"Да", "Нет", "Затрудняюсь ответить", "другое"}
+var valuesStatusOther = []string{"Бывший заключенный", "Родственник заключенного", "Заключенный в настоящее время", "Адвокат", "другое"}
+
+// для кнопки "сообщить об ошибке"
+type report struct {
+	Email string `json:"email"` // почта для обратной связи
+	Bug   string `json:"bug"`
 }
 
 func Report(c *gin.Context) {
@@ -291,18 +326,13 @@ func Report(c *gin.Context) {
 	c.JSON(http.StatusOK, report)
 }
 
-// для кнопки "сообщить об ошибке"
-type report struct {
-	Email string `json:"email"` // почта для обратной связи
-	Bug   string `json:"bug"`
-}
-
 type QuestionsData []question
 
 type question struct {
 	Name     string   `json:"name"`
 	Question string   `json:"question"`
 	Required bool     `json:"required"`
+	Requires string   `json:"requires"`
 	Type     string   `json:"type"`
 	Values   []string `json:"values"`
 	Hint     string   `json:"hint"`
