@@ -62,7 +62,7 @@ func UpdatePlaces(places *[]model.Place) {
 	fsinPlacesCollection := db.Collection("fsin_places")
 	insertResult, err := fsinPlacesCollection.InsertMany(context.TODO(), placesDB)
 	if err != nil {
-		fmt.Println(err)
+		log.HandleErr(err)
 	}
 	fmt.Println("insert result:", insertResult)
 }

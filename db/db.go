@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/semyon-dev/znai-krai/config"
+	"github.com/semyon-dev/znai-krai/log"
 	"github.com/semyon-dev/znai-krai/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
-	"log"
 	"strings"
 	"time"
 )
@@ -24,7 +24,7 @@ func Connect() {
 		"mongodb+srv://"+config.MongoDBLogin+":"+config.MongoDBPass+"@main-h6nko.mongodb.net/test?retryWrites=true&w=majority",
 	))
 	if err != nil {
-		log.Fatal(err)
+		log.HandleErr(err)
 	}
 
 	// Create connect
@@ -50,10 +50,10 @@ func Places() (places []model.Place) {
 	fsinPlacesCollection := db.Collection("fsin_places")
 	cursor, err := fsinPlacesCollection.Find(context.TODO(), bson.M{})
 	if err != nil {
-		fmt.Println(err)
+		log.HandleErr(err)
 	}
 	if err = cursor.All(context.TODO(), &places); err != nil {
-		fmt.Println(err)
+		log.HandleErr(err)
 	}
 	return places
 }
@@ -62,10 +62,10 @@ func ShortPlaces() (shortPlaces []model.ShortPlace) {
 	fsinPlacesCollection := db.Collection("fsin_places")
 	cursor, err := fsinPlacesCollection.Find(context.TODO(), bson.M{})
 	if err != nil {
-		fmt.Println(err)
+		log.HandleErr(err)
 	}
 	if err = cursor.All(context.TODO(), &shortPlaces); err != nil {
-		fmt.Println(err)
+		log.HandleErr(err)
 	}
 	return shortPlaces
 }
@@ -74,7 +74,7 @@ func AddCoronaViolation(violation model.CoronaViolation) {
 	coronaViolations := db.Collection("corona_violations")
 	insertResult, err := coronaViolations.InsertOne(context.TODO(), violation)
 	if err != nil {
-		fmt.Println(err)
+		log.HandleErr(err)
 	}
 	fmt.Println("InsertedID ", insertResult.InsertedID)
 }
@@ -92,10 +92,10 @@ func Violations() (violations []model.Violation) {
 	violationsCollection := db.Collection("violations")
 	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
 	if err != nil {
-		fmt.Println(err)
+		log.HandleErr(err)
 	}
 	if err = cursor.All(context.TODO(), &violations); err != nil {
-		fmt.Println(err)
+		log.HandleErr(err)
 	}
 	return violations
 }
@@ -104,10 +104,10 @@ func CoronaViolations() (coronaViolations []model.CoronaViolation) {
 	coronaViolationsCollection := db.Collection("corona_violations")
 	cursor, err := coronaViolationsCollection.Find(context.TODO(), bson.M{})
 	if err != nil {
-		fmt.Println(err)
+		log.HandleErr(err)
 	}
 	if err = cursor.All(context.TODO(), &coronaViolations); err != nil {
-		fmt.Println(err)
+		log.HandleErr(err)
 	}
 	return coronaViolations
 }
@@ -116,7 +116,7 @@ func CountAllViolations() int64 {
 	violationsCollection := db.Collection("violations")
 	count, err := violationsCollection.EstimatedDocumentCount(context.TODO(), nil)
 	if err != nil {
-		fmt.Println(err)
+		log.HandleErr(err)
 	}
 	return count
 }
@@ -125,7 +125,7 @@ func CountCoronaViolations() int64 {
 	violationsCollection := db.Collection("corona_violations")
 	count, err := violationsCollection.EstimatedDocumentCount(context.TODO(), nil)
 	if err != nil {
-		fmt.Println(err)
+		log.HandleErr(err)
 	}
 	return count
 }
@@ -268,7 +268,7 @@ func CountViolations() interface{} {
 	}
 	defer cursor.Close(context.TODO())
 	if err != nil {
-		fmt.Println(err)
+		log.HandleErr(err)
 		return nil
 	}
 	// Finding multiple documents returns a cursor
@@ -493,7 +493,7 @@ func CountViolations() interface{} {
 		}
 	}
 	if err := cursor.Err(); err != nil {
-		fmt.Println(err)
+		log.HandleErr(err)
 	}
 	return stats
 }
