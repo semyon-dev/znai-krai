@@ -176,6 +176,31 @@ func NewFormCorona(c *gin.Context) {
 	})
 }
 
+// новая форма нарушения по коронавируса
+func NewMailing(c *gin.Context) {
+	var form model.Mailing
+	var message string
+	var status int
+	err := c.ShouldBindJSON(&form)
+	if err != nil {
+		status = http.StatusBadRequest
+		message = "error: " + err.Error()
+		log.HandleErr(err)
+	} else {
+		err = sheet.AddMailing(form)
+		if err == nil {
+			status = http.StatusOK
+			message = "ok"
+		} else {
+			status = http.StatusInternalServerError
+			message = "InternalServerError"
+		}
+	}
+	c.JSON(status, gin.H{
+		"message": message,
+	})
+}
+
 func checkError(err error) {
 	if err != nil {
 		log.HandleErr(err)

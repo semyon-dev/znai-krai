@@ -121,6 +121,19 @@ func AddViolation(form model.Violation) error {
 	return err
 }
 
+func AddMailing(formMailing model.Mailing) error {
+	formSpreadsheet, err := Service.FetchSpreadsheet(config.SpreadsheetEmail)
+	checkError(err)
+	formsSheet, err := formSpreadsheet.SheetByID(0)
+	checkError(err)
+	row := len(formsSheet.Rows)
+	formsSheet.Update(row, 0, formMailing.Name)
+	formsSheet.Update(row, 1, formMailing.Email)
+	err = formsSheet.Synchronize()
+	checkError(err)
+	return err
+}
+
 func checkError(err error) {
 	if err != nil {
 		log.HandleErr(err)

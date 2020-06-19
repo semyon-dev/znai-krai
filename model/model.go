@@ -204,3 +204,8 @@ type CredentialsFile struct {
 	ClientID     string `json:"client_id"`
 	RefreshToken string `json:"refresh_token"`
 }
+
+type Mailing struct {
+	Name  string `json:"name"`
+	Email string `json:"email"  binding:"required"`
+}

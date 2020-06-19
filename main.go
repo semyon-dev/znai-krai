@@ -39,7 +39,7 @@ func main() {
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"znai-krai api": "v0.12.0",
+			"znai-krai api": "v0.13.0",
 		})
 	})
 
@@ -75,6 +75,9 @@ func main() {
 
 	// репорт для ошибок/багов
 	router.POST("/report", form.Report)
+
+	// подписка на почтовую рассылку
+	router.POST("/mailing", handlers.NewMailing)
 
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
