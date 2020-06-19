@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/joho/godotenv"
-	"github.com/semyon-dev/znai-krai/log"
+	"log"
 	"os"
 )
 
@@ -24,7 +24,7 @@ var (
 func Load() {
 	err := godotenv.Load()
 	if err != nil {
-		log.HandleErr(err)
+		log.Println(err)
 	}
 	GoogleMapsAPIKey = os.Getenv("GOOGLE_MAPS_API_KEY")
 	SpreadsheetIDForms = os.Getenv("SPREADSHEET_ID_NEW")
