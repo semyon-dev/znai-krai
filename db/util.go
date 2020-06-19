@@ -3,9 +3,9 @@ package db
 import (
 	"context"
 	"fmt"
+	"github.com/semyon-dev/znai-krai/log"
 	"github.com/semyon-dev/znai-krai/model"
 	"go.mongodb.org/mongo-driver/bson"
-	"log"
 )
 
 func UpdateViolation(violation model.Violation) {
@@ -13,7 +13,7 @@ func UpdateViolation(violation model.Violation) {
 	violationsCollection := db.Collection("violations")
 	err := violationsCollection.FindOne(context.TODO(), bson.M{"time": violation.Time, "fsin_organization": violation.FSINOrganization}).Decode(&newViolation)
 	if err != nil {
-		log.Println("MongoDB err!: ", err)
+		log.HandleErr(err)
 	}
 	//fmt.Printf("newViolation: \n %+v\n", newViolation.)
 
@@ -28,7 +28,7 @@ func UpdateViolation(violation model.Violation) {
 	}
 	result, err := violationsCollection.UpdateOne(context.TODO(), bson.M{"time": violation.Time, "fsin_organization": violation.FSINOrganization}, update)
 	if err != nil {
-		log.Println("MongoDB error!!! -> ", err)
+		log.HandleErr(err)
 	}
 	fmt.Printf("ModifiedCount: \n %+v\n", result.ModifiedCount)
 }
@@ -38,7 +38,7 @@ func UpdatePlace(place model.Place) {
 	fsinPlacesCollection := db.Collection("fsin_places")
 	err := fsinPlacesCollection.FindOne(context.TODO(), bson.M{"name": place.Name, "address": place.Address, "location": place.Location}).Decode(&newPlace)
 	if err != nil {
-		log.Fatal("MongoDB err!: ", err)
+		log.HandleErr(err)
 	}
 	newPlace.Type = place.Type
 	fmt.Println("violation.ID: ", newPlace.ID)
@@ -49,7 +49,7 @@ func UpdatePlace(place model.Place) {
 	}
 	result, err := fsinPlacesCollection.UpdateOne(context.TODO(), bson.M{"_id": newPlace.ID}, update)
 	if err != nil {
-		log.Fatal("MongoDB error!!! -> ", err)
+		log.HandleErr(err)
 	}
 	fmt.Printf("ModifiedCount: \n %+v\n", result.ModifiedCount)
 }
