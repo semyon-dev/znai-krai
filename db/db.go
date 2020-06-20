@@ -134,15 +134,17 @@ func CountCoronaViolations() int64 {
 // получение кол-ва нарушений по типу для Аналитики
 func CountViolations() interface{} {
 
+	type PhysicalImpact struct {
+		CountByYears                map[string]uint32 `json:"count_by_years"`
+		TotalCountAppeals           uint32            `json:"total_count_appeals"`
+		TotalCount                  uint32            `json:"total_count"`
+		PhysicalImpactFromEmployees map[string]uint32 `json:"physical_impact_from_employees"`
+		PhysicalImpactFromPrisoners map[string]uint32 `json:"physical_impact_from_prisoners"`
+	}
+
 	type Stats struct {
-		TotalCount     uint32 `json:"total_count"`
-		PhysicalImpact struct {
-			CountByYears                map[string]uint32 `json:"count_by_years"`
-			TotalCountAppeals           uint32            `json:"total_count_appeals"`
-			TotalCount                  uint32            `json:"total_count"`
-			PhysicalImpactFromEmployees map[string]uint32 `json:"physical_impact_from_employees"`
-			PhysicalImpactFromPrisoners map[string]uint32 `json:"physical_impact_from_prisoners"`
-		} `json:"physical_impact"`
+		TotalCount          uint32 `json:"total_count"`
+		PhysicalImpact      `json:"physical_impact"`
 		PsychologicalImpact struct {
 			CountByYears                     map[string]uint32 `json:"count_by_years"`
 			TotalCountAppeals                uint32            `json:"total_count_appeals"`
@@ -278,6 +280,22 @@ func CountViolations() interface{} {
 				switch vType {
 				case "physical_impact_from_employees":
 					countTimeOfOffence(stats.PhysicalImpact.CountByYears, timeOfOffence)
+					//func(types []string, value interface{}, name string) {
+					//	switch name {
+					//	case "PhysicalImpactFromEmployees":
+					//		if vPh, ok := value.(PhysicalImpact); ok {
+					//			for _, typ := range types {
+					//				if strings.Contains(strings.ToLower(v), typ) {
+					//					vPh.TotalCount++
+					//					vPh.PhysicalImpactFromEmployees["total_count"]++
+					//					vPh.PhysicalImpactFromEmployees[typ]++
+					//				}
+					//			}
+					//		}
+					//	}
+					//
+					//}(model.ViolationsPhysicalImpactTypes)
+
 					stats.PhysicalImpact.TotalCountAppeals++
 					stats.PhysicalImpact.PhysicalImpactFromEmployees["total_count_appeals"]++
 					for _, typ := range model.ViolationsPhysicalImpactTypes {
@@ -533,16 +551,3 @@ func countTimeOfOffence(count map[string]uint32, timeOfOffence string) {
 	}
 	return
 }
-
-//
-//func justTry(stats map[string]uint32) {
-//	stats["TotalCountAppeals"]++
-//	stats.PhysicalImpact.PhysicalImpactFromPrisoners["total_count_appeals"]++
-//	for _, typ := range model.ViolationsPhysicalImpactTypes {
-//		if strings.Contains(strings.ToLower(v), typ) {
-//			stats.PhysicalImpact.TotalCount++
-//			stats.PhysicalImpact.PhysicalImpactFromPrisoners["total_count"]++
-//			stats.PhysicalImpact.PhysicalImpactFromPrisoners[typ]++
-//		}
-//	}
-//}
