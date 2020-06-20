@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"strings"
 	"time"
+	"unicode"
 )
 
 var db *mongo.Database
@@ -133,56 +134,31 @@ func CountCoronaViolations() int64 {
 // получение кол-ва нарушений по типу для Аналитики
 func CountViolations() interface{} {
 
-	var violationsTypes = [...]string{
-		"physical_impact_from_employees",
-		"physical_impact_from_prisoners",
-
-		"psychological_impact_from_employees",
-		"psychological_impact_from_prisoners",
-
-		"corruption_from_employees",
-		"extortions_from_employees",
-		"extortions_from_prisoners",
-
-		"visits_with_relatives",
-		"communication_with_relatives",
-		"communication_with_lawyer",
-		"can_prisoners_submit_complaints",
-
-		"salary_of_prisoners",
-		"labor_slavery",
-
-		"violations_of_food",
-		"violations_of_medical_care",
-		"violations_of_clothes",
-
-		"violations_staging",
-		"violations_religious_rites_from_employees",
-		"violations_religious_rites_from_prisoners",
-		"violations_penalties_related_to_placement",
-	}
-
 	type Stats struct {
 		TotalCount     uint32 `json:"total_count"`
 		PhysicalImpact struct {
+			CountByYears                map[string]uint32 `json:"count_by_years"`
 			TotalCountAppeals           uint32            `json:"total_count_appeals"`
 			TotalCount                  uint32            `json:"total_count"`
 			PhysicalImpactFromEmployees map[string]uint32 `json:"physical_impact_from_employees"`
 			PhysicalImpactFromPrisoners map[string]uint32 `json:"physical_impact_from_prisoners"`
 		} `json:"physical_impact"`
 		PsychologicalImpact struct {
+			CountByYears                     map[string]uint32 `json:"count_by_years"`
 			TotalCountAppeals                uint32            `json:"total_count_appeals"`
 			TotalCount                       uint32            `json:"total_count"`
 			PsychologicalImpactFromEmployees map[string]uint32 `json:"psychological_impact_from_employees"`
 			PsychologicalImpactFromPrisoners map[string]uint32 `json:"psychological_impact_from_prisoners"`
 		} `json:"psychological_impact"`
 		Job struct {
+			CountByYears      map[string]uint32 `json:"count_by_years"`
 			TotalCountAppeals uint32            `json:"total_count_appeals"`
 			TotalCount        uint32            `json:"total_count"`
 			LaborSlavery      map[string]uint32 `json:"labor_slavery"`
 			SalaryOfPrisoners map[string]uint32 `json:"salary_of_prisoners"`
 		} `json:"job"`
 		Corruption struct {
+			CountByYears            map[string]uint32 `json:"count_by_years"`
 			TotalCountAppeals       uint32            `json:"total_count_appeals"`
 			TotalCount              uint32            `json:"total_count"`
 			CorruptionFromEmployees map[string]uint32 `json:"corruption_from_employees"`
@@ -190,6 +166,7 @@ func CountViolations() interface{} {
 			ExtortionsFromPrisoners map[string]uint32 `json:"extortions_from_prisoners"`
 		} `json:"corruption"`
 		Communication struct {
+			CountByYears                 map[string]uint32 `json:"count_by_years"`
 			TotalCountAppeals            uint32            `json:"total_count_appeals"`
 			TotalCount                   uint32            `json:"total_count"`
 			VisitsWithRelatives          map[string]uint32 `json:"visits_with_relatives"`
@@ -198,32 +175,38 @@ func CountViolations() interface{} {
 			CanPrisonersSubmitComplaints map[string]uint32 `json:"can_prisoners_submit_complaints"`
 		} `json:"communication"`
 		ViolationsOfClothes struct {
+			CountByYears        map[string]uint32 `json:"count_by_years"`
 			TotalCountAppeals   uint32            `json:"total_count_appeals"`
 			TotalCount          uint32            `json:"total_count"`
 			ViolationsOfClothes map[string]uint32 `json:"violations_of_clothes"`
 		} `json:"violations_of_clothes"`
 		ViolationsOfFood struct {
+			CountByYears      map[string]uint32 `json:"count_by_years"`
 			TotalCountAppeals uint32            `json:"total_count_appeals"`
 			TotalCount        uint32            `json:"total_count"`
 			ViolationsOfFood  map[string]uint32 `json:"violations_of_food"`
 		} `json:"violations_of_food"`
 		ViolationsOfMedicalCare struct {
+			CountByYears            map[string]uint32 `json:"count_by_years"`
 			TotalCountAppeals       uint32            `json:"total_count_appeals"`
 			TotalCount              uint32            `json:"total_count"`
 			ViolationsOfMedicalCare map[string]uint32 `json:"violations_of_medical_care"`
 		} `json:"violations_of_medical_care"`
 		ViolationsStaging struct {
+			CountByYears      map[string]uint32 `json:"count_by_years"`
 			TotalCountAppeals uint32            `json:"total_count_appeals"`
 			TotalCount        uint32            `json:"total_count"`
 			ViolationsStaging map[string]uint32 `json:"violations_staging"`
 		} `json:"violations_staging"`
 		Religion struct {
+			CountByYears                          map[string]uint32 `json:"count_by_years"`
 			TotalCountAppeals                     uint32            `json:"total_count_appeals"`
 			TotalCount                            uint32            `json:"total_count"`
 			ViolationsReligiousRitesFromEmployees map[string]uint32 `json:"violations_religious_rites_from_employees"`
 			ViolationsReligiousRitesFromPrisoners map[string]uint32 `json:"violations_religious_rites_from_prisoners"`
 		} `json:"religion"`
 		ViolationsWithPlacementInPunishmentCell struct {
+			CountByYears                            map[string]uint32 `json:"count_by_years"`
 			TotalCountAppeals                       uint32            `json:"total_count_appeals"`
 			TotalCount                              uint32            `json:"total_count"`
 			ViolationsWithPlacementInPunishmentCell map[string]uint32 `json:"violations_with_placement_in_punishment_cell"`
@@ -234,36 +217,49 @@ func CountViolations() interface{} {
 
 	stats.PhysicalImpact.PhysicalImpactFromEmployees = make(map[string]uint32)
 	stats.PhysicalImpact.PhysicalImpactFromPrisoners = make(map[string]uint32)
+	stats.PhysicalImpact.CountByYears = make(map[string]uint32)
 
 	stats.PsychologicalImpact.PsychologicalImpactFromEmployees = make(map[string]uint32)
 	stats.PsychologicalImpact.PsychologicalImpactFromPrisoners = make(map[string]uint32)
+	stats.PsychologicalImpact.CountByYears = make(map[string]uint32)
 
 	stats.Job.SalaryOfPrisoners = make(map[string]uint32)
 	stats.Job.LaborSlavery = make(map[string]uint32)
+	stats.Job.CountByYears = make(map[string]uint32)
 
 	stats.Corruption.CorruptionFromEmployees = make(map[string]uint32)
 	stats.Corruption.ExtortionsFromEmployees = make(map[string]uint32)
 	stats.Corruption.ExtortionsFromPrisoners = make(map[string]uint32)
+	stats.Corruption.CountByYears = make(map[string]uint32)
 
 	stats.Communication.VisitsWithRelatives = make(map[string]uint32)
 	stats.Communication.CommunicationWithLawyer = make(map[string]uint32)
 	stats.Communication.CommunicationWithRelatives = make(map[string]uint32)
 	stats.Communication.CanPrisonersSubmitComplaints = make(map[string]uint32)
+	stats.Communication.CountByYears = make(map[string]uint32)
 
 	stats.ViolationsOfClothes.ViolationsOfClothes = make(map[string]uint32)
+	stats.ViolationsOfClothes.CountByYears = make(map[string]uint32)
+
 	stats.ViolationsOfFood.ViolationsOfFood = make(map[string]uint32)
+	stats.ViolationsOfFood.CountByYears = make(map[string]uint32)
+
 	stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare = make(map[string]uint32)
+	stats.ViolationsOfMedicalCare.CountByYears = make(map[string]uint32)
 
 	stats.Religion.ViolationsReligiousRitesFromEmployees = make(map[string]uint32)
 	stats.Religion.ViolationsReligiousRitesFromPrisoners = make(map[string]uint32)
+	stats.Religion.CountByYears = make(map[string]uint32)
 
 	stats.ViolationsStaging.ViolationsStaging = make(map[string]uint32)
+	stats.ViolationsStaging.CountByYears = make(map[string]uint32)
 	stats.ViolationsWithPlacementInPunishmentCell.ViolationsWithPlacementInPunishmentCell = make(map[string]uint32)
+	stats.ViolationsWithPlacementInPunishmentCell.CountByYears = make(map[string]uint32)
 
 	violationsCollection := db.Collection("violations")
 	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
 	if cursor == nil {
-		fmt.Println("cursor is nil!")
+		log.HandleErr(err)
 		return nil
 	}
 	defer cursor.Close(context.TODO())
@@ -274,12 +270,14 @@ func CountViolations() interface{} {
 	// Finding multiple documents returns a cursor
 	// Iterating through the cursor allows us to decode documents one at a time
 	for cursor.Next(context.TODO()) {
-		for _, vType := range violationsTypes {
+		for _, vType := range model.ViolationsTypes {
 			v := cursor.Current.Lookup(vType).StringValue()
+			timeOfOffence := cursor.Current.Lookup("time_of_offence").StringValue()
 			if v != "" && v != "\t" && v != "\n" && strings.ToLower(v) != "нет" && v != "Не сталкивался с нарушениями" {
 				stats.TotalCount++
 				switch vType {
 				case "physical_impact_from_employees":
+					countTimeOfOffence(stats.PhysicalImpact.CountByYears, timeOfOffence)
 					stats.PhysicalImpact.TotalCountAppeals++
 					stats.PhysicalImpact.PhysicalImpactFromEmployees["total_count_appeals"]++
 					for _, typ := range model.ViolationsPhysicalImpactTypes {
@@ -290,6 +288,7 @@ func CountViolations() interface{} {
 						}
 					}
 				case "physical_impact_from_prisoners":
+					countTimeOfOffence(stats.PhysicalImpact.CountByYears, timeOfOffence)
 					stats.PhysicalImpact.TotalCountAppeals++
 					stats.PhysicalImpact.PhysicalImpactFromPrisoners["total_count_appeals"]++
 					for _, typ := range model.ViolationsPhysicalImpactTypes {
@@ -300,6 +299,7 @@ func CountViolations() interface{} {
 						}
 					}
 				case "psychological_impact_from_employees":
+					countTimeOfOffence(stats.PsychologicalImpact.CountByYears, timeOfOffence)
 					stats.PsychologicalImpact.TotalCountAppeals++
 					stats.PsychologicalImpact.PsychologicalImpactFromEmployees["total_count_appeals"]++
 					for _, typ := range model.ViolationsPsychologicalImpact {
@@ -310,6 +310,7 @@ func CountViolations() interface{} {
 						}
 					}
 				case "psychological_impact_from_prisoners":
+					countTimeOfOffence(stats.PsychologicalImpact.CountByYears, timeOfOffence)
 					stats.PsychologicalImpact.TotalCountAppeals++
 					stats.PsychologicalImpact.PsychologicalImpactFromPrisoners["total_count_appeals"]++
 					for _, typ := range model.ViolationsPsychologicalImpact {
@@ -320,6 +321,7 @@ func CountViolations() interface{} {
 						}
 					}
 				case "extortions_from_employees":
+					countTimeOfOffence(stats.Corruption.CountByYears, timeOfOffence)
 					stats.Corruption.TotalCountAppeals++
 					stats.Corruption.ExtortionsFromEmployees["total_count_appeals"]++
 					for _, typ := range model.ViolationsExtortionsFromEmployeesTypes {
@@ -330,6 +332,7 @@ func CountViolations() interface{} {
 						}
 					}
 				case "communication_with_relatives":
+					countTimeOfOffence(stats.Communication.CountByYears, timeOfOffence)
 					stats.Communication.TotalCountAppeals++
 					stats.Communication.CommunicationWithRelatives["total_count_appeals"]++
 					for _, typ := range model.ViolationsCommunicationWithOthers {
@@ -340,6 +343,7 @@ func CountViolations() interface{} {
 						}
 					}
 				case "communication_with_lawyer":
+					countTimeOfOffence(stats.Communication.CountByYears, timeOfOffence)
 					stats.Communication.TotalCountAppeals++
 					stats.Communication.CommunicationWithLawyer["total_count_appeals"]++
 					for _, typ := range model.ViolationsCommunicationWithOthers {
@@ -350,6 +354,7 @@ func CountViolations() interface{} {
 						}
 					}
 				case "visits_with_relatives":
+					countTimeOfOffence(stats.Communication.CountByYears, timeOfOffence)
 					stats.Communication.TotalCountAppeals++
 					stats.Communication.VisitsWithRelatives["total_count_appeals"]++
 					for _, typ := range model.ViolationsVisitsWithRelatives {
@@ -360,6 +365,7 @@ func CountViolations() interface{} {
 						}
 					}
 				case "violations_penalties_related_to_placement":
+					countTimeOfOffence(stats.ViolationsWithPlacementInPunishmentCell.CountByYears, timeOfOffence)
 					stats.ViolationsWithPlacementInPunishmentCell.TotalCountAppeals++
 					stats.ViolationsWithPlacementInPunishmentCell.ViolationsWithPlacementInPunishmentCell["total_count_appeals"]++
 					for _, typ := range model.ViolationsWithPlacementInPunishmentCellTypes {
@@ -370,6 +376,7 @@ func CountViolations() interface{} {
 						}
 					}
 				case "salary_of_prisoners":
+					countTimeOfOffence(stats.Job.CountByYears, timeOfOffence)
 					var exist bool
 					for _, vSalary := range model.ViolationsSalaryTypes {
 						if v == vSalary {
@@ -383,6 +390,7 @@ func CountViolations() interface{} {
 						stats.Job.SalaryOfPrisoners[v]++
 					}
 				case "violations_of_clothes":
+					countTimeOfOffence(stats.ViolationsOfClothes.CountByYears, timeOfOffence)
 					stats.ViolationsOfClothes.TotalCountAppeals++
 					stats.ViolationsOfClothes.ViolationsOfClothes["total_count_appeals"]++
 					for _, typ := range model.ViolationsClothes {
@@ -393,6 +401,7 @@ func CountViolations() interface{} {
 						}
 					}
 				case "violations_of_food":
+					countTimeOfOffence(stats.ViolationsOfFood.CountByYears, timeOfOffence)
 					stats.ViolationsOfFood.TotalCountAppeals++
 					stats.ViolationsOfFood.ViolationsOfFood["total_count_appeals"]++
 					for _, typ := range model.ViolationsFoodTypes {
@@ -403,6 +412,7 @@ func CountViolations() interface{} {
 						}
 					}
 				case "violations_of_medical_care":
+					countTimeOfOffence(stats.ViolationsOfMedicalCare.CountByYears, timeOfOffence)
 					stats.ViolationsOfMedicalCare.TotalCountAppeals++
 					stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare["total_count_appeals"]++
 					for _, typ := range model.ViolationsMedicalCareTypes {
@@ -413,6 +423,7 @@ func CountViolations() interface{} {
 						}
 					}
 				case "violations_religious_rites_from_employees":
+					countTimeOfOffence(stats.Religion.CountByYears, timeOfOffence)
 					stats.Religion.TotalCountAppeals++
 					stats.Religion.ViolationsReligiousRitesFromEmployees["total_count_appeals"]++
 					for _, typ := range model.ViolationsReligiousViolations {
@@ -423,6 +434,7 @@ func CountViolations() interface{} {
 						}
 					}
 				case "violations_religious_rites_from_prisoners":
+					countTimeOfOffence(stats.Religion.CountByYears, timeOfOffence)
 					stats.Religion.TotalCountAppeals++
 					stats.Religion.ViolationsReligiousRitesFromPrisoners["total_count_appeals"]++
 					for _, typ := range model.ViolationsReligiousViolations {
@@ -433,6 +445,7 @@ func CountViolations() interface{} {
 						}
 					}
 				case "violations_staging":
+					countTimeOfOffence(stats.ViolationsStaging.CountByYears, timeOfOffence)
 					stats.ViolationsStaging.TotalCountAppeals++
 					stats.ViolationsStaging.ViolationsStaging["total_count_appeals"]++
 					for _, typ := range model.ViolationsStagingViolations {
@@ -446,6 +459,7 @@ func CountViolations() interface{} {
 			}
 			// если требуется ответы "Да" и "Нет" то минуем проверку на "Нет" в if перед верхним switch
 			if vType == "can_prisoners_submit_complaints" && v != "" {
+				countTimeOfOffence(stats.Communication.CountByYears, timeOfOffence)
 				stats.Communication.CanPrisonersSubmitComplaints[v]++
 				stats.Communication.CanPrisonersSubmitComplaints["total_count_appeals"]++
 				stats.Communication.TotalCountAppeals++
@@ -454,6 +468,7 @@ func CountViolations() interface{} {
 					stats.Communication.CanPrisonersSubmitComplaints["total_count"]++
 				}
 			} else if vType == "corruption_from_employees" {
+				countTimeOfOffence(stats.Corruption.CountByYears, timeOfOffence)
 				stats.Corruption.TotalCountAppeals++
 				stats.Corruption.CorruptionFromEmployees["total_count_appeals"]++
 				vLower := strings.ToLower(v)
@@ -465,6 +480,7 @@ func CountViolations() interface{} {
 					stats.Corruption.CorruptionFromEmployees[v]++
 				}
 			} else if vType == "extortions_from_prisoners" {
+				countTimeOfOffence(stats.Corruption.CountByYears, timeOfOffence)
 				stats.Corruption.TotalCountAppeals++
 				stats.Corruption.ExtortionsFromPrisoners["total_count_appeals"]++
 				vLower := strings.ToLower(v)
@@ -476,6 +492,7 @@ func CountViolations() interface{} {
 					stats.Corruption.ExtortionsFromPrisoners[v]++
 				}
 			} else if vType == "labor_slavery" {
+				countTimeOfOffence(stats.Job.CountByYears, timeOfOffence)
 				stats.Job.TotalCountAppeals++
 				stats.Job.LaborSlavery["total_count_appeals"]++
 				vLower := strings.ToLower(v)
@@ -497,3 +514,35 @@ func CountViolations() interface{} {
 	}
 	return stats
 }
+
+// Подсчет кол-во информация по годам (map["2020"] = 23)
+func countTimeOfOffence(count map[string]uint32, timeOfOffence string) {
+	var data = [4]byte{}
+	i := 0
+	for _, symbol := range timeOfOffence {
+		if unicode.IsDigit(symbol) {
+			data[i] = byte(symbol)
+			i++
+		} else {
+			if data[0] != 0 {
+				count[string(data[:])]++
+			}
+			data = [4]byte{}
+			i = 0
+		}
+	}
+	return
+}
+
+//
+//func justTry(stats map[string]uint32) {
+//	stats["TotalCountAppeals"]++
+//	stats.PhysicalImpact.PhysicalImpactFromPrisoners["total_count_appeals"]++
+//	for _, typ := range model.ViolationsPhysicalImpactTypes {
+//		if strings.Contains(strings.ToLower(v), typ) {
+//			stats.PhysicalImpact.TotalCount++
+//			stats.PhysicalImpact.PhysicalImpactFromPrisoners["total_count"]++
+//			stats.PhysicalImpact.PhysicalImpactFromPrisoners[typ]++
+//		}
+//	}
+//}

@@ -1,5 +1,34 @@
 package model
 
+var ViolationsTypes = [...]string{
+	"physical_impact_from_employees",
+	"physical_impact_from_prisoners",
+
+	"psychological_impact_from_employees",
+	"psychological_impact_from_prisoners",
+
+	"corruption_from_employees",
+	"extortions_from_employees",
+	"extortions_from_prisoners",
+
+	"visits_with_relatives",
+	"communication_with_relatives",
+	"communication_with_lawyer",
+	"can_prisoners_submit_complaints",
+
+	"salary_of_prisoners",
+	"labor_slavery",
+
+	"violations_of_food",
+	"violations_of_medical_care",
+	"violations_of_clothes",
+
+	"violations_staging",
+	"violations_religious_rites_from_employees",
+	"violations_religious_rites_from_prisoners",
+	"violations_penalties_related_to_placement",
+}
+
 var ViolationsSalaryTypes = []string{
 	"От 0 до 100 рублей",
 	"От 100 до 1 000 рублей",
