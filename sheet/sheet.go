@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/semyon-dev/znai-krai/config"
+	"github.com/semyon-dev/znai-krai/db"
 	"github.com/semyon-dev/znai-krai/log"
 	"github.com/semyon-dev/znai-krai/model"
 	"golang.org/x/oauth2/google"
@@ -140,5 +141,25 @@ func AddMailing(formMailing model.Mailing) error {
 func checkError(err error) {
 	if err != nil {
 		log.HandleErr(err)
+	}
+}
+
+func UpdateViolationsToMongo() {
+	spreadsheetT := config.SpreadsheetIDForms
+	sheet, err := Service.FetchSpreadsheet(spreadsheetT)
+	checkError(err)
+	fmt.Println("updating...")
+	sheetMain, err := sheet.SheetByID(0)
+	checkError(err)
+	for row := 1; row <= len(sheetMain.Rows)-1; row++ {
+
+		var form model.Violation
+		form.Time = sheetMain.Rows[row][0].Value
+		form.Status = sheetMain.Rows[row][1].Value
+		form.Region = sheetMain.Rows[row][2].Value
+		form.FSINOrganization = sheetMain.Rows[row][3].Value
+		form.TimeOfOffence = sheetMain.Rows[row][4].Value
+
+		db.UpdateViolation(form)
 	}
 }

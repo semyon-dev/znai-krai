@@ -6,30 +6,33 @@ import (
 	"github.com/semyon-dev/znai-krai/log"
 	"github.com/semyon-dev/znai-krai/model"
 	"go.mongodb.org/mongo-driver/bson"
+	l "log"
 	"strings"
 )
 
 func UpdateViolation(violation model.Violation) {
 	var newViolation model.Violation
 	violationsCollection := db.Collection("violations")
-	err := violationsCollection.FindOne(context.TODO(), bson.M{"time": violation.Time, "fsin_organization": violation.FSINOrganization}).Decode(&newViolation)
+	err := violationsCollection.FindOne(context.TODO(), bson.M{"time": violation.Time, "fsin_organization": violation.FSINOrganization, "region": violation.Region, "time_of_offence": violation.TimeOfOffence}).Decode(&newViolation)
 	if err != nil {
-		log.HandleErr(err)
+		l.Fatal(err)
 	}
-	//fmt.Printf("newViolation: \n %+v\n", newViolation.)
 
-	newViolation.PlacesID = violation.PlacesID
-	newViolation.Approved = violation.Approved
-	newViolation.Positions = violation.Positions
-	fmt.Println("violation.PlacesID: ", newViolation.PlacesID)
+	if newViolation.AdditionalInformation != violation.AdditionalInformation {
+		newViolation.AdditionalInformation = violation.AdditionalInformation
+	} else {
+		return
+	}
+
 	fmt.Println("violation.ID: ", newViolation.ID)
 	fmt.Println("violation.FSINOrganization: ", newViolation.FSINOrganization)
+	fmt.Println("new violation.AdditionalInformation: ", newViolation.AdditionalInformation)
 	update := bson.M{
 		"$set": newViolation,
 	}
-	result, err := violationsCollection.UpdateOne(context.TODO(), bson.M{"time": violation.Time, "fsin_organization": violation.FSINOrganization}, update)
+	result, err := violationsCollection.UpdateOne(context.TODO(), bson.M{"time": violation.Time, "fsin_organization": violation.FSINOrganization, "region": violation.Region, "time_of_offence": violation.TimeOfOffence}, update)
 	if err != nil {
-		log.HandleErr(err)
+		l.Fatal(err)
 	}
 	fmt.Printf("ModifiedCount: \n %+v\n", result.ModifiedCount)
 }
