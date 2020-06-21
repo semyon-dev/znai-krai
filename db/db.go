@@ -341,6 +341,7 @@ func countTimeOfOffence(count map[string]uint32, timeOfOffence string) {
 // Для заданной category и subcategory считает value пробегаясь по violationsTypes
 func (stats stats) countStats(category *category, subcategory *subcategory, value string, violationsTypes []string) {
 	category.TotalCountAppeals++
+	subcategory.TotalCountAppeals++
 	for _, typ := range violationsTypes {
 		if strings.Contains(strings.ToLower(value), typ) {
 			category.TotalCount++
