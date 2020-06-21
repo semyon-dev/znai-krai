@@ -26,10 +26,9 @@ func Connect() {
 	// если нет переменных окружения значит читаем файл credentials.json
 	if len(config.Credentials) == 0 {
 		data, err = ioutil.ReadFile("credentials.json")
-		fmt.Println("read credentials from file")
+		fmt.Println("Чтение файла с учетными данными (credentials)")
 		if err != nil {
-			fmt.Println("Критическая ошибка: не удалось импортировать переменные:", err)
-			log.HandleErr(err)
+			log.HandleErrWithMsg("Критическая ошибка: не удалось импортировать переменные:", err)
 		}
 	} else {
 		var f model.CredentialsFile
@@ -57,9 +56,12 @@ func Connect() {
 	checkError(err)
 	fsinPlacesSpreadsheet, err := Service.FetchSpreadsheet(config.SpreadsheetIDFsinPlaces)
 	checkError(err)
+	emailSpreadsheet, err := Service.FetchSpreadsheet(config.SpreadsheetEmail)
+	checkError(err)
 	fmt.Println("таблица нарушений (форм):", formSpreadsheet.Properties.Title)
 	fmt.Println("таблица ФСИН учреждений:", fsinPlacesSpreadsheet.Properties.Title)
 	fmt.Println("таблица с информацией по Коронавирусу:", spreadsheetCoronavirus.Properties.Title)
+	fmt.Println("таблица с информацией email рассылки:", emailSpreadsheet.Properties.Title)
 }
 
 func AddCoronaViolation(coronaForm model.CoronaViolation) error {
@@ -121,6 +123,7 @@ func AddViolation(form model.Violation) error {
 	return err
 }
 
+// Добавление пользователя в таблицу для email рассылки
 func AddMailing(formMailing model.Mailing) error {
 	formSpreadsheet, err := Service.FetchSpreadsheet(config.SpreadsheetEmail)
 	checkError(err)

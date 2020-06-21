@@ -36,6 +36,12 @@ func HandleErr(err error) {
 	hooked.Error().Msg("Ошибка на бэкенде: " + err.Error())
 }
 
+// логирование в консоль и телеграмм бота с сообщением
+func HandleErrWithMsg(msg string, err error) {
+	fmt.Println(msg, err)
+	hooked.Error().Msg("Ошибка на бэкенде: " + msg + " " + err.Error())
+}
+
 func (h ReportHook) Run(e *zerolog.Event, level zerolog.Level, msg string) {
 	if level == zerolog.ErrorLevel {
 		e.Str("info", level.String())

@@ -167,7 +167,7 @@ type Place struct {
 	CoronaViolations []CoronaViolation `json:"corona_violations" bson:"corona_violations"`
 }
 
-// для /places
+// Место без информации о нарушениях и коронавирусе для /places
 type ShortPlace struct {
 	ID primitive.ObjectID `bson:"_id" json:"_id"`
 

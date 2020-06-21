@@ -32,7 +32,7 @@ type category struct {
 	Subcategories     map[string]subcategory `json:"subcategories"`
 }
 
-type stats map[string]category
+type Stats map[string]category
 
 func Connect() {
 
@@ -139,6 +139,7 @@ func CountAllViolations() int64 {
 	return count
 }
 
+// кол-во документов (нарушений) по коронавирусу
 func CountCoronaViolations() int64 {
 	violationsCollection := db.Collection("corona_violations")
 	count, err := violationsCollection.EstimatedDocumentCount(context.TODO(), nil)
@@ -148,7 +149,8 @@ func CountCoronaViolations() int64 {
 	return count
 }
 
-func CountViolations() interface{} {
+// Подсчет статистики нарушений для всех типов
+func CountViolationsStats() Stats {
 
 	violationsCollection := db.Collection("violations")
 	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
@@ -163,7 +165,7 @@ func CountViolations() interface{} {
 		}
 	}()
 
-	var stats = stats{}
+	var stats = Stats{}
 
 	initCategory := func(categoryName string) category {
 		return category{Name: categoryName, Subcategories: map[string]subcategory{}, CountByYears: map[string]uint32{}}
@@ -307,9 +309,6 @@ func CountViolations() interface{} {
 				countTimeOfOffence(job.CountByYears, timeOfOffence)
 				stats.countYesNotDifficult(&job, &laborSlavery, v)
 			}
-			if v == "Да" {
-				// stats.TotalCount++
-			}
 		}
 	}
 	if err := cursor.Err(); err != nil {
@@ -339,7 +338,7 @@ func countTimeOfOffence(count map[string]uint32, timeOfOffence string) {
 
 // Подсчет статистики нарушений для аналитики
 // Для заданной category и subcategory считает value пробегаясь по violationsTypes
-func (stats stats) countStats(category *category, subcategory *subcategory, value string, violationsTypes []string) {
+func (stats Stats) countStats(category *category, subcategory *subcategory, value string, violationsTypes []string) {
 	category.TotalCountAppeals++
 	subcategory.TotalCountAppeals++
 	for _, typ := range violationsTypes {
@@ -355,7 +354,7 @@ func (stats stats) countStats(category *category, subcategory *subcategory, valu
 
 // Подсчет статистики нарушений для аналитики
 // Вопросы где ответы "да", "нет", "затрудняюсь ответить"
-func (stats stats) countYesNotDifficult(category *category, subcategory *subcategory, value string) {
+func (stats Stats) countYesNotDifficult(category *category, subcategory *subcategory, value string) {
 	category.TotalCountAppeals++
 	subcategory.TotalCountAppeals++
 	vLower := strings.ToLower(value)

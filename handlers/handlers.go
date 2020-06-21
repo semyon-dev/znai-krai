@@ -83,7 +83,7 @@ func UpdateAllPlaces() {
 		mongoPlaces = db.Places()
 		mongoViolations = db.Violations()
 		mongoCoronaViolations = db.CoronaViolations()
-		violationsStats = db.CountViolations()
+		violationsStats = db.CountViolationsStats()
 
 		fmt.Println("updated all, sleep for 5 minutes...")
 		time.Sleep(5 * time.Minute)
