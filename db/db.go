@@ -289,11 +289,11 @@ func CountViolations() interface{} {
 			if vType == "can_prisoners_submit_complaints" && v != "" {
 				countTimeOfOffence(communication.CountByYears, timeOfOffence)
 				canPrisonersSubmitComplaints.Values[v]++
-				canPrisonersSubmitComplaints.Values["total_count_appeals"]++
+				canPrisonersSubmitComplaints.TotalCountAppeals++
 				communication.TotalCountAppeals++
 				if strings.ToLower(v) == "нет" {
 					communication.TotalCount++
-					canPrisonersSubmitComplaints.Values["total_count"]++
+					canPrisonersSubmitComplaints.TotalCount++
 				}
 				stats[communication.Name] = communication
 				communication.Subcategories[canPrisonersSubmitComplaints.Name] = canPrisonersSubmitComplaints
@@ -356,11 +356,11 @@ func (stats stats) countStats(category *category, subcategory *subcategory, valu
 // Вопросы где ответы "да", "нет", "затрудняюсь ответить"
 func (stats stats) countYesNotDifficult(category *category, subcategory *subcategory, value string) {
 	category.TotalCountAppeals++
-	subcategory.Values["total_count_appeals"]++
+	subcategory.TotalCountAppeals++
 	vLower := strings.ToLower(value)
 	if vLower == "да" || vLower == "нет" || vLower == "затрудняюсь ответить" {
 		if vLower == "да" {
-			subcategory.Values["total_count"]++
+			subcategory.TotalCount++
 			category.TotalCount++
 		}
 		subcategory.Values[value]++
