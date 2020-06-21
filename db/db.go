@@ -150,13 +150,15 @@ func CountCoronaViolations() int64 {
 }
 
 // Подсчет статистики нарушений для всех типов
-func CountViolationsStats() Stats {
+func CountViolationsStats() (stats Stats, totalCount uint64) {
+
+	stats = Stats{}
 
 	violationsCollection := db.Collection("violations")
 	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
 	if cursor == nil {
 		log.HandleErr(err)
-		return nil
+		return stats, 0
 	}
 	defer func() {
 		err = cursor.Close(context.TODO())
@@ -164,8 +166,6 @@ func CountViolationsStats() Stats {
 			log.HandleErr(err)
 		}
 	}()
-
-	var stats = Stats{}
 
 	initCategory := func(categoryName string) category {
 		return category{Name: categoryName, Subcategories: map[string]subcategory{}, CountByYears: map[string]uint32{}}
@@ -235,7 +235,7 @@ func CountViolationsStats() Stats {
 			v := cursor.Current.Lookup(vType).StringValue()
 			timeOfOffence := cursor.Current.Lookup("time_of_offence").StringValue()
 			if v != "" && v != "\t" && v != "\n" && strings.ToLower(v) != "нет" && v != "Не сталкивался с нарушениями" {
-				//stats.TotalCount++
+				totalCount++
 				switch vType {
 				case "physical_impact_from_employees":
 					countTimeOfOffence(physicalImpact.CountByYears, timeOfOffence)
@@ -294,12 +294,19 @@ func CountViolationsStats() Stats {
 				canPrisonersSubmitComplaints.TotalCountAppeals++
 				communication.TotalCountAppeals++
 				if strings.ToLower(v) == "нет" {
+					totalCount++
 					communication.TotalCount++
 					canPrisonersSubmitComplaints.TotalCount++
 				}
 				stats[communication.Name] = communication
 				communication.Subcategories[canPrisonersSubmitComplaints.Name] = canPrisonersSubmitComplaints
-			} else if vType == "corruption_from_employees" {
+			} else {
+				if strings.ToLower(v) == "да" {
+					totalCount++
+				}
+			}
+
+			if vType == "corruption_from_employees" {
 				countTimeOfOffence(corruption.CountByYears, timeOfOffence)
 				stats.countYesNotDifficult(&corruption, &corruptionFromEmployees, v)
 			} else if vType == "extortions_from_prisoners" {
@@ -314,7 +321,7 @@ func CountViolationsStats() Stats {
 	if err := cursor.Err(); err != nil {
 		log.HandleErr(err)
 	}
-	return stats
+	return stats, totalCount
 }
 
 // Подсчет кол-во информация по годам (map["2020"] = 23)

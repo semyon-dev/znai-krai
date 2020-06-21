@@ -18,12 +18,14 @@ var mongoPlaces []model.Place
 var mongoShortPlaces []model.ShortPlace
 var mongoViolations []model.Violation
 var mongoCoronaViolations []model.CoronaViolation
+var totalCount uint64
 
-var violationsStats interface{}
+var violationsStats db.Stats
 
 func Analytics(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"violations_stats":           violationsStats,
+		"total_count":                totalCount,
 		"total_count_appeals":        db.CountAllViolations(),
 		"total_count_appeals_corona": db.CountCoronaViolations(),
 	})
@@ -83,7 +85,7 @@ func UpdateAllPlaces() {
 		mongoPlaces = db.Places()
 		mongoViolations = db.Violations()
 		mongoCoronaViolations = db.CoronaViolations()
-		violationsStats = db.CountViolationsStats()
+		violationsStats, totalCount = db.CountViolationsStats()
 
 		fmt.Println("updated all, sleep for 5 minutes...")
 		time.Sleep(5 * time.Minute)
