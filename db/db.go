@@ -17,6 +17,23 @@ import (
 
 var db *mongo.Database
 
+type subcategory struct {
+	Name              string            `json:"-"`
+	TotalCount        uint32            `json:"total_count"`
+	TotalCountAppeals uint32            `json:"total_count_appeals"`
+	Values            map[string]uint32 `json:"values"`
+}
+
+type category struct {
+	Name              string                 `json:"-"`
+	TotalCount        uint32                 `json:"total_count"`
+	TotalCountAppeals uint32                 `json:"total_count_appeals"`
+	CountByYears      map[string]uint32      `json:"count_by_years"`
+	Subcategories     map[string]subcategory `json:"subcategories"`
+}
+
+type stats map[string]category
+
 func Connect() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -131,132 +148,7 @@ func CountCoronaViolations() int64 {
 	return count
 }
 
-// получение кол-ва нарушений по типу для Аналитики
 func CountViolations() interface{} {
-
-	type PhysicalImpact struct {
-		CountByYears                map[string]uint32 `json:"count_by_years"`
-		TotalCountAppeals           uint32            `json:"total_count_appeals"`
-		TotalCount                  uint32            `json:"total_count"`
-		PhysicalImpactFromEmployees map[string]uint32 `json:"physical_impact_from_employees"`
-		PhysicalImpactFromPrisoners map[string]uint32 `json:"physical_impact_from_prisoners"`
-	}
-
-	type Stats struct {
-		TotalCount          uint32 `json:"total_count"`
-		PhysicalImpact      `json:"physical_impact"`
-		PsychologicalImpact struct {
-			CountByYears                     map[string]uint32 `json:"count_by_years"`
-			TotalCountAppeals                uint32            `json:"total_count_appeals"`
-			TotalCount                       uint32            `json:"total_count"`
-			PsychologicalImpactFromEmployees map[string]uint32 `json:"psychological_impact_from_employees"`
-			PsychologicalImpactFromPrisoners map[string]uint32 `json:"psychological_impact_from_prisoners"`
-		} `json:"psychological_impact"`
-		Job struct {
-			CountByYears      map[string]uint32 `json:"count_by_years"`
-			TotalCountAppeals uint32            `json:"total_count_appeals"`
-			TotalCount        uint32            `json:"total_count"`
-			LaborSlavery      map[string]uint32 `json:"labor_slavery"`
-			SalaryOfPrisoners map[string]uint32 `json:"salary_of_prisoners"`
-		} `json:"job"`
-		Corruption struct {
-			CountByYears            map[string]uint32 `json:"count_by_years"`
-			TotalCountAppeals       uint32            `json:"total_count_appeals"`
-			TotalCount              uint32            `json:"total_count"`
-			CorruptionFromEmployees map[string]uint32 `json:"corruption_from_employees"`
-			ExtortionsFromEmployees map[string]uint32 `json:"extortions_from_employees"`
-			ExtortionsFromPrisoners map[string]uint32 `json:"extortions_from_prisoners"`
-		} `json:"corruption"`
-		Communication struct {
-			CountByYears                 map[string]uint32 `json:"count_by_years"`
-			TotalCountAppeals            uint32            `json:"total_count_appeals"`
-			TotalCount                   uint32            `json:"total_count"`
-			VisitsWithRelatives          map[string]uint32 `json:"visits_with_relatives"`
-			CommunicationWithRelatives   map[string]uint32 `json:"communication_with_relatives"`
-			CommunicationWithLawyer      map[string]uint32 `json:"communication_with_lawyer"`
-			CanPrisonersSubmitComplaints map[string]uint32 `json:"can_prisoners_submit_complaints"`
-		} `json:"communication"`
-		ViolationsOfClothes struct {
-			CountByYears        map[string]uint32 `json:"count_by_years"`
-			TotalCountAppeals   uint32            `json:"total_count_appeals"`
-			TotalCount          uint32            `json:"total_count"`
-			ViolationsOfClothes map[string]uint32 `json:"violations_of_clothes"`
-		} `json:"violations_of_clothes"`
-		ViolationsOfFood struct {
-			CountByYears      map[string]uint32 `json:"count_by_years"`
-			TotalCountAppeals uint32            `json:"total_count_appeals"`
-			TotalCount        uint32            `json:"total_count"`
-			ViolationsOfFood  map[string]uint32 `json:"violations_of_food"`
-		} `json:"violations_of_food"`
-		ViolationsOfMedicalCare struct {
-			CountByYears            map[string]uint32 `json:"count_by_years"`
-			TotalCountAppeals       uint32            `json:"total_count_appeals"`
-			TotalCount              uint32            `json:"total_count"`
-			ViolationsOfMedicalCare map[string]uint32 `json:"violations_of_medical_care"`
-		} `json:"violations_of_medical_care"`
-		ViolationsStaging struct {
-			CountByYears      map[string]uint32 `json:"count_by_years"`
-			TotalCountAppeals uint32            `json:"total_count_appeals"`
-			TotalCount        uint32            `json:"total_count"`
-			ViolationsStaging map[string]uint32 `json:"violations_staging"`
-		} `json:"violations_staging"`
-		Religion struct {
-			CountByYears                          map[string]uint32 `json:"count_by_years"`
-			TotalCountAppeals                     uint32            `json:"total_count_appeals"`
-			TotalCount                            uint32            `json:"total_count"`
-			ViolationsReligiousRitesFromEmployees map[string]uint32 `json:"violations_religious_rites_from_employees"`
-			ViolationsReligiousRitesFromPrisoners map[string]uint32 `json:"violations_religious_rites_from_prisoners"`
-		} `json:"religion"`
-		ViolationsWithPlacementInPunishmentCell struct {
-			CountByYears                            map[string]uint32 `json:"count_by_years"`
-			TotalCountAppeals                       uint32            `json:"total_count_appeals"`
-			TotalCount                              uint32            `json:"total_count"`
-			ViolationsWithPlacementInPunishmentCell map[string]uint32 `json:"violations_with_placement_in_punishment_cell"`
-		} `json:"violations_with_placement_in_punishment_cell"`
-	}
-
-	var stats Stats
-
-	stats.PhysicalImpact.PhysicalImpactFromEmployees = make(map[string]uint32)
-	stats.PhysicalImpact.PhysicalImpactFromPrisoners = make(map[string]uint32)
-	stats.PhysicalImpact.CountByYears = make(map[string]uint32)
-
-	stats.PsychologicalImpact.PsychologicalImpactFromEmployees = make(map[string]uint32)
-	stats.PsychologicalImpact.PsychologicalImpactFromPrisoners = make(map[string]uint32)
-	stats.PsychologicalImpact.CountByYears = make(map[string]uint32)
-
-	stats.Job.SalaryOfPrisoners = make(map[string]uint32)
-	stats.Job.LaborSlavery = make(map[string]uint32)
-	stats.Job.CountByYears = make(map[string]uint32)
-
-	stats.Corruption.CorruptionFromEmployees = make(map[string]uint32)
-	stats.Corruption.ExtortionsFromEmployees = make(map[string]uint32)
-	stats.Corruption.ExtortionsFromPrisoners = make(map[string]uint32)
-	stats.Corruption.CountByYears = make(map[string]uint32)
-
-	stats.Communication.VisitsWithRelatives = make(map[string]uint32)
-	stats.Communication.CommunicationWithLawyer = make(map[string]uint32)
-	stats.Communication.CommunicationWithRelatives = make(map[string]uint32)
-	stats.Communication.CanPrisonersSubmitComplaints = make(map[string]uint32)
-	stats.Communication.CountByYears = make(map[string]uint32)
-
-	stats.ViolationsOfClothes.ViolationsOfClothes = make(map[string]uint32)
-	stats.ViolationsOfClothes.CountByYears = make(map[string]uint32)
-
-	stats.ViolationsOfFood.ViolationsOfFood = make(map[string]uint32)
-	stats.ViolationsOfFood.CountByYears = make(map[string]uint32)
-
-	stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare = make(map[string]uint32)
-	stats.ViolationsOfMedicalCare.CountByYears = make(map[string]uint32)
-
-	stats.Religion.ViolationsReligiousRitesFromEmployees = make(map[string]uint32)
-	stats.Religion.ViolationsReligiousRitesFromPrisoners = make(map[string]uint32)
-	stats.Religion.CountByYears = make(map[string]uint32)
-
-	stats.ViolationsStaging.ViolationsStaging = make(map[string]uint32)
-	stats.ViolationsStaging.CountByYears = make(map[string]uint32)
-	stats.ViolationsWithPlacementInPunishmentCell.ViolationsWithPlacementInPunishmentCell = make(map[string]uint32)
-	stats.ViolationsWithPlacementInPunishmentCell.CountByYears = make(map[string]uint32)
 
 	violationsCollection := db.Collection("violations")
 	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
@@ -264,11 +156,76 @@ func CountViolations() interface{} {
 		log.HandleErr(err)
 		return nil
 	}
-	defer cursor.Close(context.TODO())
-	if err != nil {
-		log.HandleErr(err)
-		return nil
+	defer func() {
+		err = cursor.Close(context.TODO())
+		if err != nil {
+			log.HandleErr(err)
+		}
+	}()
+
+	var stats = stats{}
+
+	initCategory := func(categoryName string) category {
+		return category{Name: categoryName, Subcategories: map[string]subcategory{}, CountByYears: map[string]uint32{}}
 	}
+
+	initSubcategory := func(subcategoryName string) subcategory {
+		return subcategory{Name: subcategoryName, Values: map[string]uint32{}}
+	}
+
+	// категория physicalImpact
+	var physicalImpact = initCategory("physical_impact")
+	var physicalImpactFromEmployees = initSubcategory("physical_impact_from_employees")
+	var physicalImpactFromPrisoners = initSubcategory("physical_impact_from_prisoners")
+
+	// категория psychologicalImpact
+	var psychologicalImpact = initCategory("psychological_impact")
+	var psychologicalImpactFromPrisoners = initSubcategory("psychological_impact_from_prisoners")
+	var psychologicalImpactFromEmployees = initSubcategory("psychological_impact_from_employees")
+
+	// категория Job
+	var job = initCategory("job")
+	var laborSlavery = initSubcategory("labor_slavery")
+	var salaryOfPrisoners = initSubcategory("salary_of_prisoners")
+
+	// категория Corruption
+	var corruption = initCategory("corruption")
+	var corruptionFromEmployees = initSubcategory("corruption_from_employees")
+	var extortionsFromEmployees = initSubcategory("extortions_from_employees")
+	var extortionsFromPrisoners = initSubcategory("extortions_from_prisoners")
+
+	// категория Communication
+	var communication = initCategory("communication")
+	var visitsWithRelatives = initSubcategory("visits_with_relatives")
+	var communicationWithRelatives = initSubcategory("communication_with_relatives")
+	var communicationWithLawyer = initSubcategory("communication_with_lawyer")
+	var canPrisonersSubmitComplaints = initSubcategory("can_prisoners_submit_complaints")
+
+	// категория ViolationsOfClothes
+	var violationsOfClothes = initCategory("violations_of_clothes")
+	var violationsOfClothesSub = initSubcategory("violations_of_clothes")
+
+	//	категория ViolationsOfFood
+	var violationsOfFood = initCategory("violations_of_food")
+	var violationsOfFoodSub = initSubcategory("violations_of_food")
+
+	//категория	ViolationsOfMedicalCare
+	var violationsOfMedicalCare = initCategory("violations_of_medical_care")
+	var violationsOfMedicalCareSub = initSubcategory("violations_of_medical_care")
+
+	//категория	ViolationsStaging
+	var violationsStaging = initCategory("violations_staging")
+	var violationsStagingSub = initSubcategory("violations_staging")
+
+	//	категорияReligion
+	var religion = initCategory("religion")
+	var violationsReligiousRitesFromEmployees = initSubcategory("violations_religious_rites_from_employees")
+	var violationsReligiousRitesFromPrisoners = initSubcategory("violations_religious_rites_from_prisoners")
+
+	// категория ViolationsWithPlacementInPunishmentCell
+	var violationsWithPlacementInPunishmentCell = initCategory("violations_with_placement_in_punishment_cell")
+	var violationsWithPlacementInPunishmentCellSub = initSubcategory("violations_with_placement_in_punishment_cell")
+
 	// Finding multiple documents returns a cursor
 	// Iterating through the cursor allows us to decode documents one at a time
 	for cursor.Next(context.TODO()) {
@@ -276,254 +233,82 @@ func CountViolations() interface{} {
 			v := cursor.Current.Lookup(vType).StringValue()
 			timeOfOffence := cursor.Current.Lookup("time_of_offence").StringValue()
 			if v != "" && v != "\t" && v != "\n" && strings.ToLower(v) != "нет" && v != "Не сталкивался с нарушениями" {
-				stats.TotalCount++
+				//stats.TotalCount++
 				switch vType {
 				case "physical_impact_from_employees":
-					countTimeOfOffence(stats.PhysicalImpact.CountByYears, timeOfOffence)
-					//func(types []string, value interface{}, name string) {
-					//	switch name {
-					//	case "PhysicalImpactFromEmployees":
-					//		if vPh, ok := value.(PhysicalImpact); ok {
-					//			for _, typ := range types {
-					//				if strings.Contains(strings.ToLower(v), typ) {
-					//					vPh.TotalCount++
-					//					vPh.PhysicalImpactFromEmployees["total_count"]++
-					//					vPh.PhysicalImpactFromEmployees[typ]++
-					//				}
-					//			}
-					//		}
-					//	}
-					//
-					//}(model.ViolationsPhysicalImpactTypes)
-
-					stats.PhysicalImpact.TotalCountAppeals++
-					stats.PhysicalImpact.PhysicalImpactFromEmployees["total_count_appeals"]++
-					for _, typ := range model.ViolationsPhysicalImpactTypes {
-						if strings.Contains(strings.ToLower(v), typ) {
-							stats.PhysicalImpact.TotalCount++
-							stats.PhysicalImpact.PhysicalImpactFromEmployees["total_count"]++
-							stats.PhysicalImpact.PhysicalImpactFromEmployees[typ]++
-						}
-					}
+					countTimeOfOffence(physicalImpact.CountByYears, timeOfOffence)
+					stats.countStats(&physicalImpact, &physicalImpactFromEmployees, v, model.ViolationsPhysicalImpactTypes)
 				case "physical_impact_from_prisoners":
-					countTimeOfOffence(stats.PhysicalImpact.CountByYears, timeOfOffence)
-					stats.PhysicalImpact.TotalCountAppeals++
-					stats.PhysicalImpact.PhysicalImpactFromPrisoners["total_count_appeals"]++
-					for _, typ := range model.ViolationsPhysicalImpactTypes {
-						if strings.Contains(strings.ToLower(v), typ) {
-							stats.PhysicalImpact.TotalCount++
-							stats.PhysicalImpact.PhysicalImpactFromPrisoners["total_count"]++
-							stats.PhysicalImpact.PhysicalImpactFromPrisoners[typ]++
-						}
-					}
+					countTimeOfOffence(physicalImpact.CountByYears, timeOfOffence)
+					stats.countStats(&physicalImpact, &physicalImpactFromPrisoners, v, model.ViolationsPhysicalImpactTypes)
 				case "psychological_impact_from_employees":
-					countTimeOfOffence(stats.PsychologicalImpact.CountByYears, timeOfOffence)
-					stats.PsychologicalImpact.TotalCountAppeals++
-					stats.PsychologicalImpact.PsychologicalImpactFromEmployees["total_count_appeals"]++
-					for _, typ := range model.ViolationsPsychologicalImpact {
-						if strings.Contains(strings.ToLower(v), typ) {
-							stats.PsychologicalImpact.TotalCount++
-							stats.PsychologicalImpact.PsychologicalImpactFromEmployees["total_count"]++
-							stats.PsychologicalImpact.PsychologicalImpactFromEmployees[typ]++
-						}
-					}
+					countTimeOfOffence(psychologicalImpact.CountByYears, timeOfOffence)
+					stats.countStats(&psychologicalImpact, &psychologicalImpactFromEmployees, v, model.ViolationsPsychologicalImpact)
 				case "psychological_impact_from_prisoners":
-					countTimeOfOffence(stats.PsychologicalImpact.CountByYears, timeOfOffence)
-					stats.PsychologicalImpact.TotalCountAppeals++
-					stats.PsychologicalImpact.PsychologicalImpactFromPrisoners["total_count_appeals"]++
-					for _, typ := range model.ViolationsPsychologicalImpact {
-						if strings.Contains(strings.ToLower(v), typ) {
-							stats.PsychologicalImpact.TotalCount++
-							stats.PsychologicalImpact.PsychologicalImpactFromPrisoners["total_count"]++
-							stats.PsychologicalImpact.PsychologicalImpactFromPrisoners[typ]++
-						}
-					}
+					countTimeOfOffence(psychologicalImpact.CountByYears, timeOfOffence)
+					stats.countStats(&psychologicalImpact, &psychologicalImpactFromPrisoners, v, model.ViolationsPsychologicalImpact)
 				case "extortions_from_employees":
-					countTimeOfOffence(stats.Corruption.CountByYears, timeOfOffence)
-					stats.Corruption.TotalCountAppeals++
-					stats.Corruption.ExtortionsFromEmployees["total_count_appeals"]++
-					for _, typ := range model.ViolationsExtortionsFromEmployeesTypes {
-						if strings.Contains(strings.ToLower(v), typ) {
-							stats.Corruption.TotalCount++
-							stats.Corruption.ExtortionsFromEmployees["total_count"]++
-							stats.Corruption.ExtortionsFromEmployees[typ]++
-						}
-					}
+					countTimeOfOffence(corruption.CountByYears, timeOfOffence)
+					stats.countStats(&corruption, &extortionsFromEmployees, v, model.ViolationsExtortionsFromEmployeesTypes)
 				case "communication_with_relatives":
-					countTimeOfOffence(stats.Communication.CountByYears, timeOfOffence)
-					stats.Communication.TotalCountAppeals++
-					stats.Communication.CommunicationWithRelatives["total_count_appeals"]++
-					for _, typ := range model.ViolationsCommunicationWithOthers {
-						if strings.Contains(strings.ToLower(v), typ) {
-							stats.Communication.TotalCount++
-							stats.Communication.CommunicationWithRelatives["total_count"]++
-							stats.Communication.CommunicationWithRelatives[typ]++
-						}
-					}
+					countTimeOfOffence(communication.CountByYears, timeOfOffence)
+					stats.countStats(&communication, &communicationWithRelatives, v, model.ViolationsCommunicationWithOthers)
 				case "communication_with_lawyer":
-					countTimeOfOffence(stats.Communication.CountByYears, timeOfOffence)
-					stats.Communication.TotalCountAppeals++
-					stats.Communication.CommunicationWithLawyer["total_count_appeals"]++
-					for _, typ := range model.ViolationsCommunicationWithOthers {
-						if strings.Contains(strings.ToLower(v), typ) {
-							stats.Communication.TotalCount++
-							stats.Communication.CommunicationWithLawyer["total_count"]++
-							stats.Communication.CommunicationWithLawyer[typ]++
-						}
-					}
+					countTimeOfOffence(communication.CountByYears, timeOfOffence)
+					stats.countStats(&communication, &communicationWithLawyer, v, model.ViolationsCommunicationWithOthers)
 				case "visits_with_relatives":
-					countTimeOfOffence(stats.Communication.CountByYears, timeOfOffence)
-					stats.Communication.TotalCountAppeals++
-					stats.Communication.VisitsWithRelatives["total_count_appeals"]++
-					for _, typ := range model.ViolationsVisitsWithRelatives {
-						if strings.Contains(strings.ToLower(v), typ) {
-							stats.Communication.TotalCount++
-							stats.Communication.VisitsWithRelatives["total_count"]++
-							stats.Communication.VisitsWithRelatives[typ]++
-						}
-					}
+					countTimeOfOffence(communication.CountByYears, timeOfOffence)
+					stats.countStats(&communication, &visitsWithRelatives, v, model.ViolationsVisitsWithRelatives)
 				case "violations_penalties_related_to_placement":
-					countTimeOfOffence(stats.ViolationsWithPlacementInPunishmentCell.CountByYears, timeOfOffence)
-					stats.ViolationsWithPlacementInPunishmentCell.TotalCountAppeals++
-					stats.ViolationsWithPlacementInPunishmentCell.ViolationsWithPlacementInPunishmentCell["total_count_appeals"]++
-					for _, typ := range model.ViolationsWithPlacementInPunishmentCellTypes {
-						if strings.Contains(strings.ToLower(v), typ) {
-							stats.ViolationsWithPlacementInPunishmentCell.TotalCount++
-							stats.ViolationsWithPlacementInPunishmentCell.ViolationsWithPlacementInPunishmentCell["total_count"]++
-							stats.ViolationsWithPlacementInPunishmentCell.ViolationsWithPlacementInPunishmentCell[typ]++
-						}
-					}
-				case "salary_of_prisoners":
-					countTimeOfOffence(stats.Job.CountByYears, timeOfOffence)
-					var exist bool
-					for _, vSalary := range model.ViolationsSalaryTypes {
-						if v == vSalary {
-							exist = true
-							break
-						}
-					}
-					if exist {
-						stats.Job.TotalCount++
-						stats.Job.SalaryOfPrisoners["total_count"]++
-						stats.Job.SalaryOfPrisoners[v]++
-					}
+					countTimeOfOffence(violationsWithPlacementInPunishmentCell.CountByYears, timeOfOffence)
+					stats.countStats(&violationsWithPlacementInPunishmentCell, &violationsWithPlacementInPunishmentCellSub, v, model.ViolationsWithPlacementInPunishmentCellTypes)
 				case "violations_of_clothes":
-					countTimeOfOffence(stats.ViolationsOfClothes.CountByYears, timeOfOffence)
-					stats.ViolationsOfClothes.TotalCountAppeals++
-					stats.ViolationsOfClothes.ViolationsOfClothes["total_count_appeals"]++
-					for _, typ := range model.ViolationsClothes {
-						if strings.Contains(strings.ToLower(v), typ) {
-							stats.ViolationsOfClothes.TotalCount++
-							stats.ViolationsOfClothes.ViolationsOfClothes["total_count"]++
-							stats.ViolationsOfClothes.ViolationsOfClothes[typ]++
-						}
-					}
+					countTimeOfOffence(violationsOfClothes.CountByYears, timeOfOffence)
+					stats.countStats(&violationsOfClothes, &violationsOfClothesSub, v, model.ViolationsClothes)
 				case "violations_of_food":
-					countTimeOfOffence(stats.ViolationsOfFood.CountByYears, timeOfOffence)
-					stats.ViolationsOfFood.TotalCountAppeals++
-					stats.ViolationsOfFood.ViolationsOfFood["total_count_appeals"]++
-					for _, typ := range model.ViolationsFoodTypes {
-						if strings.Contains(strings.ToLower(v), typ) {
-							stats.ViolationsOfFood.TotalCount++
-							stats.ViolationsOfFood.ViolationsOfFood["total_count"]++
-							stats.ViolationsOfFood.ViolationsOfFood[typ]++
-						}
-					}
+					countTimeOfOffence(violationsOfFood.CountByYears, timeOfOffence)
+					stats.countStats(&violationsOfFood, &violationsOfFoodSub, v, model.ViolationsFoodTypes)
 				case "violations_of_medical_care":
-					countTimeOfOffence(stats.ViolationsOfMedicalCare.CountByYears, timeOfOffence)
-					stats.ViolationsOfMedicalCare.TotalCountAppeals++
-					stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare["total_count_appeals"]++
-					for _, typ := range model.ViolationsMedicalCareTypes {
-						if strings.Contains(strings.ToLower(v), typ) {
-							stats.ViolationsOfMedicalCare.TotalCount++
-							stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare["total_count"]++
-							stats.ViolationsOfMedicalCare.ViolationsOfMedicalCare[typ]++
-						}
-					}
+					countTimeOfOffence(violationsOfMedicalCare.CountByYears, timeOfOffence)
+					stats.countStats(&violationsOfMedicalCare, &violationsOfMedicalCareSub, v, model.ViolationsMedicalCareTypes)
 				case "violations_religious_rites_from_employees":
-					countTimeOfOffence(stats.Religion.CountByYears, timeOfOffence)
-					stats.Religion.TotalCountAppeals++
-					stats.Religion.ViolationsReligiousRitesFromEmployees["total_count_appeals"]++
-					for _, typ := range model.ViolationsReligiousViolations {
-						if strings.Contains(strings.ToLower(v), typ) {
-							stats.Religion.TotalCount++
-							stats.Religion.ViolationsReligiousRitesFromEmployees["total_count"]++
-							stats.Religion.ViolationsReligiousRitesFromEmployees[typ]++
-						}
-					}
+					countTimeOfOffence(religion.CountByYears, timeOfOffence)
+					stats.countStats(&religion, &violationsReligiousRitesFromEmployees, v, model.ViolationsReligiousViolations)
 				case "violations_religious_rites_from_prisoners":
-					countTimeOfOffence(stats.Religion.CountByYears, timeOfOffence)
-					stats.Religion.TotalCountAppeals++
-					stats.Religion.ViolationsReligiousRitesFromPrisoners["total_count_appeals"]++
-					for _, typ := range model.ViolationsReligiousViolations {
-						if strings.Contains(strings.ToLower(v), typ) {
-							stats.Religion.TotalCount++
-							stats.Religion.ViolationsReligiousRitesFromPrisoners["total_count"]++
-							stats.Religion.ViolationsReligiousRitesFromPrisoners[typ]++
-						}
-					}
+					countTimeOfOffence(religion.CountByYears, timeOfOffence)
+					stats.countStats(&religion, &violationsReligiousRitesFromPrisoners, v, model.ViolationsReligiousViolations)
 				case "violations_staging":
-					countTimeOfOffence(stats.ViolationsStaging.CountByYears, timeOfOffence)
-					stats.ViolationsStaging.TotalCountAppeals++
-					stats.ViolationsStaging.ViolationsStaging["total_count_appeals"]++
-					for _, typ := range model.ViolationsStagingViolations {
-						if strings.Contains(strings.ToLower(v), typ) {
-							stats.ViolationsStaging.TotalCount++
-							stats.ViolationsStaging.ViolationsStaging["total_count"]++
-							stats.ViolationsStaging.ViolationsStaging[typ]++
-						}
-					}
+					countTimeOfOffence(violationsStaging.CountByYears, timeOfOffence)
+					stats.countStats(&violationsStaging, &violationsStagingSub, v, model.ViolationsStagingViolations)
+				case "salary_of_prisoners":
+					countTimeOfOffence(job.CountByYears, timeOfOffence)
+					stats.countStats(&job, &salaryOfPrisoners, v, model.ViolationsSalaryTypes)
 				}
 			}
 			// если требуется ответы "Да" и "Нет" то минуем проверку на "Нет" в if перед верхним switch
 			if vType == "can_prisoners_submit_complaints" && v != "" {
-				countTimeOfOffence(stats.Communication.CountByYears, timeOfOffence)
-				stats.Communication.CanPrisonersSubmitComplaints[v]++
-				stats.Communication.CanPrisonersSubmitComplaints["total_count_appeals"]++
-				stats.Communication.TotalCountAppeals++
+				countTimeOfOffence(communication.CountByYears, timeOfOffence)
+				canPrisonersSubmitComplaints.Values[v]++
+				canPrisonersSubmitComplaints.Values["total_count_appeals"]++
+				communication.TotalCountAppeals++
 				if strings.ToLower(v) == "нет" {
-					stats.Communication.TotalCount++
-					stats.Communication.CanPrisonersSubmitComplaints["total_count"]++
+					communication.TotalCount++
+					canPrisonersSubmitComplaints.Values["total_count"]++
 				}
+				stats[communication.Name] = communication
+				communication.Subcategories[canPrisonersSubmitComplaints.Name] = canPrisonersSubmitComplaints
 			} else if vType == "corruption_from_employees" {
-				countTimeOfOffence(stats.Corruption.CountByYears, timeOfOffence)
-				stats.Corruption.TotalCountAppeals++
-				stats.Corruption.CorruptionFromEmployees["total_count_appeals"]++
-				vLower := strings.ToLower(v)
-				if vLower == "да" || vLower == "нет" || vLower == "затрудняюсь ответить" {
-					if vLower == "да" {
-						stats.Corruption.CorruptionFromEmployees["total_count"]++
-						stats.Corruption.TotalCount++
-					}
-					stats.Corruption.CorruptionFromEmployees[v]++
-				}
+				countTimeOfOffence(corruption.CountByYears, timeOfOffence)
+				stats.countYesNotDifficult(&corruption, &corruptionFromEmployees, v)
 			} else if vType == "extortions_from_prisoners" {
-				countTimeOfOffence(stats.Corruption.CountByYears, timeOfOffence)
-				stats.Corruption.TotalCountAppeals++
-				stats.Corruption.ExtortionsFromPrisoners["total_count_appeals"]++
-				vLower := strings.ToLower(v)
-				if vLower == "да" || vLower == "нет" || vLower == "затрудняюсь ответить" {
-					if vLower == "да" {
-						stats.Corruption.TotalCount++
-						stats.Corruption.ExtortionsFromPrisoners["total_count"]++
-					}
-					stats.Corruption.ExtortionsFromPrisoners[v]++
-				}
+				countTimeOfOffence(corruption.CountByYears, timeOfOffence)
+				stats.countYesNotDifficult(&corruption, &extortionsFromPrisoners, v)
 			} else if vType == "labor_slavery" {
-				countTimeOfOffence(stats.Job.CountByYears, timeOfOffence)
-				stats.Job.TotalCountAppeals++
-				stats.Job.LaborSlavery["total_count_appeals"]++
-				vLower := strings.ToLower(v)
-				if vLower == "да" || vLower == "нет" || vLower == "затрудняюсь ответить" {
-					if vLower == "да" {
-						stats.Job.LaborSlavery["total_count"]++
-						stats.Job.TotalCount++
-					}
-					stats.Job.LaborSlavery[v]++
-				}
+				countTimeOfOffence(job.CountByYears, timeOfOffence)
+				stats.countYesNotDifficult(&job, &laborSlavery, v)
 			}
 			if v == "Да" {
-				stats.TotalCount++
+				// stats.TotalCount++
 			}
 		}
 	}
@@ -550,4 +335,36 @@ func countTimeOfOffence(count map[string]uint32, timeOfOffence string) {
 		}
 	}
 	return
+}
+
+// Подсчет статистики нарушений для аналитики
+// Для заданной category и subcategory считает value пробегаясь по violationsTypes
+func (stats stats) countStats(category *category, subcategory *subcategory, value string, violationsTypes []string) {
+	category.TotalCountAppeals++
+	for _, typ := range violationsTypes {
+		if strings.Contains(strings.ToLower(value), typ) {
+			category.TotalCount++
+			subcategory.TotalCount++
+			subcategory.Values[typ]++
+		}
+	}
+	stats[category.Name] = *category
+	category.Subcategories[subcategory.Name] = *subcategory
+}
+
+// Подсчет статистики нарушений для аналитики
+// Вопросы где ответы "да", "нет", "затрудняюсь ответить"
+func (stats stats) countYesNotDifficult(category *category, subcategory *subcategory, value string) {
+	category.TotalCountAppeals++
+	subcategory.Values["total_count_appeals"]++
+	vLower := strings.ToLower(value)
+	if vLower == "да" || vLower == "нет" || vLower == "затрудняюсь ответить" {
+		if vLower == "да" {
+			subcategory.Values["total_count"]++
+			category.TotalCount++
+		}
+		subcategory.Values[value]++
+	}
+	stats[category.Name] = *category
+	category.Subcategories[subcategory.Name] = *subcategory
 }
