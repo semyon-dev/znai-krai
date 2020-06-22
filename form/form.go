@@ -32,7 +32,7 @@ func Questions(c *gin.Context) {
 
 	data.newQuestionTextfield(
 		"time_of_offence",
-		"Укажите когда произошли нарушения о которых вы хотите рассказать?",
+		"Укажите когда, произошли нарушения, о которых вы хотите рассказать:",
 		true,
 		"2015-2018",
 		"",
@@ -84,22 +84,6 @@ func Questions(c *gin.Context) {
 	)
 
 	data.newQuestionChooseOne(
-		"provide_name_and_contacts_sure",
-		"Готовы ли вы сообщить свое имя и контакты?",
-		false,
-		valuesYesNo,
-	)
-
-	data.newQuestionTextfield(
-		"provide_name_and_contacts",
-		"Ваши контакты:",
-		false,
-		"Мамонтов Власий Демьянович, 89001112233",
-		"provide_name_and_contacts_sure",
-		nil,
-	)
-
-	data.newQuestionChooseOne(
 		"physical_impact_sure",
 		"Сталкивались ли вы с применением физического воздействия?",
 		false,
@@ -124,7 +108,7 @@ func Questions(c *gin.Context) {
 
 	data.newQuestionChooseOne(
 		"communication_with_lawyer_sure",
-		"Сталкивались ли вы с нарушениями связанные с общением с адвокатом",
+		"Сталкивались ли вы с нарушениями, связанными с общением с адвокатом?",
 		false,
 		valuesYesNoDifficult,
 	)
@@ -139,7 +123,7 @@ func Questions(c *gin.Context) {
 
 	data.newQuestionChooseOne(
 		"visits_with_relatives_sure",
-		"Сталкивались ли вы с нарушениями с предоставлением свиданий с родственниками?",
+		"Сталкивались ли вы с нарушениями, связанными с предоставлением свиданий с родственниками?",
 		false,
 		valuesYesNoDifficult,
 	)
@@ -154,7 +138,7 @@ func Questions(c *gin.Context) {
 
 	data.newQuestionChooseOne(
 		"violations_of_clothes_sure",
-		"Сталкивались ли вы с нарушениями связанные с одеждой?",
+		"Сталкивались ли вы с нарушениями, связанными с одеждой?",
 		false,
 		valuesYesNoDifficult,
 	)
@@ -169,7 +153,7 @@ func Questions(c *gin.Context) {
 
 	data.newQuestionChooseOne(
 		"violations_staging_sure",
-		"Сталкивались ли вы с нарушениями связанные с этапированием заключенных?",
+		"Сталкивались ли вы с нарушениями, связанными с этапированием заключенных?",
 		false,
 		valuesYesNoDifficult,
 	)
@@ -199,7 +183,7 @@ func Questions(c *gin.Context) {
 
 	data.newQuestionChooseOne(
 		"violations_religious_rites_sure",
-		"Сталкивались ли вы с нарушениями связанные с религией?",
+		"Сталкивались ли вы с нарушениями связанными с религией?",
 		false,
 		valuesYesNoDifficult,
 	)
@@ -222,7 +206,7 @@ func Questions(c *gin.Context) {
 
 	data.newQuestionChooseOne(
 		"psychological_impact_from_employees_sure",
-		"Сталкивались ли вы с нарушениями связанные с применением психологического воздействия?",
+		"Сталкивались ли вы с нарушениями, связанными с применением психологического воздействия?",
 		false,
 		valuesYesNoDifficult,
 	)
@@ -245,7 +229,7 @@ func Questions(c *gin.Context) {
 
 	data.newQuestionChooseOne(
 		"extortions_from_employees_sure",
-		"Сталкивались ли вы с нарушениями с фактами вымогательства со стороны сотрудников ФСИН?",
+		"Сталкивались ли вы с нарушениями,  связанными с фактами вымогательства со стороны сотрудников фсин?",
 		false,
 		valuesYesNoDifficult,
 	)
@@ -311,6 +295,22 @@ func Questions(c *gin.Context) {
 		"additional_information",
 		"Если ли у вас есть дополнительная информация, которой вы готовы поделиться с нами, то ее можно написать здесь:",
 		false,
+		nil,
+	)
+
+	data.newQuestionChooseOne(
+		"provide_name_and_contacts_sure",
+		"Готовы ли вы сообщить свое имя и контакты?",
+		false,
+		valuesYesNo,
+	)
+
+	data.newQuestionTextfield(
+		"provide_name_and_contacts",
+		"Ваши контакты:",
+		false,
+		"Мамонтов Власий Демьянович, 89001112233",
+		"provide_name_and_contacts_sure",
 		nil,
 	)
 
