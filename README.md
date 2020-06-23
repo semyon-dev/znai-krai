@@ -7,8 +7,8 @@
 * Go 1.14
 * MongoDB
 * Gin
-* Google Maps API
 * Google Sheets API
+* Google Maps API
 * Yandex Search API
 
 ### Ссылки
@@ -64,6 +64,7 @@ znai-krai is licensed under the Creative Commons Attribution NonCommercial Share
 * метод для сообщения новых нарушений (форм - заявок)
 ```
 POST /form
+!!! place_id string !!!
 Параметры нужно получать из GET /formQuestions
 ```
 
@@ -72,6 +73,7 @@ POST /form
 POST /form_corona
 Параметры:
 name_of_fsin string (название МЛС)
+place_id string
 region string
 info string
 comment_fsin string (Не нужен в данный момент)

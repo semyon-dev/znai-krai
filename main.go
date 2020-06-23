@@ -39,7 +39,7 @@ func main() {
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"znai-krai api": "v0.13.6",
+			"znai-krai api": "v0.14.0",
 		})
 	})
 
@@ -51,6 +51,7 @@ func main() {
 	// метод для получения аналитики
 	router.GET("/analytics", handlers.Analytics)
 
+	// пояснение - перевод
 	router.GET("/explanations", handlers.Explanations)
 
 	// все нарушения разом
@@ -63,7 +64,7 @@ func main() {
 	// метод для получения всех учреждений из нашей таблицы
 	router.GET("/corona_places", handlers.CoronaPlaces)
 
-	// отзывы с Google Maps
+	// Deprecated: отзывы с Google Maps
 	router.GET("/reviews/:name", handlers.Reviews)
 
 	// метод для создания новых форм - заявок

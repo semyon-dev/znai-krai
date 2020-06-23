@@ -101,8 +101,9 @@ type Violation struct {
 
 	Warn string `json:"warn" bson:"warn"` // 34 колонка
 
-	ID       primitive.ObjectID   `json:"_id" bson:"_id"`             // для монги
-	PlacesID []primitive.ObjectID `json:"places_id" bson:"places_id"` // 35 колонка?
+	ID       primitive.ObjectID   `json:"_id" bson:"_id"`             // ID самой заявки
+	PlaceID  string               `json:"place_id" bson:"place_id"`   // ID места от фронтенда
+	PlacesID []primitive.ObjectID `json:"places_id" bson:"places_id"` // 35 колонка
 }
 
 type Position struct {
@@ -119,11 +120,12 @@ type CoronaViolation struct {
 
 	Position `json:"position" bson:"position"`
 
-	PlaceID primitive.ObjectID `json:"place_id" bson:"place_id"`
+	PlaceID       primitive.ObjectID `json:"-" bson:"place_id"`
+	PlaceIDString string             `json:"place_id" bson:"-"` // ID места от фронтенда
 
 	Status string `json:"status" bson:"status"`
 
-	Source string `json:"source" bson:"source"`
+	Source string `json:"source" bson:"source"` // источник, например "Сайт"
 }
 
 // полная структура учреждения ФСИН
@@ -140,7 +142,7 @@ type Place struct {
 	// долгота - 5 колонка
 	Position `json:"position" bson:"position"`
 
-	Coronavirus bool `json:"coronavirus" bson:"coronavirus"`
+	IsCoronavirus bool `json:"coronavirus" bson:"coronavirus"`
 
 	// Общее кол-во нарушений по нашей статистике
 	NumberOfViolations uint64 `json:"number_of_violations" bson:"numberofviolations"` // 6 колонка

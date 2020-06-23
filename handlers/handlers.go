@@ -53,7 +53,7 @@ func Places(c *gin.Context) {
 						}
 					}
 				}
-				if place.Coronavirus {
+				if place.IsCoronavirus {
 					for _, corona := range mongoCoronaViolations {
 						if corona.PlaceID == place.ID {
 							place.CoronaViolations = append(place.CoronaViolations, corona)
@@ -137,7 +137,7 @@ func NewForm(c *gin.Context) {
 		message = "error: " + err.Error()
 		checkError(err)
 	} else {
-		form.Source = "сайт"
+		form.Source = "Сайт " + c.GetHeader("Host")
 		err = sheet.AddViolation(form)
 		if err == nil {
 			status = http.StatusOK
@@ -163,7 +163,7 @@ func NewFormCorona(c *gin.Context) {
 		message = "error: " + err.Error()
 		log.HandleErr(err)
 	} else {
-		form.Source = "сайт"
+		form.Source = "Сайт " + c.GetHeader("Host")
 		err = sheet.AddCoronaViolation(form)
 		if err == nil {
 			status = http.StatusOK
@@ -178,7 +178,7 @@ func NewFormCorona(c *gin.Context) {
 	})
 }
 
-// новая форма нарушения по коронавируса
+// новая подписка на рассылку
 func NewMailing(c *gin.Context) {
 	var form model.Mailing
 	var message string
