@@ -32,8 +32,12 @@ func ConnectBot() {
 
 // логирование в консоль и телеграмм бота
 func HandleErr(err error) {
-	fmt.Println(err)
-	hooked.Error().Msg("Ошибка на бэкенде: " + err.Error())
+	HandleErrWithMsg("", err)
+}
+
+func HandlePanicWitMsg(msg string, err error) {
+	HandleErrWithMsg(msg, err)
+	panic(err)
 }
 
 // логирование в консоль и телеграмм бота с сообщением

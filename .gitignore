@@ -20,3 +20,4 @@ credentials.json
 .env
 critic*
 util
+db/util.go

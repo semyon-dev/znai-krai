@@ -108,7 +108,7 @@ func FindPlace(position model.Position) (place model.Place, err error) {
 
 func Violations() (violations []model.Violation) {
 	violationsCollection := db.Collection("violations")
-	cursor, err := violationsCollection.Find(context.TODO(), bson.M{})
+	cursor, err := violationsCollection.Find(context.TODO(), bson.M{"approved": true})
 	if err != nil {
 		log.HandleErr(err)
 	}
