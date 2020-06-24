@@ -76,7 +76,6 @@ name_of_fsin string (название МЛС)
 place_id string
 region string
 info string
-comment_fsin string (Не нужен в данный момент)
 ```
 
 * метод для сообщения ошибок/багов
