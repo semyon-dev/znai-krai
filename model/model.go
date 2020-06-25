@@ -11,9 +11,9 @@ type Violation struct {
 	// Какой Ваш статус?
 	Status string `json:"status" bson:"status" binding:"required"`
 	// В каком регионе находится учреждение ФСИН о котором Вы рассказали?
-	Region string `json:"region" bson:"region" binding:"required"`
+	Region string `json:"region" bson:"region"`
 	// О каком учреждении ФСИН Вы рассказали?
-	FSINOrganization string `json:"fsin_organization" binding:"required" bson:"fsin_organization"`
+	FSINOrganization string `json:"fsin_organization" bson:"fsin_organization"`
 	// Укажите когда произошли нарушения о которых Вы рассказали?
 	TimeOfOffence string `json:"time_of_offence" bson:"time_of_offence"`
 
