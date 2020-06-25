@@ -112,19 +112,20 @@ type Position struct {
 }
 
 type CoronaViolation struct {
-	Date        string `json:"date" bson:"date"`
+	Date        string `json:"date" bson:"date"` // заполняется на бэкенде
 	NameOfFSIN  string `json:"name_of_fsin" bson:"name_of_fsin"`
 	Region      string `json:"region" bson:"region"`
 	Info        string `json:"info" bson:"info"`
 	Status      string `json:"status" bson:"status"`
 	CommentFSIN string `json:"comment_fsin" bson:"comment_fsin"`
+	Contacts string `json:"contacts" bson:"contacts"`
 
-	Position `json:"position" bson:"position"`
+	Position `json:"position" bson:"position"` // заполняется на бэкенде
 
-	PlaceID       primitive.ObjectID `json:"-" bson:"place_id"`
+	PlaceID       primitive.ObjectID `json:"-" bson:"place_id"` // заполняется на бэкенде
 	PlaceIDString string             `json:"place_id" bson:"-"` // ID места от фронтенда
 
-	Source string `json:"source" bson:"source"` // источник, например "Сайт"
+	Source string `json:"source" bson:"source"` // источник, например "Сайт" (заполняется на бэкенде)
 }
 
 // полная структура учреждения ФСИН
