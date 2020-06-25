@@ -306,7 +306,7 @@ func Questions(c *gin.Context) {
 	)
 
 	data.newQuestionTextfield(
-		"provide_name_and_contacts",
+		"contacts",
 		"Ваши контакты:",
 		false,
 		"Мамонтов Власий Демьянович, 89001112233",
