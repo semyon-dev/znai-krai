@@ -116,14 +116,13 @@ type CoronaViolation struct {
 	NameOfFSIN  string `json:"name_of_fsin" bson:"name_of_fsin"`
 	Region      string `json:"region" bson:"region"`
 	Info        string `json:"info" bson:"info"`
+	Status      string `json:"status" bson:"status"`
 	CommentFSIN string `json:"comment_fsin" bson:"comment_fsin"`
 
 	Position `json:"position" bson:"position"`
 
 	PlaceID       primitive.ObjectID `json:"-" bson:"place_id"`
 	PlaceIDString string             `json:"place_id" bson:"-"` // ID места от фронтенда
-
-	Status string `json:"status" bson:"status"`
 
 	Source string `json:"source" bson:"source"` // источник, например "Сайт"
 }

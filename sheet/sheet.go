@@ -80,7 +80,8 @@ func AddCoronaViolation(coronaForm model.CoronaViolation) error {
 	formsSheet.Update(row, 4, coronaForm.Info)
 	formsSheet.Update(row, 5, coronaForm.CommentFSIN)
 	formsSheet.Update(row, 6, coronaForm.Source) // источник данных
-	formsSheet.Update(row, 7, coronaForm.PlaceIDString)
+	formsSheet.Update(row, 7, coronaForm.Status)
+	formsSheet.Update(row, 8, coronaForm.PlaceIDString)
 	err = formsSheet.Synchronize()
 	checkError(err)
 	return err
