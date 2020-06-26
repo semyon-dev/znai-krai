@@ -18,6 +18,8 @@ var (
 	MongoDBPass             string
 	TelegramAPIToken        string
 	TelegramChatID          string
+	GinMode                 string
+	Port                    string
 )
 
 // функция загрузки конфигов из .env файла/переменных окружения
@@ -37,4 +39,15 @@ func Load() {
 	MongoDBLogin = os.Getenv("MONGO_DB_LOGIN")
 	TelegramAPIToken = os.Getenv("TELEGRAM_BOT")
 	TelegramChatID = os.Getenv("CHAT_LOGS")
+
+	Port = os.Getenv("PORT")
+	if Port == "" {
+		Port = "8080"
+	}
+	GinMode = os.Getenv("GIN_MODE")
+	if GinMode == "" {
+		GinMode = "debug"
+	}
 }
+
+const APIVersion = "v1.0.1"

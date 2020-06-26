@@ -11,7 +11,6 @@ import (
 	mylog "github.com/semyon-dev/znai-krai/log"
 	"github.com/semyon-dev/znai-krai/sheet"
 	"net/http"
-	"os"
 )
 
 func main() {
@@ -22,7 +21,7 @@ func main() {
 	config.Load()
 	mylog.ConnectBot()
 
-	gin.SetMode(os.Getenv("GIN_MODE"))
+	gin.SetMode(config.GinMode)
 
 	// Подключение to Google Sheets
 	sheet.Connect()
@@ -38,7 +37,7 @@ func main() {
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"znai-krai api": "v1.0.1",
+			"znai-krai API": config.APIVersion,
 		})
 	})
 
@@ -79,12 +78,8 @@ func main() {
 	// подписка на почтовую рассылку
 	router.POST("/mailing", handlers.NewMailing)
 
-	port := os.Getenv("PORT")
-	if len(port) == 0 {
-		port = "8080"
-	}
-	err := router.Run(":" + port)
+	err := router.Run(":" + config.Port)
 	if err != nil {
-		mylog.HandlePanicWitMsg("Не получилось запустить", err)
+		mylog.HandlePanicWitMsg("Не получилось запустить: ", err)
 	}
 }
