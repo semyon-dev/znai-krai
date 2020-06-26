@@ -137,7 +137,7 @@ func NewForm(c *gin.Context) {
 		message = "error: " + err.Error()
 		checkError(err)
 	} else {
-		form.Source = "Сайт " + c.GetHeader("Host")
+		form.Source = "Сайт " + c.Request.URL.String()
 		err = sheet.AddViolation(form)
 		if err == nil {
 			status = http.StatusOK
@@ -163,7 +163,7 @@ func NewFormCorona(c *gin.Context) {
 		message = "error: " + err.Error()
 		log.HandleErr(err)
 	} else {
-		form.Source = "Сайт " + c.GetHeader("Host")
+		form.Source = "Сайт " + c.Request.URL.String()
 		err = sheet.AddCoronaViolation(form)
 		if err == nil {
 			status = http.StatusOK
