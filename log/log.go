@@ -55,6 +55,7 @@ func (h ReportHook) Run(e *zerolog.Event, level zerolog.Level, msg string) {
 
 func sendToBot(text string) {
 	msg := tgbotapi.NewMessage(int64(TelegramChatIDInt), text)
+	msg.DisableWebPagePreview = true
 	_, err := bot.Send(msg)
 	if err != nil {
 		log.Err(err)
