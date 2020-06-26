@@ -4,7 +4,7 @@
 <img src="https://github.com/semyon-dev/znai-krai/blob/master/img.png" alt="drawing" width="500"/>
 
 ### Используемые технологии на бэкенде
-* Go 1.14
+* Golang v1.14
 * MongoDB
 * Gin
 * Google Sheets API
@@ -36,9 +36,84 @@ znai-krai is licensed under the Creative Commons Attribution NonCommercial Share
 
 Протокол: HTTP, формат данных: JSON
 
-* методы для получения ФСИН учреждений \
-Все сразу `GET /places` \
-Конкретное `GET /places/<id>`
+<details>
+<summary>методы для получения ФСИН учреждений</summary>
+
+Все сразу 
+  
+```
+GET /places
+```
+Ответ: массив мест:
+```
+[
+     {"_id": "5ed2c5fd0c4a85b90ef09431",
+      "name": "ФКУ «ИК № 10 ГУФСИН по Приморскому краю»",
+      "type": "Исправительная колония",
+      "position": {
+        "lat": 43.987453,
+        "lng": 132.337293
+      },
+      "coronavirus": false,
+      "number_of_violations": 0},
+]
+```
+Пояснение:
+`_id` - уникальный id места (нужен для /places/:id) \
+`name` - полное название учреждения \
+`type` - тип колонии \
+`position` - геолокация \
+`coronavirus` - имеется ли информация о коронавирусе \
+`number_of_violations` - кол-во нарушений по нашей информации \
+
+Конкретное место:
+```
+GET /places/<id>
+```
+Пример ответа для запроса /places/5ed2c5fd0c4a85b90ef09431:
+```
+{
+  "place": {
+    "_id": "5ed2c5fd0c4a85b90ef09431",
+    "name": "ФКУ «ИК № 10 ГУФСИН по Приморскому краю»",
+    "type": "Исправительная колония",
+    "position": {
+      "lat": 43.987453,
+      "lng": 132.337293
+    },
+    "coronavirus": false,
+    "number_of_violations": 0,
+    "location": "Михайловский район, пос. Горное",
+    "notes": "",
+    "phones": [
+      "+7 (42346) 3-82-33",
+      "+7 (42346) 3-81-31"
+    ],
+    "hours": "пн-пт 8:00–16:12",
+    "website": "http://25.fsin.su/kontaktnaya-informatsiya-po-uchrezhdeniyam-kraya.php?clear_cache=Y",
+    "address": "Россия, Приморский край, Михайловский район, поселок Горное, улица Ленина, 25",
+    "warning": "",
+    "violations": null,
+    "corona_violations": null
+  }
+}
+```
+Помимо параметров из /places будут:
+`location` - местоположение (Город, поселок и тд)
+`notes` - заметки учреждения (из википедии)
+`phones` - массив телефонов
+`hours` - часы работы
+`website` - веб сайт
+`address` - полный адрес
+`warning` - предупреждение (например, место нуждается в проверке)
+`violations` - нарушения
+`corona_violations` - информация о коронавирусе
+
+</details>
+
+<details>
+<summary>методы для получения Нарушений</summary>
+
 Нарушения (в том числе по короне) есть только для конкретных учреждений
 
 * получение всех нарушений у которых есть информация по коронавирусу \
@@ -46,6 +121,8 @@ znai-krai is licensed under the Creative Commons Attribution NonCommercial Share
 
 * получение всех нарушений \
 `GET /violations`
+
+</details>
 
 * аналитика по разным параметрам (общая статистика) \
 `GET /analytics`
