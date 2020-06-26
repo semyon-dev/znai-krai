@@ -389,12 +389,12 @@ func Report(c *gin.Context) {
 type QuestionsData []question
 
 type question struct {
-	Name     string      `json:"name"`
-	Question string      `json:"question"`
-	Required bool        `json:"required"`
-	Requires string      `json:"requires"`
-	Type     string      `json:"type"`
-	Values   [...]string `json:"values"`
-	Hint     string      `json:"hint"`
-	Html     string      `json:"button"`
+	Name     string   `json:"name"`
+	Question string   `json:"question"`
+	Required bool     `json:"required"`
+	Requires string   `json:"requires"`
+	Type     string   `json:"type"`
+	Values   []string `json:"values"`
+	Hint     string   `json:"hint"`
+	Html     string   `json:"button"`
 }
