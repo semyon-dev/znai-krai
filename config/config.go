@@ -50,4 +50,4 @@ func Load() {
 	}
 }
 
-const APIVersion = "v1.0.1"
+const APIVersion = "v1.0.2"

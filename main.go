@@ -35,27 +35,30 @@ func main() {
 
 	router := gin.Default()
 	router.Use(cors.Default())
-	private := cors.New(cors.Config{
-		AllowAllOrigins: false,
-		AllowOrigins:
-		[]string{
-			"https://znaikrai.herokuapp.com/",
-			"http://znaikrai.herokuapp.com/",
-			"https://znai-krai.zekovnet.ru/",
-			"https://znay-kray.zekovnet.ru/",
-			"https://znai-krai.zekovnet.ru/",
-			"https://znaj-kraj.zekovnet.ru/",
-			"http://znaj-kraj.zekovnet.ru/",
-			"http://znai-krai.zekovnet.ru/",
-			"http://znay-kray.zekovnet.ru/",
-			"http://znai-krai.zekovnet.ru/",
-		},
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
-		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Host"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	})
+	private := cors.Default()
+	if config.GinMode == "release" {
+		private = cors.New(cors.Config{
+			AllowAllOrigins: false,
+			AllowOrigins:
+			[]string{
+				"https://znaikrai.herokuapp.com/",
+				"http://znaikrai.herokuapp.com/",
+				"https://znai-krai.zekovnet.ru/",
+				"https://znay-kray.zekovnet.ru/",
+				"https://znai-krai.zekovnet.ru/",
+				"https://znaj-kraj.zekovnet.ru/",
+				"http://znaj-kraj.zekovnet.ru/",
+				"http://znai-krai.zekovnet.ru/",
+				"http://znay-kray.zekovnet.ru/",
+				"http://znai-krai.zekovnet.ru/",
+			},
+			AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
+			AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Host"},
+			ExposeHeaders:    []string{"Content-Length"},
+			AllowCredentials: true,
+			MaxAge:           12 * time.Hour,
+		})
+	}
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
