@@ -6,6 +6,7 @@ import (
 	log2 "github.com/semyon-dev/znai-krai/log"
 	"github.com/semyon-dev/znai-krai/model"
 	"net/http"
+	"time"
 )
 
 func Questions(c *gin.Context) {
@@ -370,7 +371,7 @@ type report struct {
 	Email      string `json:"email"` // почта для обратной связи
 	Bug        string `json:"bug"`
 	PlaceId    string `json:"place_id"`
-	NameOfFSIN string `json:"name_of_fsin"`
+	NameOfFSIN string `json:"fsin_organization"`
 }
 
 func Report(c *gin.Context) {
@@ -382,7 +383,7 @@ func Report(c *gin.Context) {
 		return
 	}
 	hooked := log.Hook(log2.ReportHook{})
-	hooked.Error().Msg("Новый report: \n" + report.Bug + "\n email: " + report.Email + "\n Название МЛС: " + report.NameOfFSIN + "\n place_id: " + report.PlaceId)
+	hooked.Error().Msg("Новый report:\n" + report.Bug + "\nemail: " + report.Email + "\nНазвание МЛС: " + report.NameOfFSIN + "\nplace_id: " + report.PlaceId + "\n" + time.Now().Format("2006.01.02 15:04:05"))
 	c.JSON(http.StatusOK, report)
 }
 
