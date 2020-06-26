@@ -382,7 +382,7 @@ func Report(c *gin.Context) {
 		return
 	}
 	hooked := log.Hook(log2.ReportHook{})
-	hooked.Error().Msg("new report: " + report.Bug + ", email: " + report.Email + " name and id " + report.NameOfFSIN + " id: " + report.PlaceId)
+	hooked.Error().Msg("new report: " + report.Bug + ", email: " + report.Email + " name: " + report.NameOfFSIN + " id: " + report.PlaceId)
 	c.JSON(http.StatusOK, report)
 }
 
