@@ -11,6 +11,7 @@ import (
 	mylog "github.com/semyon-dev/znai-krai/log"
 	"github.com/semyon-dev/znai-krai/sheet"
 	"net/http"
+	"time"
 )
 
 func main() {
@@ -34,6 +35,27 @@ func main() {
 
 	router := gin.Default()
 	router.Use(cors.Default())
+	private := cors.New(cors.Config{
+		AllowAllOrigins: false,
+		AllowOrigins:
+		[]string{
+			"https://znaikrai.herokuapp.com/",
+			"http://znaikrai.herokuapp.com/",
+			"https://znai-krai.zekovnet.ru/",
+			"https://znay-kray.zekovnet.ru/",
+			"https://znai-krai.zekovnet.ru/",
+			"https://znaj-kraj.zekovnet.ru/",
+			"http://znaj-kraj.zekovnet.ru/",
+			"http://znai-krai.zekovnet.ru/",
+			"http://znay-kray.zekovnet.ru/",
+			"http://znai-krai.zekovnet.ru/",
+		},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Host"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	})
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -62,21 +84,23 @@ func main() {
 	// метод для получения всех учреждений из нашей таблицы
 	router.GET("/corona_places", handlers.CoronaPlaces)
 
-	// Deprecated: отзывы с Google Maps
-	router.GET("/reviews/:name", handlers.Reviews)
-
-	// метод для создания новых форм - заявок
-	router.POST("/form", handlers.NewForm)
-	router.POST("/form_corona", handlers.NewFormCorona)
-
 	// получение всех вопросов для заполнения со стороны клиента
 	router.GET("/formQuestions", form.Questions)
 
+	router.Use(private)
+
+	// Deprecated: отзывы с Google Maps
+	router.GET("/reviews/:name", handlers.Reviews).Use(private)
+
+	// метод для создания новых форм - заявок
+	router.POST("/form", handlers.NewForm).Use(private)
+	router.POST("/form_corona", handlers.NewFormCorona).Use(private)
+
 	// репорт для ошибок/багов
-	router.POST("/report", form.Report)
+	router.POST("/report", form.Report).Use(private)
 
 	// подписка на почтовую рассылку
-	router.POST("/mailing", handlers.NewMailing)
+	router.POST("/mailing", handlers.NewMailing).Use(private)
 
 	err := router.Run(":" + config.Port)
 	if err != nil {
