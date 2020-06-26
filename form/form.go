@@ -367,8 +367,10 @@ var valuesStatusOther = []string{"Бывший заключенный", "Род�
 
 // для кнопки "сообщить об ошибке"
 type report struct {
-	Email string `json:"email"` // почта для обратной связи
-	Bug   string `json:"bug"`
+	Email      string `json:"email"` // почта для обратной связи
+	Bug        string `json:"bug"`
+	PlaceId    string `json:"place_id"`
+	NameOfFSIN string `json:"name_of_fsin"`
 }
 
 func Report(c *gin.Context) {
@@ -380,19 +382,19 @@ func Report(c *gin.Context) {
 		return
 	}
 	hooked := log.Hook(log2.ReportHook{})
-	hooked.Error().Msg("new report: " + report.Bug + ", email: " + report.Email)
+	hooked.Error().Msg("new report: " + report.Bug + ", email: " + report.Email + " name and id " + report.NameOfFSIN + " id: " + report.PlaceId)
 	c.JSON(http.StatusOK, report)
 }
 
 type QuestionsData []question
 
 type question struct {
-	Name     string   `json:"name"`
-	Question string   `json:"question"`
-	Required bool     `json:"required"`
-	Requires string   `json:"requires"`
-	Type     string   `json:"type"`
-	Values   []string `json:"values"`
-	Hint     string   `json:"hint"`
-	Html     string   `json:"button"`
+	Name     string      `json:"name"`
+	Question string      `json:"question"`
+	Required bool        `json:"required"`
+	Requires string      `json:"requires"`
+	Type     string      `json:"type"`
+	Values   [...]string `json:"values"`
+	Hint     string      `json:"hint"`
+	Html     string      `json:"button"`
 }

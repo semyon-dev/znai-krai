@@ -27,14 +27,14 @@ znai-krai is licensed under the Creative Commons Attribution NonCommercial Share
 
 `go run main.go`
 
-Или скомпилировать:
+Или скомпилировать в единый бинарник:
 
 `go build main.go`
 
 ### Документация к API методам
 ##### Публичные методы
 
-Формат данных: JSON
+Протокол: HTTP, формат данных: JSON
 
 * методы для получения ФСИН учреждений \
 Все сразу `GET /places` \
@@ -56,19 +56,16 @@ znai-krai is licensed under the Creative Commons Attribution NonCommercial Share
 * получение всех вопросов для создания новых нарушений со стороны клиента `(/form)` \
 `GET /formQuestions`
 
-* Deprecated: отзывы с Google Maps \
-`GET /reviews/<name>`
-
 ##### Закрытые методы ([свяжитесь](https://t.me/semyon_dev), чтобы получить доступ)
 
-* метод для сообщения новых нарушений (форм - заявок)
+* сообщение новых нарушений (форм, заявок)
 ```
 POST /form
 !!! place_id string !!!
 Параметры нужно получать из GET /formQuestions
 ```
 
-* метод для создания сообщений по коронавирусу (форм - заявок)
+* создание сообщений по коронавирусу (форм - заявок)
 ```
 POST /form_corona
 Параметры:
@@ -78,18 +75,25 @@ region string
 info string
 ```
 
-* метод для сообщения ошибок/багов
+* сообщение ошибок/багов
 ```
 POST /report
 Параметры:
 email string
 bug string
+place_id string
+name_of_fsin string
 ```
 
-* метод для подписки на email рассылку
+* подписка на email рассылку
 ```
 POST /mailing
 Параметры:
 name string (Имя)
 email string (обязательный параметр)
+```
+
+* Deprecated: отзывы с Google Maps
+```
+GET /reviews/<name>
 ```

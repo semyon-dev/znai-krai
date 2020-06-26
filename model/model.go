@@ -118,7 +118,7 @@ type CoronaViolation struct {
 	Info        string `json:"info" bson:"info"`
 	Status      string `json:"status" bson:"status"`
 	CommentFSIN string `json:"comment_fsin" bson:"comment_fsin"`
-	Contacts string `json:"contacts" bson:"contacts"`
+	Contacts    string `json:"contacts" bson:"contacts"`
 
 	Position `json:"position" bson:"position"` // заполняется на бэкенде
 
