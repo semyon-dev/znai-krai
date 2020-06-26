@@ -17,13 +17,18 @@
 * Исходный код сайта: https://github.com/kniazevgeny/znaikrai
 
 ### Лицензия
-znai-krai is licensed under the Creative Commons Attribution NonCommercial ShareAlike (CC-NC-SA)
+znai-krai is licensed under the [Creative Commons Attribution NonCommercial ShareAlike (CC-NC-SA)](https://github.com/semyon-dev/znai-krai/blob/master/LICENSE)
 
 Лицензия позволяет другим перерабатывать, исправлять и развивать проект на некоммерческой основе, до тех пор пока они упоминают оригинальное авторство и лицензируют производные работы на аналогичных лицензионных условиях. Все новые работы, основанные на этом проекте, должны иметь эту же лицензию, поэтому все производные работы также должны носить некоммерческий характер.
 
-### Как запустить?
+### Contributing
+Мы открыты к предложениям и изменениям, вы можете испрользовать issues или [связаться с нами](https://t.me/semyon_dev).
 
-Необходимо добавить переменные окружения (смотри config)
+### Запуск
+
+Необходимо добавить переменные окружения (можно через .env в корне проекта)
+
+Подробнее смотрите пакет config
 
 `go run main.go`
 
@@ -112,7 +117,7 @@ GET /places/<id>
 </details>
 
 <details>
-<summary>методы для получения Нарушений</summary>
+<summary>методы для получения нарушений</summary>
 
 Нарушения (в том числе по короне) есть только для конкретных учреждений
 
@@ -224,6 +229,5 @@ email string (обязательный параметр)
 ```
 GET /reviews/<name>
 ```
-
 
 </details>
