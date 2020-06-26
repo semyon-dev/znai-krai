@@ -36,7 +36,7 @@ func main() {
 	router := gin.Default()
 	router.Use(cors.Default())
 	private := cors.Default()
-	if config.GinMode == "release" {
+	if config.GinMode == config.GinModeRelease {
 		private = cors.New(cors.Config{
 			AllowAllOrigins: false,
 			AllowOrigins:

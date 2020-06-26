@@ -46,8 +46,12 @@ func Load() {
 	}
 	GinMode = os.Getenv("GIN_MODE")
 	if GinMode == "" {
-		GinMode = "debug"
+		GinMode = GinModeDebug
 	}
 }
 
-const APIVersion = "v1.0.2"
+const (
+	APIVersion     = "v1.0.2"
+	GinModeRelease = "release"
+	GinModeDebug   = "debug"
+)
