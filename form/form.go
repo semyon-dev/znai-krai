@@ -379,12 +379,16 @@ func Report(c *gin.Context) {
 	err := c.ShouldBind(&report)
 	if err != nil {
 		log.Error().Err(err)
-		c.JSON(http.StatusBadRequest, report)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "вad request" + err.Error(),
+		})
 		return
 	}
 	hooked := log.Hook(log2.ReportHook{})
-	hooked.Error().Msg("Новый report:\n" + report.Bug + "\nemail: " + report.Email + "\nНазвание МЛС: " + report.NameOfFSIN + "\nplace_id: " + report.PlaceId + "\n" + time.Now().Format("2006.01.02 15:04:05"))
-	c.JSON(http.StatusOK, report)
+	hooked.Error().Msg("Новый report:\n" + "Текст: " + report.Bug + "\nemail: " + report.Email + "\nНазвание МЛС: " + report.NameOfFSIN + "\nplace_id: " + report.PlaceId + "\n" + "Время: " + time.Now().Format("2006.01.02 15:04:05") + "\nClientIP: " + c.ClientIP())
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
+	})
 }
 
 type QuestionsData []question
