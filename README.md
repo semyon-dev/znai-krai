@@ -124,21 +124,71 @@ GET /places/<id>
 
 </details>
 
-* аналитика по разным параметрам (общая статистика) \
-`GET /analytics`
-
+<details>
+<summary>методы для получения аналитики</summary>
+  
 * пояснения по разным параметрам (скорее для аналитики) \
 `GET /explanations`
 
+* аналитика по разным параметрам (общая статистика) \
+`GET /analytics`
+Пример ответа:
+```
+{
+  "total_count": 4995,
+  "total_count_appeals": 377,
+  "total_count_appeals_corona": 105,
+  "violations_stats": {
+    "communication": {
+      "total_count": 1124,
+      "total_count_appeals": 967,
+      "count_by_years": {
+        "2014": 54,
+        "2015": 103,
+        "2016": 99,
+        "2017": 76,
+        "2018": 104,
+        "2019": 2
+      },
+      "subcategories": {
+        "can_prisoners_submit_complaints": {
+          "total_count": 175,
+          "total_count_appeals": 366,
+          "values": {
+            "Да": 84,
+            "Затрудняюсь ответить": 107,
+            "Нет": 175
+          }
+        },
+       ...
+}
+```
+Параметры:
+`total_count` - общее кол-во нарушений по всех заявкам и типам
+`total_count_appeals` - общее кол-во заявок
+`total_count_appeals_corona` - общее кол-во заявок по коронавирусу
+`violations_stats` - категории аналитики, внутри:
+`subcategories` - подкатегории
+
+</details>
+
+<details>
+<summary>Другое</summary>
+  
 * получение всех вопросов для создания новых нарушений со стороны клиента `(/form)` \
 `GET /formQuestions`
 
-##### Закрытые методы ([свяжитесь](https://t.me/semyon_dev), чтобы получить доступ)
+</details>
 
+
+##### Закрытые методы ([свяжитесь](https://t.me/semyon_dev), чтобы получить доступ)
+<details>
+<summary>Закрытые методы</summary>
+  
 * сообщение новых нарушений (форм, заявок)
 ```
 POST /form
-!!! place_id string !!!
+place_id string
 Параметры нужно получать из GET /formQuestions
 ```
 
@@ -174,3 +224,6 @@ email string (обязательный параметр)
 ```
 GET /reviews/<name>
 ```
+
+
+</details>
