@@ -36,10 +36,10 @@ type Stats map[string]category
 
 func Connect() {
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.TODO(), 10*time.Second)
 	defer cancel()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(
-		"mongodb+srv://"+config.MongoDBLogin+":"+config.MongoDBPass+"@main-h6nko.mongodb.net/test?retryWrites=true&w=majority",
+		"mongodb://"+config.MongoDBLogin+":"+config.MongoDBPass+"@main-shard-00-00-h6nko.mongodb.net:27017,main-shard-00-01-h6nko.mongodb.net:27017,main-shard-00-02-h6nko.mongodb.net:27017/main?ssl=true&replicaSet=main-shard-0&authSource=admin&retryWrites=true&w=majority",
 	))
 	if err != nil {
 		log.HandleErr(err)
@@ -61,7 +61,7 @@ func Connect() {
 	}
 
 	db = client.Database("main")
-	fmt.Println("current db name " + db.Name())
+	fmt.Println("Текущая бд: " + db.Name())
 }
 
 func Places() (places []model.Place) {
