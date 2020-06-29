@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog"
 	"github.com/semyon-dev/znai-krai/config"
 	"github.com/semyon-dev/znai-krai/db"
 	"github.com/semyon-dev/znai-krai/form"
@@ -16,11 +15,9 @@ import (
 
 func main() {
 
-	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-
 	// загружаем конфиги (API ключи и прочее)
 	config.Load()
-	mylog.ConnectBot()
+	mylog.Start()
 
 	gin.SetMode(config.GinMode)
 

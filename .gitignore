@@ -21,3 +21,4 @@ credentials.json
 critic*
 util
 db/util.go
+logs.log

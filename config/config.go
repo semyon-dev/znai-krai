@@ -51,7 +51,7 @@ func Load() {
 }
 
 const (
-	APIVersion     = "v1.0.2"
+	APIVersion     = "v1.0.3"
 	GinModeRelease = "release"
 	GinModeDebug   = "debug"
 )
