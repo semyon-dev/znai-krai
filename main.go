@@ -65,6 +65,9 @@ func main() {
 		})
 	})
 
+	// robots.txt file
+	router.StaticFile("/robots.txt", "./robots.txt")
+
 	// Для обработки ошибки 404
 	router.NoRoute(func(c *gin.Context) {
 		c.JSON(404, gin.H{"message": "not found"})
