@@ -204,6 +204,7 @@ POST /form_corona
 name_of_fsin string (название МЛС)
 place_id string
 region string
+contacts string
 info string
 ```
 
