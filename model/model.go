@@ -111,6 +111,18 @@ type Position struct {
 	Lng float64 `json:"lng" bson:"lng"`
 }
 
+// для кнопки "сообщить об ошибке"
+type Report struct {
+	Email      string `json:"email"` // почта для обратной связи
+	Bug        string `json:"bug"`
+	PlaceId    string `json:"place_id"`
+	NameOfFSIN string `json:"fsin_organization"`
+	ClientIP   string `bson:"client_ip"`
+	Host       string `bson:"host"`
+	Origin     string `bson:"origin"`
+	Time       string `bson:"time"`
+}
+
 type CoronaViolation struct {
 	Date        string `json:"date" bson:"date"` // заполняется на бэкенде
 	NameOfFSIN  string `json:"name_of_fsin" bson:"name_of_fsin"`

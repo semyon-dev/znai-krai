@@ -2,11 +2,8 @@ package form
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog/log"
-	log2 "github.com/semyon-dev/znai-krai/log"
 	"github.com/semyon-dev/znai-krai/model"
 	"net/http"
-	"time"
 )
 
 func Questions(c *gin.Context) {
@@ -365,31 +362,6 @@ var valuesYesNoOther = []string{"Да", "Нет", "другое"}
 var valuesYesNoDifficult = []string{"Да", "Нет", "Затрудняюсь ответить"}
 var valuesYesNoDifficultOther = []string{"Да", "Нет", "Затрудняюсь ответить", "другое"}
 var valuesStatusOther = []string{"Бывший заключенный", "Родственник заключенного", "Заключенный в настоящее время", "Журналист", "Адвокат", "другое"}
-
-// для кнопки "сообщить об ошибке"
-type report struct {
-	Email      string `json:"email"` // почта для обратной связи
-	Bug        string `json:"bug"`
-	PlaceId    string `json:"place_id"`
-	NameOfFSIN string `json:"fsin_organization"`
-}
-
-func Report(c *gin.Context) {
-	var report report
-	err := c.ShouldBind(&report)
-	if err != nil {
-		log.Error().Err(err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "вad request" + err.Error(),
-		})
-		return
-	}
-	hooked := log.Hook(log2.ReportHook{})
-	hooked.Error().Msg("Новый report:\n" + "Текст: " + report.Bug + "\nemail: " + report.Email + "\nНазвание МЛС: " + report.NameOfFSIN + "\nplace_id: " + report.PlaceId + "\n" + "Время: " + time.Now().Format("2006.01.02 15:04:05") + "\nOrigin: " + c.GetHeader("Origin") + "\nHost: " + c.Request.Host + "\nClientIP: " + c.ClientIP())
-	c.JSON(http.StatusOK, gin.H{
-		"message": "ok",
-	})
-}
 
 type QuestionsData []question
 

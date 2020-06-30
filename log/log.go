@@ -7,9 +7,11 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/semyon-dev/znai-krai/config"
+	"github.com/semyon-dev/znai-krai/model"
 	defaultLog "log"
 	"os"
 	"strconv"
+	"time"
 )
 
 type ReportHook struct{}
@@ -89,4 +91,9 @@ func sendToBot(text string) {
 	if err != nil {
 		log.Err(err)
 	}
+}
+
+func SendReport(report model.Report) {
+	msg := "Новый report:\n" + "Текст: " + report.Bug + "\nemail: " + report.Email + "\nНазвание МЛС: " + report.NameOfFSIN + "\nplace_id: " + report.PlaceId + "\n" + "Время: " + time.Now().Format("2006.01.02 15:04:05") + "\nOrigin: " + report.Origin + "\nHost: " + report.Host + "\nClientIP: " + report.ClientIP
+	sendToBot(msg)
 }

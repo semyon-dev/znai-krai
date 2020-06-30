@@ -99,7 +99,7 @@ func main() {
 	router.POST("/form_corona", handlers.NewFormCorona).Use(private)
 
 	// репорт для ошибок/багов
-	router.POST("/report", form.Report).Use(private)
+	router.POST("/report", handlers.NewReport).Use(private)
 
 	// подписка на почтовую рассылку
 	router.POST("/mailing", handlers.NewMailing).Use(private)

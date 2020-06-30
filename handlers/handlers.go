@@ -7,6 +7,7 @@ import (
 	"github.com/semyon-dev/znai-krai/config"
 	"github.com/semyon-dev/znai-krai/db"
 	"github.com/semyon-dev/znai-krai/log"
+	//"github.com/rs/zerolog/log"
 	"github.com/semyon-dev/znai-krai/model"
 	"github.com/semyon-dev/znai-krai/sheet"
 	"googlemaps.github.io/maps"
@@ -149,6 +150,29 @@ func NewForm(c *gin.Context) {
 	}
 	c.JSON(status, gin.H{
 		"message": message,
+	})
+}
+
+func NewReport(c *gin.Context) {
+	var report model.Report
+	err := c.ShouldBind(&report)
+	if err != nil {
+		log.HandleErr(err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "вad request" + err.Error(),
+		})
+		return
+	}
+
+	report.Time = time.Now().Format("2006.01.02 15:04:05")
+	report.Origin = c.GetHeader("Origin")
+	report.Host = c.Request.Host
+	report.ClientIP = c.ClientIP()
+
+	db.InsertReport(report)
+	log.SendReport(report)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "ok",
 	})
 }
 

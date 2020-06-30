@@ -88,9 +88,18 @@ func ShortPlaces() (shortPlaces []model.ShortPlace) {
 	return shortPlaces
 }
 
-func AddCoronaViolation(violation model.CoronaViolation) {
+func InsertCoronaViolation(violation model.CoronaViolation) {
 	coronaViolations := db.Collection("corona_violations")
 	insertResult, err := coronaViolations.InsertOne(context.TODO(), violation)
+	if err != nil {
+		log.HandleErr(err)
+	}
+	fmt.Println("InsertedID ", insertResult.InsertedID)
+}
+
+func InsertReport(report model.Report) {
+	reportsCollection := db.Collection("reports")
+	insertResult, err := reportsCollection.InsertOne(context.TODO(), report)
 	if err != nil {
 		log.HandleErr(err)
 	}
