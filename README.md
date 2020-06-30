@@ -12,8 +12,8 @@
 * Yandex Search API
 
 ### Ссылки
-* Сайт проекта [znai-krai.zekovnet.ru](https://znai-krai.zekovnet.ru/) и [znaikrai.herokuapp.com](https://znaikrai.herokuapp.com/)
-* Публичный API https://api-znaikrai.herokuapp.com/
+* Сайт проекта [znai-krai.zekovnet.ru](https://znai-krai.zekovnet.ru/)
+* Публичный API https://api.znai-krai.zekovnet.ru/ и https://api-znaikrai.herokuapp.com/
 * Исходный код сайта: https://github.com/kniazevgeny/znaikrai
 
 ### Лицензия
