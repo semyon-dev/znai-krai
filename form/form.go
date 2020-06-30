@@ -364,7 +364,7 @@ var valuesYesNo = []string{"Да", "Нет"}
 var valuesYesNoOther = []string{"Да", "Нет", "другое"}
 var valuesYesNoDifficult = []string{"Да", "Нет", "Затрудняюсь ответить"}
 var valuesYesNoDifficultOther = []string{"Да", "Нет", "Затрудняюсь ответить", "другое"}
-var valuesStatusOther = []string{"Бывший заключенный", "Родственник заключенного", "Заключенный в настоящее время", "Адвокат", "другое"}
+var valuesStatusOther = []string{"Бывший заключенный", "Родственник заключенного", "Заключенный в настоящее время", "Журналист", "Адвокат", "другое"}
 
 // для кнопки "сообщить об ошибке"
 type report struct {

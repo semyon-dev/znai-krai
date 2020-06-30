@@ -4,6 +4,7 @@
 - add robots.txt
 - mongodb connections fixed for some servers
 - logging into file
+- small fixes and improvements 
 
 ## [1.0.2] - 26.06.2020
 - add CORS middleware
