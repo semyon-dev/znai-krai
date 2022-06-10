@@ -11,8 +11,7 @@ require (
 	github.com/rs/zerolog v1.19.0
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
-	go.mongodb.org/mongo-driver v1.3.3
-	golang.org/x/net v0.0.0-20200202094626-16171245cfb2 // indirect
+	go.mongodb.org/mongo-driver v1.5.1
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	googlemaps.github.io/maps v0.0.0-20200130222743-aef6b08443c7
