@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/gin-contrib/cors v1.3.1
-	github.com/gin-gonic/gin v1.7.7
+	github.com/gin-gonic/gin v1.9.0
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
 	github.com/google/uuid v1.1.1 // indirect
 	github.com/joho/godotenv v1.3.0
