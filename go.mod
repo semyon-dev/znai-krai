@@ -4,10 +4,12 @@ go 1.14
 
 require (
 	github.com/gin-contrib/cors v1.3.1
-	github.com/gin-gonic/gin v1.9.0
+	github.com/gin-gonic/gin v1.9.1
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
 	github.com/google/uuid v1.1.1 // indirect
 	github.com/joho/godotenv v1.3.0
+	github.com/kr/pretty v0.3.0 // indirect
+	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	github.com/rs/zerolog v1.19.0
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
@@ -16,4 +18,5 @@ require (
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	googlemaps.github.io/maps v0.0.0-20200130222743-aef6b08443c7
 	gopkg.in/Iwark/spreadsheet.v2 v2.0.0-20191122095212-08231195c43b
+	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
