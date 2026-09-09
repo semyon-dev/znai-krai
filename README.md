@@ -3,7 +3,7 @@
 
 <img src="https://github.com/semyon-dev/znai-krai/blob/master/img.png" alt="drawing" width="500"/>
 
-### Используемые технологии на бэкенде
+### Tech stack
 * Golang v1.14
 * MongoDB
 * Gin
@@ -13,7 +13,7 @@
 
 ### Ссылки
 * Сайт проекта [znai-krai.zekovnet.ru](https://znai-krai.zekovnet.ru/)
-* Публичный API https://api.znai-krai.zekovnet.ru/ и https://api-znaikrai.herokuapp.com/
+* Публичный API https://api.znai-krai.zekovnet.ru/
 * Исходный код сайта: https://github.com/kniazevgeny/znaikrai
 
 ### Лицензия
@@ -22,7 +22,7 @@ znai-krai is licensed under the [Creative Commons Attribution NonCommercial Shar
 Лицензия позволяет другим перерабатывать, исправлять и развивать проект на некоммерческой основе, до тех пор пока они упоминают оригинальное авторство и лицензируют производные работы на аналогичных лицензионных условиях. Все новые работы, основанные на этом проекте, должны иметь эту же лицензию, поэтому все производные работы также должны носить некоммерческий характер.
 
 ### Contributing
-Мы открыты к предложениям и изменениям, вы можете испрользовать issues или [связаться с нами](https://t.me/semyon_dev).
+Мы открыты к предложениям и изменениям
 
 ### Запуск
 
